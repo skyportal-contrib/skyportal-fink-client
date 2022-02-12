@@ -1,1 +1,1 @@
-#fink client read me
+# skyportal fink client read me
