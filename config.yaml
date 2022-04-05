@@ -1,0 +1,9 @@
+username: testuser
+password: null
+servers: localhost:9093
+mytopics:
+  - test_stream
+group_id: test_group
+testing: true
+skyportal_url: http://localhost:5000
+skyportal_token: fdabedf7-5721-4d36-a49d-9a99e066a16f
