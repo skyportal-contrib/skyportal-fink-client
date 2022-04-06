@@ -17,10 +17,7 @@ import post_fink_alerts as post_fink_alerts
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 data_path = basedir + '/sample.avro'
-
 schema_path = basedir + '/schemas/schema_test.avsc'
-
-taxonomy_dir = basedir + '/../data/taxonomy_demo.yaml'
 
 def generate_fake_alerts():
 

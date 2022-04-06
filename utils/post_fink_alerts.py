@@ -1,11 +1,6 @@
-from genericpath import exists
 import requests
 from astropy.time import Time
 import time
-import sys
-import os
-
-from itertools import chain
 
 def api(
     method, endpoint, data=None, token=None,
@@ -91,16 +86,16 @@ def get_all_stream_ids(url, token):
 def classification_exists_for_objs(object_id, url, token):
     classifications = api(
         "GET",
-        f"{url}/api/sources/classifications/{object_id}",
+        f"{url}/api/sources/{object_id}/classifications",
         token=token,
     )
-    return classifications.json()['data'] != {}
+    return classifications.json()['data'] != []
 
 
 def classification_id_for_objs(object_id, url, token):
     classifications = api(
         "GET",
-        f"{url}/api/sources/classifications/{object_id}",
+        f"{url}/api/sources/{object_id}/classifications",
         token=token,
     )
     data = {}
@@ -141,8 +136,6 @@ def post_source(object_id, ra, dec, group_ids, url, token):
     response = api(
         'POST', f"{url}/api/sources", data, token=token
     )
-    if response.status_code in (200, 400):
-        print(f'JSON response: {response.json()}')
     return (
         response.status_code,
         response.json()['data']['id'] if response.json()['data'] != {} else {},
@@ -150,7 +143,6 @@ def post_source(object_id, ra, dec, group_ids, url, token):
 
 
 def post_candidate(object_id, ra, dec, filter_ids, passed_at, url, token):
-    print(filter_ids)
     data = {
         "ra": ra,
         "dec": dec,
@@ -174,15 +166,13 @@ def post_candidate(object_id, ra, dec, filter_ids, passed_at, url, token):
         # "alias": null,
         # "detect_photometry_count": 0,
         # /!\ HARDCODED FILTER ID TO ONE, ISSUES WITH IT FOR THE MOMENT
-        "filter_ids": [1],
+        "filter_ids": filter_ids,
         # "passing_alert_id": 0,
         "passed_at": passed_at,
     }
     response = api(
         'POST', f"{url}/api/candidates", data, token=token
     )
-    if response.status_code in (200, 400):
-        print(f'JSON response: {response.json()}')
     return (
         response.status_code,
         response.json()['data']['ids'] if response.json()['data'] != {} else {},
@@ -229,8 +219,6 @@ def post_photometry(
     response = api(
         'POST', f"{url}/api/photometry", data, token=token
     )
-
-    print(f'HTTP code: {response.status_code}, {response.reason}')
     return (
         response.status_code,
         response.json()['data']['ids'] if response.json()['data'] != {} else {},
@@ -255,7 +243,6 @@ def post_classification(
         token=token,
     )
 
-    print(f'HTTP code: {response.status_code}, {response.reason}')
     return response.status_code, response.json()
 
 
@@ -275,7 +262,6 @@ def post_user(username, url, token):
         'POST', f"{url}/api/user", data, token=token
     )
 
-    print(f'HTTP code: {response.status_code}, {response.reason}')
     return (
         response.status_code,
         response.json()['data']['id'] if response.json()['data'] != {} else {},
@@ -300,8 +286,6 @@ def post_filters(name, stream_id, group_id, url, token):
     response = api(
         'POST', f"{url}/api/filters", data, token=token
     )
-    print('HAAA')
-    print(response.json()['data'])
     return (
         response.status_code,
         response.json()['data']['id'] if response.json()['data'] != {} else None,
@@ -335,15 +319,14 @@ def post_instruments(name, type, telescope_id, filters, url, token):
     )
 
 
-def post_fink_group(topic, url, token):
+def post_groups(name, url, token):
     data = {
-        "name": topic,
+        "name": name,
         "group_admins": [1],
     }
     response = api(
         'POST', f"{url}/api/groups", data, token=token
     )
-    print(f'HTTP code: {response.status_code}, {response.reason}, group posting')
     return (
         response.status_code,
         response.json()['data']['id'] if response.json()['data'] != {} else None,
@@ -362,7 +345,6 @@ def post_taxonomy(name, hierarchy, version, url, token):
     response = api(
         'POST', f"{url}/api/taxonomy", data, url, token=token
     )
-    print(f'HTTP code: {response.status_code}, {response.reason}')
     return (
         response.status_code,
         response.json()['data']['taxonomy_id']
@@ -374,7 +356,7 @@ def post_taxonomy(name, hierarchy, version, url, token):
 def update_classification(
     object_id, classification, probability, taxonomy_id, group_ids, url, token
 ):
-    data_classification = classification_id_for_objs(object_id, token)[1]
+    data_classification = classification_id_for_objs(object_id, url, token)[1]
     classification_id, author_id = (
         data_classification['id'],
         data_classification['author_id'],
@@ -392,7 +374,7 @@ def update_classification(
 
     response = api(
         'PUT',
-        f"{url}/api/classification/" + classification_id,
+        f'{url}/api/classification/{classification_id}',
         data,
         token=token,
     )
@@ -441,7 +423,7 @@ def init_skyportal(url, token):
     groups_dict = get_group_ids_and_name(url=url, token=token)[1]
     fink_id = None
     if 'Fink' not in list(groups_dict.keys()):
-        fink_id = post_fink_group('Fink', url=url, token=token)[1]
+        fink_id = post_groups('Fink', url=url, token=token)[1]
     else:
         fink_id = groups_dict['Fink']
     filters = get_all_filters(url=url, token=token)[1]
@@ -451,24 +433,23 @@ def init_skyportal(url, token):
             if filter['name'] == 'fink_filter':
                 filter_id = filter['id']
                 break
-    print(f'filter_id: {filter_id}')
     if not filter_id:
         filter_id = post_filters('fink_filter', stream_id, fink_id, url, token)[1]
     
     return (
-        stream_id,
         fink_id,
+        stream_id,
         filter_id,
     )
 
 # recursively look for a given class in a taxonomy hierarchy
-def class_exists_in_hierarchy(classification, branch, level):
+def class_exists_in_hierarchy(classification, branch):
     for tax_class in branch:
         if tax_class['class'] == classification:
             return True
         else: 
             if 'subclasses' in tax_class.keys():
-                exists =  class_exists_in_hierarchy(classification, tax_class['subclasses'],level+1)
+                exists =  class_exists_in_hierarchy(classification, tax_class['subclasses'])
                 if exists is not None:
                     return exists
     
@@ -476,12 +457,15 @@ def class_exists_in_hierarchy(classification, branch, level):
 
 def get_taxonomy_id_including_classification(classification, url, token):
     # find the id of a taxonomy that includes a given classification in its hierarchy
-    taxonomies = get_all_taxonomies(url, token)[1]
-    print('*************************************************************************')
-    for taxonomy in taxonomies:
-        exists = class_exists_in_hierarchy(classification, [taxonomy['hierarchy']],0)
-        if exists is not None:
-            return taxonomy['id']
+    status, taxonomies = get_all_taxonomies(url, token)
+    if status != 200:
+        return status, None
+    else:
+        for taxonomy in taxonomies:
+            exists = class_exists_in_hierarchy(classification, [taxonomy['hierarchy']])
+            if exists is not None:
+                return (200, taxonomy['id'])
+        return (404, None)
 
 
 
@@ -503,19 +487,20 @@ def from_fink_to_skyportal(
     fink_id,
     filter_id,
     stream_id,
+    taxonomy_id,
     url, 
     token,
 ): 
-    print('fink_id:', fink_id, 'filter_id:', filter_id, 'stream_id:', stream_id)
     instruments = get_all_instruments(url=url, token=token)[1]
     instrument_id = None
-    for existing_instrument in instruments.keys():
-        if instrument in existing_instrument.upper():
+    for existing_instrument in instruments:
+        if instrument.lower() in existing_instrument.lower():
             instrument_id = instruments[existing_instrument]
+            break
     if instrument_id is not None:
+        instrument_id = instruments[existing_instrument]
         source_ids = get_all_source_ids(url=url, token=token)[1]
         if object_id not in source_ids:
-            print('this source doesnt exist yet')
             post_source(object_id, ra, dec, [fink_id], url=url, token=token)
         passed_at = Time(mjd, format='mjd').isot
         post_candidate(object_id, ra, dec, [filter_id], passed_at, url=url, token=token)
@@ -536,20 +521,14 @@ def from_fink_to_skyportal(
             url=url, 
             token=token,
         )
-        # /!\ HARDCODED TAXONOMY ID TO ONE, TO IMPLEMENT A METHOD TO FIND THE RIGHT TAXONOMY ID, AND ADD ONE IF NEEDED
-        taxonomy_id = get_taxonomy_id_including_classification(classification, url, token)
-        if taxonomy_id is not None:
-            if classification_exists_for_objs(object_id, url=url, token=token):
-                update_classification(
-                    object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
-                )
-            else:
-                print('this classification doesnt exist yet')
-                print(classification, probability)
-                post_classification(
-                    object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
-                )
+        if classification_exists_for_objs(object_id, url=url, token=token):
+            update_classification(
+                object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
+            )
         else:
-            print("error: taxonomy id not found, this classification doesn't exist in any taxonomies")
+            post_classification(
+                object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
+            )
+        print(f'Candidate with source: {object_id}, classified as a {classification} added to SkyPortal')
     else:
         print('error: instrument named {} does not exist'.format(instrument))

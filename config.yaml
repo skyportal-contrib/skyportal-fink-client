@@ -2,8 +2,10 @@ username: testuser
 password: null
 servers: localhost:9093
 mytopics:
-  - test_stream
+  test_stream:
+    classification: kilonova
+    probability: 0.75
 group_id: test_group
 testing: true
 skyportal_url: http://localhost:5000
-skyportal_token: fdabedf7-5721-4d36-a49d-9a99e066a16f
+skyportal_token: 6976b3cb-d79a-44b9-83a1-b15aa2549052

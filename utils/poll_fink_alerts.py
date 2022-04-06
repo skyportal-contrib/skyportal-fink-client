@@ -1,10 +1,7 @@
 # coding: utf-8
-
-import sys
 import os
 import yaml
 from fink_client.consumer import AlertConsumer
-from fink_client.configuration import load_credentials
 
 from astropy.time import Time
 
@@ -17,51 +14,15 @@ with open(os.path.abspath(os.path.join(os.path.dirname(__file__)))+'/../config.y
     except yaml.YAMLError as exc:
         print(exc)
 
+
 def fid_to_filter(fid):
     switcher = {1: 'ztfg', 2: 'ztfr', 3: 'ztfi'}
     return switcher.get(fid)
 
-def topic_to_classification(topic):
-    switcher = {
-        'test_stream': 'kilonova',
-        'early_sn_candidates': 'Supernova',
-        'sn_candidates': 'Supernova',
-        'early_kn_candidates': 'kilonova',
-        'kn_candidates': 'kilonova',
-        'ftest_sn_candidates_ztf': 'Supernova',
-        'ftest_sso_ztf_candidates_ztf': 'Solar System Object',
-        'ftest_sso_fink_candidates_ztf': 'Solar System Object',
-    }
-    return switcher.get(topic)
-
-
-def topic_to_probability(topic):
-    switcher = {
-        'test_stream': 0.75,
-        'early_sn_candidates': 0.5,
-        'sn_candidates': 1,
-        'early_kn_candidates': 0.5,
-        'kn_candidates': 1,
-        'ftest_sn_candidates_ztf': 0.75,
-        'ftest_sso_ztf_candidates_ztf': 0.75,
-        'ftest_sso_fink_candidates_ztf': 0.75,
-    }
-    return switcher.get(topic)
-
-
 def poll_alerts():
-    """Connect to and poll fink servers once.
-
-    Parameters
-    ----------
-    myconfig: dic
-        python dictionnary containing credentials
-    topics: list of str
-        List of string with topic names
     """
-
-    fink_id, filter_id, stream_id = post_fink_alerts.init_skyportal(conf['skyportal_url'], conf['skyportal_token'])
-    print('fink_id:', fink_id, 'filter_id:', filter_id, 'stream_id:', stream_id)
+    Connect to and poll alerts from fink servers to post them in skyportal using its API
+    """
 
     myconfig = {
         "username": conf['username'],
@@ -71,6 +32,24 @@ def poll_alerts():
 
     if conf['password'] is not None:
         myconfig['password'] = conf['password']
+    
+    # extract all topics from conf['mytopics'] and create a list of topics names
+    topics = list(conf['mytopics'].keys())
+    print(f'Fink topics you subcripted to: {topics}')
+    
+    taxonomy_ids = {}
+    for topic in topics:
+        status, taxonomy_id = post_fink_alerts.get_taxonomy_id_including_classification(conf['mytopics'][topic]['classification'] ,conf['skyportal_url'], conf['skyportal_token'])
+        if status != 401:
+            if taxonomy_id is not None:
+                taxonomy_ids[topic] = taxonomy_id
+            else:
+                return print('Classification not found in taxonomy:', conf['mytopics'][topic]['classification'])
+        else:
+            return print('Skyportal token not valid')            
+
+    fink_id, stream_id, filter_id = post_fink_alerts.init_skyportal(conf['skyportal_url'], conf['skyportal_token'])
+    print('fink_id:', fink_id, 'filter_id:', filter_id, 'stream_id:', stream_id)
 
     maxtimeout = 5
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
@@ -81,10 +60,10 @@ def poll_alerts():
                 os.path.dirname(__file__), 'schemas/schema_test.avsc'
             )
         )
-        consumer = AlertConsumer(conf['mytopics'], myconfig, schema_path=schema)
+        consumer = AlertConsumer(topics, myconfig, schema_path=schema)
     else:
         print('Using Fink Broker')
-        consumer = AlertConsumer(conf['mytopics'], myconfig)
+        consumer = AlertConsumer(topics, myconfig)
     try:
         while True:
             
@@ -106,8 +85,8 @@ def poll_alerts():
                     ra = alert['candidate']['ra']
                     dec = alert['candidate']['dec']
                     post_fink_alerts.from_fink_to_skyportal(
-                        topic_to_classification(topic),
-                        topic_to_probability(topic),
+                        conf['mytopics'][topic]['classification'],
+                        conf['mytopics'][topic]['probability'],
                         object_id,
                         mjd,
                         instrument,
@@ -121,6 +100,7 @@ def poll_alerts():
                         fink_id,
                         filter_id,
                         stream_id,
+                        taxonomy_ids[topic],
                         url=conf['skyportal_url'],
                         token=conf['skyportal_token'],
                     )
