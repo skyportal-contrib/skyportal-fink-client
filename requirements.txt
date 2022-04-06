@@ -40,3 +40,4 @@ tabulate==0.8.9
 tifffile==2022.3.25
 urllib3==1.26.9
 visdcc==0.0.50
+pre-commit
