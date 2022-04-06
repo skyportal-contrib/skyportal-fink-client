@@ -1,8 +1,11 @@
+from genericpath import exists
 import requests
 from astropy.time import Time
 import time
 import sys
 import os
+
+from itertools import chain
 
 def api(
     method, endpoint, data=None, token=None,
@@ -458,6 +461,31 @@ def init_skyportal(url, token):
         filter_id,
     )
 
+# recursively look for a given class in a taxonomy hierarchy
+def class_exists_in_hierarchy(classification, branch, level):
+    for tax_class in branch:
+        if tax_class['class'] == classification:
+            return True
+        else: 
+            if 'subclasses' in tax_class.keys():
+                exists =  class_exists_in_hierarchy(classification, tax_class['subclasses'],level+1)
+                if exists is not None:
+                    return exists
+    
+
+
+def get_taxonomy_id_including_classification(classification, url, token):
+    # find the id of a taxonomy that includes a given classification in its hierarchy
+    taxonomies = get_all_taxonomies(url, token)[1]
+    print('*************************************************************************')
+    for taxonomy in taxonomies:
+        exists = class_exists_in_hierarchy(classification, [taxonomy['hierarchy']],0)
+        if exists is not None:
+            return taxonomy['id']
+
+
+
+
 
 def from_fink_to_skyportal(
     classification,
@@ -509,16 +537,19 @@ def from_fink_to_skyportal(
             token=token,
         )
         # /!\ HARDCODED TAXONOMY ID TO ONE, TO IMPLEMENT A METHOD TO FIND THE RIGHT TAXONOMY ID, AND ADD ONE IF NEEDED
-        taxonomy_id = 1
-        if classification_exists_for_objs(object_id, url=url, token=token):
-            update_classification(
-                object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
-            )
+        taxonomy_id = get_taxonomy_id_including_classification(classification, url, token)
+        if taxonomy_id is not None:
+            if classification_exists_for_objs(object_id, url=url, token=token):
+                update_classification(
+                    object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
+                )
+            else:
+                print('this classification doesnt exist yet')
+                print(classification, probability)
+                post_classification(
+                    object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
+                )
         else:
-            print('this classification doesnt exist yet')
-            print(classification, probability)
-            post_classification(
-                object_id, classification, probability, taxonomy_id, [fink_id], url=url, token=token
-            )
+            print("error: taxonomy id not found, this classification doesn't exist in any taxonomies")
     else:
         print('error: instrument named {} does not exist'.format(instrument))
