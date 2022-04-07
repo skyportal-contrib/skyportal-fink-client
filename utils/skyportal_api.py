@@ -1,3 +1,4 @@
+from pickletools import int4
 import requests
 from astropy.time import Time
 import time
@@ -14,7 +15,7 @@ def api(
     return response
 
 
-def get_all_group_ids(url, token):
+def get_all_group_ids(url: str, token: str):
     """
     Get all group ids from skyportal using its API
 
@@ -40,7 +41,7 @@ def get_all_group_ids(url, token):
     return groups.status_code, data
 
 
-def get_group_ids_and_name(url, token):
+def get_group_ids_and_name(url: str, token: str):
     """
     Get all group ids and their names from skyportal using its API
 
@@ -70,7 +71,7 @@ def get_group_ids_and_name(url, token):
     return groups.status_code, data
 
 
-def get_all_instruments(url, token):
+def get_all_instruments(url: str, token: str):
     """
     Get all instruments from skyportal using its API
 
@@ -99,7 +100,7 @@ def get_all_instruments(url, token):
     return instruments.status_code, data
 
 
-def get_all_source_ids(url, token):
+def get_all_source_ids(url: str, token: str):
     """
     Get all source ids from skyportal using its API
 
@@ -125,7 +126,7 @@ def get_all_source_ids(url, token):
     return sources.status_code, data
 
 
-def get_all_candidate_ids(url, token):
+def get_all_candidate_ids(url: str, token: str):
     """
     Get all candidate ids from skyportal using its API
 
@@ -150,7 +151,7 @@ def get_all_candidate_ids(url, token):
     ]
 
 
-def get_all_streams(url, token):
+def get_all_streams(url: str, token: str):
     """
     Get all streams from skyportal using its API
 
@@ -173,7 +174,7 @@ def get_all_streams(url, token):
     return streams.status_code, streams.json()["data"]
 
 
-def get_all_stream_ids(url, token):
+def get_all_stream_ids(url: str, token: str):
     """
     Get all stream ids from skyportal using its API
 
@@ -199,7 +200,7 @@ def get_all_stream_ids(url, token):
     return streams.status_code, data
 
 
-def classification_exists_for_objs(object_id, url, token):
+def classification_exists_for_objs(object_id: str, url: str, token: str):
     """
     Check if a classification exists for a given object
 
@@ -225,7 +226,7 @@ def classification_exists_for_objs(object_id, url, token):
     return classifications.json()["data"] != []
 
 
-def classification_id_for_objs(object_id, url, token):
+def classification_id_for_objs(object_id: str, url: str, token: str):
     """
     Get classification id for a given object
 
@@ -259,7 +260,9 @@ def classification_id_for_objs(object_id, url, token):
     return classifications.status_code, data
 
 
-def post_source(object_id, ra, dec, group_ids, url, token):
+def post_source(
+    object_id: str, ra: float, dec: float, group_ids: list, url: str, token: str
+):
     """
     Post a source to skyportal using its API
 
@@ -317,7 +320,15 @@ def post_source(object_id, ra, dec, group_ids, url, token):
     )
 
 
-def post_candidate(object_id, ra, dec, filter_ids, passed_at, url, token):
+def post_candidate(
+    object_id: str,
+    ra: float,
+    dec: float,
+    filter_ids: list,
+    passed_at: str,
+    url: str,
+    token: str,
+):
     """
     Post a candidate to skyportal using its API
 
@@ -381,20 +392,20 @@ def post_candidate(object_id, ra, dec, filter_ids, passed_at, url, token):
 
 
 def post_photometry(
-    object_id,
-    mjd,
-    instrument_id,
-    filter,
-    mag,
-    magerr,
-    limiting_mag,
-    magsys,
-    ra,
-    dec,
-    group_ids,
-    stream_ids,
-    url,
-    token,
+    object_id: str,
+    mjd: float,
+    instrument_id: int,
+    filter: str,
+    mag: float,
+    magerr: float,
+    limiting_mag: float,
+    magsys: str,
+    ra: float,
+    dec: float,
+    group_ids: list,
+    stream_ids: list,
+    url: str,
+    token: str,
 ):
     """
     Post a photometry to skyportal using its API
@@ -404,7 +415,7 @@ def post_photometry(
         Object id to post candidate for
     mjd : float
         Modified Julian Date of the observation
-    instrument_id : str
+    instrument_id : int
         id of the instrument used to observe the object
     filter : str
         Filter used by the instrument to observe the object
@@ -465,7 +476,13 @@ def post_photometry(
 
 
 def post_classification(
-    object_id, classification, probability, taxonomy_id, group_ids, url, token
+    object_id: str,
+    classification: str,
+    probability: float,
+    taxonomy_id: int,
+    group_ids: list,
+    url: str,
+    token: str,
 ):
     """
     Post a classification to skyportal using its API
@@ -512,7 +529,7 @@ def post_classification(
     return response.status_code, response.json()
 
 
-def post_user(username, url, token):
+def post_user(username: str, url: str, token: str):
     """
     Post a user to skyportal using its API
 
@@ -551,7 +568,7 @@ def post_user(username, url, token):
     )
 
 
-def post_streams(name, url, token):
+def post_streams(name: str, url: str, token: str):
     """
     Post a stream to skyportal using its API
 
@@ -580,7 +597,7 @@ def post_streams(name, url, token):
     )
 
 
-def post_filters(name, stream_id, group_id, url, token):
+def post_filters(name: str, stream_id: int, group_id: int, url: str, token: str):
     """
     Post a filter to skyportal using its API
 
@@ -613,7 +630,7 @@ def post_filters(name, stream_id, group_id, url, token):
     )
 
 
-def post_telescopes(name, nickname, diameter, url, token):
+def post_telescopes(name: str, nickname: str, diameter: float, url: str, token: str):
     """
     Post a telescope to skyportal using its API
 
@@ -645,7 +662,9 @@ def post_telescopes(name, nickname, diameter, url, token):
     )
 
 
-def post_instruments(name, type, telescope_id, filters, url, token):
+def post_instruments(
+    name: str, type: str, telescope_id: int, filters: list, url: str, token: str
+):
     """
     Post an instrument to skyportal using its API
 
@@ -684,7 +703,7 @@ def post_instruments(name, type, telescope_id, filters, url, token):
     )
 
 
-def post_groups(name, url, token):
+def post_groups(name: str, url: str, token: str):
     """
     Post a group to skyportal using its API
 
@@ -715,7 +734,7 @@ def post_groups(name, url, token):
     )
 
 
-def post_taxonomy(name, hierarchy, version, url, token):
+def post_taxonomy(name: str, hierarchy: list, version: int, url: str, token: str):
     """
     Post a taxonomy to skyportal using its API
 
@@ -757,14 +776,20 @@ def post_taxonomy(name, hierarchy, version, url, token):
 
 
 def update_classification(
-    object_id, classification, probability, taxonomy_id, group_ids, url, token
+    object_id: str,
+    classification: str,
+    probability: float,
+    taxonomy_id: int,
+    group_ids: list,
+    url: str,
+    token: str,
 ):
     """
     Update a classification to skyportal using its API
 
     Parameters
     ----------
-    object_id : int
+    object_id : str
         Id of the object for which we update the classification
     classification : str
         Classification of the object
@@ -810,7 +835,7 @@ def update_classification(
     return response.status_code
 
 
-def get_all_filters(url, token):
+def get_all_filters(url: str, token: str):
     """
     Get all filters from skyportal using its API
 
@@ -832,7 +857,7 @@ def get_all_filters(url, token):
     return (response.status_code, response.json()["data"])
 
 
-def get_all_taxonomies(url, token):
+def get_all_taxonomies(url: str, token: str):
     """
     Get all taxonomies from skyportal using its API
 
@@ -854,7 +879,7 @@ def get_all_taxonomies(url, token):
     return (response.status_code, response.json()["data"])
 
 
-def init_skyportal(url, token):
+def init_skyportal(url: str, token: str):
     """
     Creates the different entities needed in skyportal to add the data of alerts from fink
     (streams, filters, groups) and returns the ids of the entities created, so they can be used to post the alerts to skyportal using its API
@@ -909,7 +934,7 @@ def init_skyportal(url, token):
 
 
 # recursively look for a given class in a taxonomy hierarchy
-def class_exists_in_hierarchy(classification, branch):
+def class_exists_in_hierarchy(classification: str, branch: list):
     """
     Recursively look for a given class in a taxonomy hierarchy
 
@@ -937,7 +962,7 @@ def class_exists_in_hierarchy(classification, branch):
                     return exists
 
 
-def get_taxonomy_id_including_classification(classification, url, token):
+def get_taxonomy_id_including_classification(classification: str, url: str, token: str):
     """
     Get the taxonomy id of a classification if it exists in one of skyportal's taxonomies
 
@@ -970,24 +995,24 @@ def get_taxonomy_id_including_classification(classification, url, token):
 
 
 def from_fink_to_skyportal(
-    classification,
-    probability,
-    object_id,
-    mjd,
-    instrument,
-    filter,
-    mag,
-    magerr,
-    limiting_mag,
-    magsys,
-    ra,
-    dec,
-    fink_id,
-    filter_id,
-    stream_id,
-    taxonomy_id,
-    url,
-    token,
+    classification: str,
+    probability: float,
+    object_id: str,
+    mjd: float,
+    instrument: str,
+    filter: str,
+    mag: float,
+    magerr: float,
+    limiting_mag: float,
+    magsys: str,
+    ra: float,
+    dec: float,
+    fink_id: int,
+    filter_id: int,
+    stream_id: int,
+    taxonomy_id: int,
+    url: str,
+    token: str,
 ):
     """
     Post an alert to skyportal using its API, that means posting
@@ -999,7 +1024,7 @@ def from_fink_to_skyportal(
         Classification of for the object
     probability : float
         Given probability for the object's classification
-    object_id : int
+    object_id : str
         Id of the object
     mjd : float
         MJD of the observation (Modified Julian Date)
