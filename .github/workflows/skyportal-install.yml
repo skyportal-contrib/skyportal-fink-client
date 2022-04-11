@@ -31,27 +31,24 @@ jobs:
 
     steps:
       - uses: actions/setup-python@v1
-        working-directory: ./skyportal
         with:
           python-version: "3.8"
 
       - name: Checkout master
-        working-directory: ./skyportal
         uses: actions/checkout@v2
+        working-directory: ./skyportal
         with:
           fetch-depth: 0
           ref: master
           submodules: true
 
       - uses: actions/cache@v2
-        working-directory: ./skyportal
         with:
           path: |
             ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
 
       - uses: actions/cache@v2
-        working-directory: ./skyportal
         with:
           path: |
             ~/.cache/pip
