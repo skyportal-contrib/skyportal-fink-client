@@ -75,7 +75,7 @@ def test_post_candidate():
         5,
         5,
         [1],
-        '11/04/2022',
+        '2022-04-11 06:27:01.728',
         'http://localhost:5000',
         skyportal_token,
     )
