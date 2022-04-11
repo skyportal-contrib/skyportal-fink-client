@@ -25,6 +25,7 @@ def test_getting_skyportal_admin_token():
             print(exc)
 
     skyportal_token = conf_skyportal["INITIAL_ADMIN"]
+    assert skyportal_token == 'blabla'
     assert skyportal_token is not None
     assert skyportal_token is not ''
 
