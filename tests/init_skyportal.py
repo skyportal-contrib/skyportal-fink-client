@@ -6,6 +6,6 @@ basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 skyportal_dir = basedir + "/../skyportal"
 
 web_client = subprocess.Popen(
-        ['make', 'run'], cwd=basedir, preexec_fn=os.setsid
+        ['make', 'run'], cwd=skyportal_dir, preexec_fn=os.setsid
     )
 time.sleep(30)
