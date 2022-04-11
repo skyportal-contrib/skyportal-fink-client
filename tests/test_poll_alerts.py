@@ -4,7 +4,7 @@ import yaml
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 
-import utils.skyportal_api as skyportal_api
+import skyportal_api as skyportal_api
 
 # open yaml config file
 with open(
@@ -83,7 +83,7 @@ def test_poll_alerts():
     fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
         conf["skyportal_url"], conf["skyportal_token"]
     )
-    
+
     maxtimeout = 5
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
     if conf["testing"] == True:
