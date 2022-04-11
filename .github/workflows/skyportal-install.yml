@@ -125,7 +125,7 @@ jobs:
 
       - name: Run SkyPortal
         run: |
-          PYTHONPATH=. tests/init_skyportal.py
+          PYTHONPATH=. python tests/init_skyportal.py
 
           
       - name: Generate Fake Alerts for testing
