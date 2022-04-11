@@ -57,7 +57,7 @@ def test_generate_fake_alerts():
 def test_getting_skyportal_admin_token():
     # open yaml config file
     with open(
-        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
+        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../skyportal/.tokens.yaml", "r"
     ) as stream:
         try:
             conf_skyportal = yaml.safe_load(stream)
@@ -83,5 +83,3 @@ def test_getting_skyportal_admin_token():
             yaml.dump(conf, stream)
         except yaml.YAMLError as exc:
             print(exc)
-
-
