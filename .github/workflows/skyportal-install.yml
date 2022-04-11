@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_subset: ["test_kafka_fake_alerts", "pool_alerts_fink"]
+        test_subset: ["pool_alerts_fink"]
 
     steps:
       - uses: actions/setup-python@v1
@@ -120,7 +120,8 @@ jobs:
           make dependencies
 
       - name: Run Fink tests
+        working-directory: ./skyportal
         if: ${{ matrix.test_subset == 'pool_alerts_fink' }}
         run: |
-          PYTHONPATH=. python baselayer/tools/test_frontend.py --xml --headless 'tests/'
+          PYTHONPATH=. python baselayer/tools/test_frontend.py --xml --headless '../tests/'
 
