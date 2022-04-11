@@ -128,9 +128,21 @@ jobs:
           PYTHONPATH=. tests/init_skyportal.py
 
           
-      - name: Run Fink tests
-        working-directory: ./skyportal
-        if: ${{ matrix.test_subset == 'pool_alerts_fink' }}
+      - name: Generate Fake Alerts for testing
         run: |
-          PYTHONPATH=. python baselayer/tools/test_frontend.py --xml --headless '../tests/'
+          PYTHONPATH=. py.test tests/test_fake_alerts.py
+        
+      - name: Get admin token from SkyPortal
+        run: |
+          PYTHONPATH=. py.test tests/test_get_skyportal_token.py
+
+      - name: Test communication with SkyPortal API
+        run: |
+          PYTHONPATH=. py.test tests/test_skyportal_api.py
+
+      - name: Test Poll Alerts using Fink Client and post it to SkyPortal
+        run: |
+          PYTHONPATH=. py.test tests/test_poll_alerts_fink.py
+        
+      
 
