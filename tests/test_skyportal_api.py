@@ -86,7 +86,7 @@ def test_post_photometry():
     status, data = skyportal_api.post_photometry(
         'ZTFtestAPI',
         59000.0,
-        [1],
+        1,
         'ztfr',
         19.0,
         0.1,
