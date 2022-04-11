@@ -8,7 +8,7 @@ import skyportal_api as skyportal_api
 
 # open yaml config file
 with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/config.yaml", "r"
+    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
 ) as stream:
     try:
         conf = yaml.safe_load(stream)
@@ -89,7 +89,7 @@ def test_poll_alerts():
     if conf["testing"] == True:
         print("Using fake alerts for testing")
         schema = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "testing/schemas/schema_test.avsc")
+            os.path.join(os.path.dirname(__file__), "/schemas/schema_test.avsc")
         )
         consumer = AlertConsumer(topics, myconfig, schema_path=schema)
     else:
