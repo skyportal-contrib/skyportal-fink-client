@@ -1,12 +1,9 @@
 name: API & frontend
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   test:
