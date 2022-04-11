@@ -529,45 +529,6 @@ def post_classification(
     return response.status_code, response.json()
 
 
-def post_user(username: str, url: str, token: str):
-    """
-    Post a user to skyportal using its API
-
-    Parameters
-    ----------
-    username : str
-        Username of the user to post
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
-
-    Returns
-    ----------
-    status_code : int
-        HTTP status code
-    data : int
-        User id
-    """
-    data = {
-        # "first_name": first_name,
-        # "last_name": last_name,
-        # "contact_email": contact_email,
-        # "oauth_uid": oauth_uid,
-        # "contact_phone": contact_phone,
-        # "roles": roles,
-        # "groupIDsAndAdmin": groupIDsAndAdmin,
-        "username": username
-    }
-
-    response = api("POST", f"{url}/api/user", data, token=token)
-
-    return (
-        response.status_code,
-        response.json()["data"]["id"] if response.json()["data"] != {} else {},
-    )
-
-
 def post_streams(name: str, url: str, token: str):
     """
     Post a stream to skyportal using its API

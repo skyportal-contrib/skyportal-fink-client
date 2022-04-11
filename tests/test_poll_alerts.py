@@ -6,34 +6,6 @@ from astropy.time import Time
 
 import skyportal_api as skyportal_api
 
-with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../skyportal/.tokens.yaml", "r"
-) as stream:
-    try:
-        conf_skyportal = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-
-skyportal_token = conf_skyportal["INITIAL_ADMIN"]
-
-with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
-) as stream:
-    try:
-        conf = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-
-conf["skyportal_token"] = skyportal_token
-
-with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "w"
-) as stream:
-    try:
-        yaml.dump(conf, stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-
 # open yaml config file
 with open(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
