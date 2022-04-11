@@ -76,7 +76,6 @@ def test_poll_alerts():
     ----------
     None
     """
-    assert skyportal_token == 'blabla'
     assert conf["skyportal_token"] is not None
     myconfig = {
         "username": conf["username"],
