@@ -469,6 +469,7 @@ def post_photometry(
     }
 
     response = api("POST", f"{url}/api/photometry", data, token=token)
+    print(response.json())
     return (
         response.status_code,
         response.json()["data"]["ids"] if response.json()["data"] != {} else {},
