@@ -34,12 +34,11 @@ jobs:
         with:
           python-version: "3.8"
 
-      - name: Checkout master
+      - name: Checkout dev
         uses: actions/checkout@v2
-        working-directory: ./skyportal
         with:
           fetch-depth: 0
-          ref: master
+          ref: dev
           submodules: true
 
       - uses: actions/cache@v2
