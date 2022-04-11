@@ -150,7 +150,7 @@ def test_post_instruments():
     status, data = skyportal_api.post_instruments(
         'InstrumentTestAPI',
         'imager',
-        [1],
+        1,
         ['ztfr', 'ztfg', 'ztfi'],
         'http://localhost:5000',
         skyportal_token,
@@ -168,7 +168,7 @@ def test_post_groups():
     assert data is not None
 
 def test_post_taxonomy():
-    hierarchy = [{'class': 'classificationTestAPI'}]
+    hierarchy = {'class': 'classificationTestAPI'}
     status, data = skyportal_api.post_taxonomy(
         'TaxonomyTestAPI',
         hierarchy,
