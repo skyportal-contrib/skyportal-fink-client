@@ -26,6 +26,7 @@ def test_getting_skyportal_admin_token():
 
     skyportal_token = conf_skyportal["INITIAL_ADMIN"]
     assert skyportal_token is not None
+    assert skyportal_token is not ''
 
     with open(
         os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
