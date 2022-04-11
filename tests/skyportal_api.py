@@ -658,6 +658,7 @@ def post_instruments(
         "telescope_id": telescope_id,
     }
     response = api("POST", f"{url}/api/instrument", data, token=token)
+    print(response.json())
     return (
         response.status_code,
         response.json()["data"]["id"] if response.json()["data"] != {} else {},

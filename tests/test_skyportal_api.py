@@ -48,9 +48,9 @@ def test_get_all_stream_ids():
     assert data is not None
 
 def test_classification_exists_for_objs():
-    status, data = skyportal_api.classification_exists_for_objs('ZTF18aabcvnq','http://localhost:5000', skyportal_token)
-    assert status == 200
-    assert data is not None
+    result = skyportal_api.classification_exists_for_objs('ZTF18aabcvnq','http://localhost:5000', skyportal_token)
+    assert result is not None
+    assert result == True
 
 def test_classification_id_for_objs():
     status, data = skyportal_api.classification_id_for_objs('ZTF18aabcvnq', 'http://localhost:5000', skyportal_token)
@@ -104,7 +104,7 @@ def test_post_photometry():
 
 def test_post_classification():
     status, data = skyportal_api.post_classification(
-        'ZTFtestAPI',
+        'ZTF21aaqjmps',
         'kilonova',
         0.75,
         1,
