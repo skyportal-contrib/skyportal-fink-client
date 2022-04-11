@@ -122,6 +122,11 @@ jobs:
       - name: Install dependencies for tests with kafka and fink-client
         run: |
           pip install -r requirements.txt
+
+      - name: Run SkyPortal
+        run: |
+          PYTHONPATH=. tests/init_skyportal.py
+
           
       - name: Run Fink tests
         working-directory: ./skyportal

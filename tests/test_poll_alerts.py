@@ -62,7 +62,7 @@ def fid_to_filter(fid: int):
     switcher = {1: "ztfg", 2: "ztfr", 3: "ztfi"}
     return switcher.get(fid)
 
-def test_poll_alerts(super_admin_token):
+def test_poll_alerts():
     """
     Connect to and poll alerts from fink servers to post them in skyportal using its API, using a config file containing
     the necessary access credentials to both fink and skyportal, as well as a list of topics to subscribe to
@@ -76,7 +76,6 @@ def test_poll_alerts(super_admin_token):
     ----------
     None
     """
-    conf["skyportal_token"] = super_admin_token
     assert conf["skyportal_token"] is not None
     myconfig = {
         "username": conf["username"],
