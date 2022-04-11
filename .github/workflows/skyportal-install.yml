@@ -1,4 +1,4 @@
-name: API & frontend
+name: skyportal-install
 
 on:
   pull_request:
