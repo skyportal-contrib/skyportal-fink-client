@@ -25,6 +25,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    strategy:
+      fail-fast: false
+      matrix:
+        test_subset: ["test_kafka_fake_alerts", "pool_alerts_fink"]
+
     steps:
       - uses: actions/setup-python@v1
         with:
@@ -107,7 +112,15 @@ jobs:
           # Stamp Alembic HEAD
           PYTHONPATH=. alembic -x config=config.yaml stamp head
 
-      - name: Run Skyportal
+      - name: Refresh SkyPortal dependencies for tested version
         working-directory: ./skyportal
         run: |
-          make run
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          export NPM_CONFIG_LEGACY_PEER_DEPS="true"
+          make dependencies
+
+      - name: Run Fink tests
+        if: ${{ matrix.test_subset == 'pool_alerts_fink' }}
+        run: |
+          PYTHONPATH=. python baselayer/tools/test_frontend.py --xml --headless 'tests/'
+
