@@ -92,12 +92,6 @@ jobs:
           echo node $(node --version)
           nginx -v
           firefox --version
-      - name: Checkout branch being tested
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: true
-          clean: false
 
       - name: Initialize SkyPortal
       - working-directory: ./skyportal
@@ -122,4 +116,5 @@ jobs:
 
       - name: Run Skyportal
       - working-directory: ./skyportal
-      - run: make run
+      - run: |
+          make run
