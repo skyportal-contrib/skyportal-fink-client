@@ -30,12 +30,10 @@ jobs:
         with:
           python-version: "3.8"
 
-      - name: Checkout dev
+      - name: Checkout repository and submodules
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-          ref: dev
-          submodules: true
+          submodules: recursive
 
       - uses: actions/cache@v2
         with:
