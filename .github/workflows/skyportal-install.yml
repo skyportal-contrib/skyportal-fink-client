@@ -118,7 +118,11 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           export NPM_CONFIG_LEGACY_PEER_DEPS="true"
           make dependencies
-
+      
+      - name: Install dependencies for tests with kafka and fink-client
+        run: |
+          pip install -r requirements.txt
+          
       - name: Run Fink tests
         working-directory: ./skyportal
         if: ${{ matrix.test_subset == 'pool_alerts_fink' }}

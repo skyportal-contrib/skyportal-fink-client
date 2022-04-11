@@ -3,6 +3,7 @@ import os
 import subprocess
 import confluent_kafka
 import time
+import yaml
 
 from fink_client.avroUtils import AlertReader
 from fink_client.avroUtils import encode_into_avro
@@ -52,3 +53,35 @@ def test_generate_fake_alerts():
             print("Connection Error")
 
     p.flush()
+
+def test_getting_skyportal_admin_token():
+    # open yaml config file
+    with open(
+        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
+    ) as stream:
+        try:
+            conf_skyportal = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+    assert skyportal_token is not None
+    skyportal_token = conf_skyportal["INITIAL_ADMIN"]
+
+    with open(
+        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
+    ) as stream:
+        try:
+            conf = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    conf["skyportal_token"] = skyportal_token
+
+    with open(
+        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "w"
+    ) as stream:
+        try:
+            yaml.dump(conf, stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+
