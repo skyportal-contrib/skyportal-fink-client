@@ -697,7 +697,7 @@ def post_groups(name: str, url: str, token: str):
     )
 
 
-def post_taxonomy(name: str, hierarchy: dict, version: int, url: str, token: str):
+def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str):
     """
     Post a taxonomy to skyportal using its API
 
@@ -705,9 +705,9 @@ def post_taxonomy(name: str, hierarchy: dict, version: int, url: str, token: str
     ----------
     name: str
         Name of the taxonomy to post
-    hierarchy: list
+    hierarchy: dict
         Hierarchy of the taxonomy to post
-    version: int
+    version: str
         Version of the taxonomy to post
     url : str
         Skyportal url

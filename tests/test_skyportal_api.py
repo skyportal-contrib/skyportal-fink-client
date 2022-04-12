@@ -211,7 +211,7 @@ def test_post_taxonomy():
     status, data = skyportal_api.post_taxonomy(
         "TaxonomyTestAPI",
         hierarchy,
-        1,
+        "1",
         "http://localhost:5000",
         skyportal_token,
     )
