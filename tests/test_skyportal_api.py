@@ -219,17 +219,16 @@ def test_post_taxonomy():
     assert data is not None
 
 def test_update_classification():
-    status, data = skyportal_api.update_classification(
+    status= skyportal_api.update_classification(
         "ZTF18aabcvnq",
         "kilonova",
         0.75,
-        2,
+        1,
         [1],
         "http://localhost:5000",
         skyportal_token,
     )
     assert status == 200
-    assert data is not None
 
 def test_get_all_filters():
     status, data = skyportal_api.get_all_filters(
