@@ -85,6 +85,10 @@ def test_poll_alerts():
         conf["skyportal_url"], conf["skyportal_token"]
     )
 
+    assert fink_id is not None
+    assert stream_id is not None
+    assert filter_id is not None
+
     maxtimeout = 5
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
     if conf["testing"] == True:
