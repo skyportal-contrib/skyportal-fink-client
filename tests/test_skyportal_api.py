@@ -217,3 +217,44 @@ def test_post_taxonomy():
     )
     assert status == 200
     assert data is not None
+
+def test_update_classification():
+    status, data = skyportal_api.update_classification(
+        "ZTF21aaqjmps",
+        "kilonova",
+        0.75,
+        1,
+        [1],
+        "http://localhost:5000",
+        skyportal_token,
+    )
+    assert status == 200
+    assert data is not None
+
+def test_get_all_filters():
+    status, data = skyportal_api.get_all_filters(
+        "http://localhost:5000", skyportal_token
+    )
+    assert status == 200
+    assert data is not None
+
+def test_get_all_taxonomies():
+    status, data = skyportal_api.get_all_taxonomies(
+        "http://localhost:5000", skyportal_token
+    )
+    assert status == 200
+    assert data is not None
+
+def test_class_exists_in_hierarchy():
+    result = skyportal_api.class_exists_in_hierarchy(
+        "classificationTestAPI", {"class": "test", "subclasses":[{"class":"classificationTestAPI"}]}, "http://localhost:5000", skyportal_token
+    )
+    assert result is not None
+    assert result == True
+
+def test_get_taxonomy_id_including_classification():
+    status, data = skyportal_api.get_taxonomy_id_including_classification(
+        "kilonova", "http://localhost:5000", skyportal_token
+    )
+    assert status == 200
+    assert data is not None
