@@ -220,7 +220,7 @@ def test_post_taxonomy():
 
 def test_update_classification():
     status, data = skyportal_api.update_classification(
-        "ZTF21aaqjmps",
+        "ZTF18aabcvnq",
         "kilonova",
         0.75,
         1,
@@ -247,7 +247,7 @@ def test_get_all_taxonomies():
 
 def test_class_exists_in_hierarchy():
     result = skyportal_api.class_exists_in_hierarchy(
-        "classificationTestAPI", {"class": "test", "subclasses":[{"class":"classificationTestAPI"}]}, "http://localhost:5000", skyportal_token
+        "classificationTestAPI", {"class": "test", "subclasses":[{"class":"classificationTestAPI"}]}
     )
     assert result is not None
     assert result == True
