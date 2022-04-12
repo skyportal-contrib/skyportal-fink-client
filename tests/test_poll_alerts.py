@@ -96,6 +96,7 @@ def test_poll_alerts():
         schema = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "/schemas/schema_test.avsc")
         )
+        print(f"Schema used: {schema}")
         consumer = AlertConsumer(topics, myconfig, schema_path=schema)
     else:
         print("Using Fink Broker")
