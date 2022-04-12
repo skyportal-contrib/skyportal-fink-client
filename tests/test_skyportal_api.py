@@ -116,7 +116,7 @@ def test_post_candidate():
 
 def test_post_photometry():
     status, data = skyportal_api.post_photometry(
-        "ZTFtestAPI",
+        "ZTF21aaqjmps",
         59580.0,
         1,
         "ztfr",
