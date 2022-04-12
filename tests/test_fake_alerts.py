@@ -13,6 +13,7 @@ schema_path = basedir + "/schemas/schema_test.avsc"
 skyportal_dir = basedir + "/../skyportal"
 pool_alerts_dir = basedir + "/../"
 
+
 def test_generate_fake_alerts():
     """
     Generate fake alerts on a kafka server for testing purposes
@@ -51,4 +52,3 @@ def test_generate_fake_alerts():
             print("Connection Error")
 
     p.flush()
-

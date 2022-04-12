@@ -218,8 +218,9 @@ def test_post_taxonomy():
     assert status == 200
     assert data is not None
 
+
 def test_update_classification():
-    status= skyportal_api.update_classification(
+    status = skyportal_api.update_classification(
         "ZTF18aabcvnq",
         "kilonova",
         0.75,
@@ -230,12 +231,14 @@ def test_update_classification():
     )
     assert status == 200
 
+
 def test_get_all_filters():
     status, data = skyportal_api.get_all_filters(
         "http://localhost:5000", skyportal_token
     )
     assert status == 200
     assert data is not None
+
 
 def test_get_all_taxonomies():
     status, data = skyportal_api.get_all_taxonomies(
@@ -244,12 +247,15 @@ def test_get_all_taxonomies():
     assert status == 200
     assert data is not None
 
+
 def test_class_exists_in_hierarchy():
     result = skyportal_api.class_exists_in_hierarchy(
-        "classificationTestAPI", [{"class": "test", "subclasses":[{"class":"classificationTestAPI"}]}]
+        "classificationTestAPI",
+        [{"class": "test", "subclasses": [{"class": "classificationTestAPI"}]}],
     )
     assert result is not None
     assert result == True
+
 
 def test_get_taxonomy_id_including_classification():
     status, data = skyportal_api.get_taxonomy_id_including_classification(
@@ -258,30 +264,30 @@ def test_get_taxonomy_id_including_classification():
     assert status == 200
     assert data is not None
 
+
 def test_init_skyportal():
-    result = skyportal_api.init_skyportal(
-        "http://localhost:5000", skyportal_token
-    )
+    result = skyportal_api.init_skyportal("http://localhost:5000", skyportal_token)
     assert result is not None
     assert result[0] is not None
     assert result[1] is not None
     assert result[2] is not None
+
 
 def test_from_fink_to_skyportal():
     fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
         "http://localhost:5000", skyportal_token
     )
     result = skyportal_api.from_fink_to_skyportal(
-        'kilonova',
+        "kilonova",
         0.75,
-        'ZTFAPITESTFINAL',
+        "ZTFAPITESTFINAL",
         59000.0,
-        'ZTF',
-        'ztfr',
+        "ZTF",
+        "ztfr",
         17,
         0.1,
         21,
-        'ab',
+        "ab",
         5.0,
         5.0,
         fink_id,
@@ -289,9 +295,8 @@ def test_from_fink_to_skyportal():
         stream_id,
         1,
         "http://localhost:5000",
-        skyportal_token
+        skyportal_token,
     )
 
     assert result is not None
     assert result == 200
-

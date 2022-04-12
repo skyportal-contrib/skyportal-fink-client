@@ -34,6 +34,7 @@ def fid_to_filter(fid: int):
     switcher = {1: "ztfg", 2: "ztfr", 3: "ztfi"}
     return switcher.get(fid)
 
+
 def test_poll_alerts():
     """
     Connect to and poll alerts from fink servers to post them in skyportal using its API, using a config file containing
@@ -88,7 +89,7 @@ def test_poll_alerts():
     assert fink_id is not None
     assert stream_id is not None
     assert filter_id is not None
-
+    failed_attempts = 0
     maxtimeout = 5
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
     if conf["testing"] == True:
@@ -103,7 +104,9 @@ def test_poll_alerts():
         consumer = AlertConsumer(topics, myconfig)
     try:
         while True:
-
+            if failed_attempts > 10:
+                print("No more alerts to process")
+                break
             # Poll the servers
             topic, alert, key = consumer.poll(maxtimeout)
             # Analyse output - we just print some values for example
@@ -147,6 +150,7 @@ def test_poll_alerts():
 
             else:
                 print("No alerts received in the last {} seconds".format(maxtimeout))
+                failed_attempts += 1
 
     except KeyboardInterrupt:
         print("interrupted!")

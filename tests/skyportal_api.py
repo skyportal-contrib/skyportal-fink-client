@@ -1040,7 +1040,9 @@ def from_fink_to_skyportal(
             if status != 200:
                 overall_status = status
         passed_at = Time(mjd, format="mjd").isot
-        status = post_candidate(object_id, ra, dec, [filter_id], passed_at, url=url, token=token)[0]
+        status = post_candidate(
+            object_id, ra, dec, [filter_id], passed_at, url=url, token=token
+        )[0]
         if status != 200:
             overall_status = status
         status = post_photometry(
