@@ -729,7 +729,7 @@ def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str
         # "provenance": provenance,
         # "isLatest": true
     }
-    response = api("POST", f"{url}/api/taxonomy", data, url, token=token)
+    response = api("POST", f"{url}/api/taxonomy", data, token=token)
     return (
         response.status_code,
         response.json()["data"]["taxonomy_id"]
