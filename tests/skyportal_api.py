@@ -1023,7 +1023,8 @@ def from_fink_to_skyportal(
     None
     """
     time.sleep(1)
-    instruments = get_all_instruments(url=url, token=token)[1]
+    overall_status = 200
+    overall_status, instruments = get_all_instruments(url=url, token=token)[1]
     instrument_id = None
     for existing_instrument in instruments:
         if instrument.lower() in existing_instrument.lower():
@@ -1031,12 +1032,18 @@ def from_fink_to_skyportal(
             break
     if instrument_id is not None:
         instrument_id = instruments[existing_instrument]
-        source_ids = get_all_source_ids(url=url, token=token)[1]
+        status, source_ids = get_all_source_ids(url=url, token=token)[1]
+        if status != 200:
+            overall_status = status
         if object_id not in source_ids:
-            post_source(object_id, ra, dec, [fink_id], url=url, token=token)
+            status, post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
+            if status != 200:
+                overall_status = status
         passed_at = Time(mjd, format="mjd").isot
-        post_candidate(object_id, ra, dec, [filter_id], passed_at, url=url, token=token)
-        post_photometry(
+        status = post_candidate(object_id, ra, dec, [filter_id], passed_at, url=url, token=token)[0]
+        if status != 200:
+            overall_status = status
+        status = post_photometry(
             object_id,
             mjd,
             instrument_id,
@@ -1051,9 +1058,9 @@ def from_fink_to_skyportal(
             [stream_id],
             url=url,
             token=token,
-        )
+        )[0]
         if classification_exists_for_objs(object_id, url=url, token=token):
-            update_classification(
+            status = update_classification(
                 object_id,
                 classification,
                 probability,
@@ -1062,8 +1069,10 @@ def from_fink_to_skyportal(
                 url=url,
                 token=token,
             )
+            if status != 200:
+                overall_status = status
         else:
-            post_classification(
+            status = post_classification(
                 object_id,
                 classification,
                 probability,
@@ -1071,9 +1080,12 @@ def from_fink_to_skyportal(
                 [fink_id],
                 url=url,
                 token=token,
-            )
+            )[0]
+            if status != 200:
+                overall_status = status
         print(
             f"Candidate with source: {object_id}, classified as a {classification} added to SkyPortal"
         )
     else:
         print("error: instrument named {} does not exist".format(instrument))
+    return overall_status

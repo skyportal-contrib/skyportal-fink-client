@@ -257,3 +257,41 @@ def test_get_taxonomy_id_including_classification():
     )
     assert status == 200
     assert data is not None
+
+def test_init_skyportal():
+    result = skyportal_api.init_skyportal(
+        "http://localhost:5000", skyportal_token
+    )
+    assert result is not None
+    assert result[0] is not None
+    assert result[1] is not None
+    assert result[2] is not None
+
+def test_from_fink_to_skyportal():
+    fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
+        "http://localhost:5000", skyportal_token
+    )
+    result = skyportal_api.from_fink_to_skyportal(
+        'kilonova',
+        0.75,
+        'ZTFAPITESTFINAL',
+        59000.0,
+        'ZTF',
+        'ztfr',
+        17,
+        0.1,
+        21,
+        'ab',
+        5.0,
+        5.0,
+        fink_id,
+        filter_id,
+        stream_id,
+        1,
+        "http://localhost:5000",
+        skyportal_token
+    )
+
+    assert result is not None
+    assert result == 200
+
