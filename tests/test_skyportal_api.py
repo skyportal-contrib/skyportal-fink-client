@@ -223,7 +223,7 @@ def test_update_classification():
         "ZTF18aabcvnq",
         "kilonova",
         0.75,
-        1,
+        2,
         [1],
         "http://localhost:5000",
         skyportal_token,
