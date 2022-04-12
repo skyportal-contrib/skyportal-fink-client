@@ -142,7 +142,7 @@ jobs:
 
       - name: Test Poll Alerts using Fink Client and post it to SkyPortal
         run: |
-          PYTHONPATH=. py.test tests/test_poll_alerts_fink.py
+          PYTHONPATH=. py.test tests/test_poll_alerts.py
 
       - name: Stop SkyPortal
         working-directory: ./skyportal
