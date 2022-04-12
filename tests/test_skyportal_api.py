@@ -246,7 +246,7 @@ def test_get_all_taxonomies():
 
 def test_class_exists_in_hierarchy():
     result = skyportal_api.class_exists_in_hierarchy(
-        "classificationTestAPI", {"class": "test", "subclasses":[{"class":"classificationTestAPI"}]}
+        "classificationTestAPI", [{"class": "test", "subclasses":[{"class":"classificationTestAPI"}]}]
     )
     assert result is not None
     assert result == True
