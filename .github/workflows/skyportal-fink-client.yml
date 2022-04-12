@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_subset: ["pool_alerts_fink"]
+        test_subset: ["skyportal-fink-client"]
 
     steps:
       - uses: actions/setup-python@v1
@@ -118,7 +118,7 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           export NPM_CONFIG_LEGACY_PEER_DEPS="true"
           make dependencies
-      
+
       - name: Install dependencies for tests with kafka and fink-client
         run: |
           pip install -r requirements.txt
@@ -127,11 +127,11 @@ jobs:
         run: |
           PYTHONPATH=. python tests/init_skyportal.py
 
-          
+
       - name: Generate Fake Alerts for testing
         run: |
           PYTHONPATH=. py.test tests/test_fake_alerts.py
-        
+
       - name: Get admin token from SkyPortal
         run: |
           PYTHONPATH=. py.test tests/test_get_skyportal_token.py
@@ -147,7 +147,3 @@ jobs:
       - name: Stop SkyPortal
         working-directory: ./skyportal
         run: make stop
-          
-        
-      
-
