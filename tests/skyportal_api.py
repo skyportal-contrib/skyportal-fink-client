@@ -1024,7 +1024,7 @@ def from_fink_to_skyportal(
     """
     time.sleep(1)
     overall_status = 200
-    overall_status, instruments = get_all_instruments(url=url, token=token)[1]
+    overall_status, instruments = get_all_instruments(url=url, token=token)
     instrument_id = None
     for existing_instrument in instruments:
         if instrument.lower() in existing_instrument.lower():
@@ -1032,11 +1032,11 @@ def from_fink_to_skyportal(
             break
     if instrument_id is not None:
         instrument_id = instruments[existing_instrument]
-        status, source_ids = get_all_source_ids(url=url, token=token)[1]
+        status, source_ids = get_all_source_ids(url=url, token=token)
         if status != 200:
             overall_status = status
         if object_id not in source_ids:
-            status, post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
+            status = post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
             if status != 200:
                 overall_status = status
         passed_at = Time(mjd, format="mjd").isot
