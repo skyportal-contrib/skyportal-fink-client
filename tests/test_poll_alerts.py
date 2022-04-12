@@ -116,7 +116,7 @@ def test_poll_alerts():
                     magsys = "ab"  # seems like it is the good magsys
                     ra = alert["candidate"]["ra"]
                     dec = alert["candidate"]["dec"]
-                    skyportal_api.from_fink_to_skyportal(
+                    status = skyportal_api.from_fink_to_skyportal(
                         conf["mytopics"][topic]["classification"],
                         conf["mytopics"][topic]["probability"],
                         object_id,
@@ -138,6 +138,7 @@ def test_poll_alerts():
                     )
                     topic = None
                     alert = None
+                    assert status == 200
 
             else:
                 print("No alerts received in the last {} seconds".format(maxtimeout))
