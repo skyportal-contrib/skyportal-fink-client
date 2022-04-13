@@ -62,7 +62,7 @@ def test_poll_alerts():
     # extract all topics from conf['mytopics'] and create a list of topics names
     topics = list(conf["mytopics"].keys())
     print(f"Fink topics you subscribed to: {topics}")
-
+    print("adding alerts")
     taxonomy_ids = {}
     for topic in topics:
         status, taxonomy_id = skyportal_api.get_taxonomy_id_including_classification(

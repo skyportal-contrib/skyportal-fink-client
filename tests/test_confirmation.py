@@ -51,7 +51,27 @@ def test_verify_pooling():
 
     alerts_sources = []
     for alert in alerts:
-        alerts_sources.append(alert['objectId'])
+        if alert['objectId'] not in alerts_sources:
+            alerts_sources.append(alert['objectId'])
     skyportal_sources = skyportal_api.api("GET", f"http://localhost:5000/api/sources", token=skyportal_token).json()["data"]["sources"]
+
     assert (len(skyportal_sources)-len(demo_data['sources'])) == len(alerts_sources)
 
+    print(skyportal_sources[0])
+
+    # create a nest list of alerts by source
+    alerts_by_source = {}
+    for source in alerts:
+        if source['objectId'] in alerts_by_source:
+            alerts_by_source[source['objectId']].append(source)
+        else:
+            alerts_by_source[source['objectId']] = [source]
+    
+    print(len(alerts_by_source))
+    print(alerts_by_source[alerts_sources[0]][0]['objectId'])
+
+    for source in alerts_by_source:
+        print()
+
+
+test_verify_pooling()

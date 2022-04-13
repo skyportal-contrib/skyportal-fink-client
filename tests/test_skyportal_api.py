@@ -4,15 +4,15 @@ import os
 
 with open(
     os.path.abspath(os.path.join(os.path.dirname(__file__)))
-    + "/../skyportal/.tokens.yaml",
+    + "/../config.yaml",
     "r",
 ) as stream:
     try:
-        conf_skyportal = yaml.safe_load(stream)
+        conf = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
         print(exc)
 
-skyportal_token = conf_skyportal["INITIAL_ADMIN"]
+skyportal_token = conf["skyportal_token"]
 
 
 def test_get_all_groups_id():
@@ -127,7 +127,7 @@ def test_post_photometry():
         5,
         5,
         [1],
-        [2],
+        [1],
         "http://localhost:5000",
         skyportal_token,
     )
