@@ -128,8 +128,8 @@ jobs:
           PYTHONPATH=. python tests/init_skyportal.py
 
       - name: Get admin token from SkyPortal
-              run: |
-                PYTHONPATH=. py.test tests/test_get_skyportal_token.py
+        run: |
+          PYTHONPATH=. py.test tests/test_get_skyportal_token.py
 
       - name: Test communication with SkyPortal API
         if: ${{ matrix.test_subset == 'Unit Testing of utils functions (with skyportal API)' }}
