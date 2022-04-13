@@ -127,27 +127,27 @@ jobs:
         run: |
           PYTHONPATH=. python tests/init_skyportal.py
 
+      - name: Get admin token from SkyPortal
+              run: |
+                PYTHONPATH=. py.test tests/test_get_skyportal_token.py
+
       - name: Test communication with SkyPortal API
-        if: ${{ matrix.test_subset == "Unit Testing of utils functions (with skyportal API)" }}
+        if: ${{ matrix.test_subset == 'Unit Testing of utils functions (with skyportal API)' }}
         run: |
           PYTHONPATH=. py.test tests/test_skyportal_api.py
 
       - name: Generate Fake Alerts for testing
-        if: ${{ matrix.test_subset == "Test Pooling Alerts" }}
+        if: ${{ matrix.test_subset == 'Test Pooling Alerts' }}
         run: |
           PYTHONPATH=. py.test tests/test_fake_alerts.py
 
-      - name: Get admin token from SkyPortal
-        run: |
-          PYTHONPATH=. py.test tests/test_get_skyportal_token.py
-
       - name: Test Poll Alerts using Fink Client and post it to SkyPortal
-        if: ${{ matrix.test_subset == "Test Pooling Alerts" }}
+        if: ${{ matrix.test_subset == 'Test Pooling Alerts' }}
         run: |
           PYTHONPATH=. py.test tests/test_poll_alerts.py
       
       - name: Test if the alerts posted to SkyPortal correspond to demo alerts from the kafka server
-        if: ${{ matrix.test_subset == "Test Pooling Alerts" }}
+        if: ${{ matrix.test_subset == 'Test Pooling Alerts' }}
         run: |
           PYTHONPATH=. py.test tests/test_confirmation.py
 
