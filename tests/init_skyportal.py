@@ -14,4 +14,3 @@ cmd = subprocess.Popen(
 )
 
 time.sleep(30)
-

@@ -3,8 +3,7 @@ import yaml
 import os
 
 with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__)))
-    + "/../config.yaml",
+    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml",
     "r",
 ) as stream:
     try:

@@ -1038,8 +1038,6 @@ def from_fink_to_skyportal(
         status = post_candidate(
             object_id, ra, dec, [filter_id], passed_at, url=url, token=token
         )[0]
-        print("candidate")
-        print(status)
         if status != 200:
             overall_status = status
         status = post_photometry(

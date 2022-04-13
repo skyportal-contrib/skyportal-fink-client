@@ -104,15 +104,12 @@ def test_poll_alerts():
         print("Using Fink Broker")
         consumer = AlertConsumer(topics, myconfig)
     try:
-        i = 1
         while True:
             if failed_attempts > 10:
                 print("No more alerts to process")
                 break
             # Poll the servers
             topic, alert, key = consumer.poll(maxtimeout)
-            print(i)
-            i += 1
             # Analyse output - we just print some values for example
             if topic is not None:
                 if alert is not None:
@@ -150,7 +147,6 @@ def test_poll_alerts():
                     )
                     topic = None
                     alert = None
-                    
 
             else:
                 print("No alerts received in the last {} seconds".format(maxtimeout))
@@ -160,5 +156,6 @@ def test_poll_alerts():
         print("interrupted!")
         # Close the connection to the servers
         consumer.close()
+
 
 test_poll_alerts()
