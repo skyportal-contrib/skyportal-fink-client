@@ -7,8 +7,11 @@ skyportal_dir = basedir + "/../skyportal"
 
 cmd = subprocess.Popen(["make", "run"], cwd=skyportal_dir, preexec_fn=os.setsid)
 
-time.sleep(30)
+time.sleep(60)
 
 cmd = subprocess.Popen(
     ["make", "load_demo_data"], cwd=skyportal_dir, preexec_fn=os.setsid
 )
+
+time.sleep(30)
+
