@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_subset: ['Test Pooling Alerts', 'Unit Testing of utils functions (with skyportal API)']
+        test_subset: ['Unit Testing of utils functions (with skyportal API)','Test Pooling Alerts']
 
     steps:
       - uses: actions/setup-python@v1

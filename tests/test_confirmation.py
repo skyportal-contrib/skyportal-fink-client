@@ -66,9 +66,13 @@ def test_verify_pooling():
             alerts_by_source[source['objectId']].append(source)
         else:
             alerts_by_source[source['objectId']] = [source]
-    
-    print(len(alerts_by_source))
-    print(alerts_by_source[alerts_sources[0]][0]['objectId'])
 
     for source in alerts_by_source:
-        print()
+        skyportal_photometries = skyportal_api.api("GET", f"http://localhost:5000/api/sources/{source}/photometry?numPerPage=100", token=skyportal_token).json()["data"]
+        for photometry in alerts_by_source[source]:
+            # get list of mjd from skyportal_photometries
+            assert round(photometry['candidate']['ra'],17) in [round(skyportal_photometry['ra'],17) for skyportal_photometry in skyportal_photometries]
+            assert round(photometry['candidate']['dec'],17) in [round(skyportal_photometry['dec'],17) for skyportal_photometry in skyportal_photometries]
+            assert round(photometry['candidate']['magpsf'],17) in [round(skyportal_photometry['mag'],17) for skyportal_photometry in skyportal_photometries]
+            assert round(photometry['candidate']['sigmapsf'],17) in [round(skyportal_photometry['magerr'],17) for skyportal_photometry in skyportal_photometries]
+            assert round(photometry['candidate']['diffmaglim'],17) in [round(skyportal_photometry['limiting_mag'],17) for skyportal_photometry in skyportal_photometries]
