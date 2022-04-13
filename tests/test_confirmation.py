@@ -46,15 +46,15 @@ def test_verify_pooling():
     print(len(alerts))
     print(alerts[0].keys())
     
-    skyportal_candidates = skyportal_api.api("GET", f"http://localhost:5000/api/candidates", token=skyportal_token).json()["data"]["candidates"]
+    skyportal_candidates = skyportal_api.api("GET", f"http://localhost:5000/api/candidates?numPerPage=100", token=skyportal_token).json()["data"]["candidates"]
+    print(len(skyportal_candidates)-len(demo_data['candidates']))
     assert (len(skyportal_candidates)-len(demo_data['candidates'])) == len(alerts)
 
     alerts_sources = []
     for alert in alerts:
         if alert['objectId'] not in alerts_sources:
             alerts_sources.append(alert['objectId'])
-    skyportal_sources = skyportal_api.api("GET", f"http://localhost:5000/api/sources", token=skyportal_token).json()["data"]["sources"]
-
+    skyportal_sources = skyportal_api.api("GET", f"http://localhost:5000/api/sources?numPerPage=100", token=skyportal_token).json()["data"]["sources"]
     assert (len(skyportal_sources)-len(demo_data['sources'])) == len(alerts_sources)
 
     print(skyportal_sources[0])

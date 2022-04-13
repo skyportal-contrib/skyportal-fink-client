@@ -1,4 +1,3 @@
-from pickletools import int4
 import requests
 from astropy.time import Time
 import time
@@ -469,6 +468,7 @@ def post_photometry(
     }
 
     response = api("POST", f"{url}/api/photometry", data, token=token)
+    print(response.json())
     return (
         response.status_code,
         response.json()["data"]["ids"] if response.json()["data"] != {} else {},
@@ -527,45 +527,6 @@ def post_classification(
     )
 
     return response.status_code, response.json()
-
-
-def post_user(username: str, url: str, token: str):
-    """
-    Post a user to skyportal using its API
-
-    Parameters
-    ----------
-    username : str
-        Username of the user to post
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
-
-    Returns
-    ----------
-    status_code : int
-        HTTP status code
-    data : int
-        User id
-    """
-    data = {
-        # "first_name": first_name,
-        # "last_name": last_name,
-        # "contact_email": contact_email,
-        # "oauth_uid": oauth_uid,
-        # "contact_phone": contact_phone,
-        # "roles": roles,
-        # "groupIDsAndAdmin": groupIDsAndAdmin,
-        "username": username
-    }
-
-    response = api("POST", f"{url}/api/user", data, token=token)
-
-    return (
-        response.status_code,
-        response.json()["data"]["id"] if response.json()["data"] != {} else {},
-    )
 
 
 def post_streams(name: str, url: str, token: str):
@@ -697,6 +658,7 @@ def post_instruments(
         "telescope_id": telescope_id,
     }
     response = api("POST", f"{url}/api/instrument", data, token=token)
+    print(response.json())
     return (
         response.status_code,
         response.json()["data"]["id"] if response.json()["data"] != {} else {},
@@ -734,7 +696,7 @@ def post_groups(name: str, url: str, token: str):
     )
 
 
-def post_taxonomy(name: str, hierarchy: list, version: int, url: str, token: str):
+def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str):
     """
     Post a taxonomy to skyportal using its API
 
@@ -742,9 +704,9 @@ def post_taxonomy(name: str, hierarchy: list, version: int, url: str, token: str
     ----------
     name: str
         Name of the taxonomy to post
-    hierarchy: list
+    hierarchy: dict
         Hierarchy of the taxonomy to post
-    version: int
+    version: str
         Version of the taxonomy to post
     url : str
         Skyportal url
@@ -766,7 +728,7 @@ def post_taxonomy(name: str, hierarchy: list, version: int, url: str, token: str
         # "provenance": provenance,
         # "isLatest": true
     }
-    response = api("POST", f"{url}/api/taxonomy", data, url, token=token)
+    response = api("POST", f"{url}/api/taxonomy", data, token=token)
     return (
         response.status_code,
         response.json()["data"]["taxonomy_id"]
@@ -1060,7 +1022,8 @@ def from_fink_to_skyportal(
     None
     """
     time.sleep(1)
-    instruments = get_all_instruments(url=url, token=token)[1]
+    overall_status = 200
+    overall_status, instruments = get_all_instruments(url=url, token=token)
     instrument_id = None
     for existing_instrument in instruments:
         if instrument.lower() in existing_instrument.lower():
@@ -1068,12 +1031,18 @@ def from_fink_to_skyportal(
             break
     if instrument_id is not None:
         instrument_id = instruments[existing_instrument]
-        source_ids = get_all_source_ids(url=url, token=token)[1]
-        if object_id not in source_ids:
-            post_source(object_id, ra, dec, [fink_id], url=url, token=token)
+        status = post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
+        if status != 200:
+            overall_status = status
         passed_at = Time(mjd, format="mjd").isot
-        post_candidate(object_id, ra, dec, [filter_id], passed_at, url=url, token=token)
-        post_photometry(
+        status = post_candidate(
+            object_id, ra, dec, [filter_id], passed_at, url=url, token=token
+        )[0]
+        print("candidate")
+        print(status)
+        if status != 200:
+            overall_status = status
+        status = post_photometry(
             object_id,
             mjd,
             instrument_id,
@@ -1088,9 +1057,9 @@ def from_fink_to_skyportal(
             [stream_id],
             url=url,
             token=token,
-        )
+        )[0]
         if classification_exists_for_objs(object_id, url=url, token=token):
-            update_classification(
+            status = update_classification(
                 object_id,
                 classification,
                 probability,
@@ -1099,8 +1068,10 @@ def from_fink_to_skyportal(
                 url=url,
                 token=token,
             )
+            if status != 200:
+                overall_status = status
         else:
-            post_classification(
+            status = post_classification(
                 object_id,
                 classification,
                 probability,
@@ -1108,9 +1079,12 @@ def from_fink_to_skyportal(
                 [fink_id],
                 url=url,
                 token=token,
-            )
+            )[0]
+            if status != 200:
+                overall_status = status
         print(
             f"Candidate with source: {object_id}, classified as a {classification} added to SkyPortal"
         )
     else:
         print("error: instrument named {} does not exist".format(instrument))
+    return overall_status

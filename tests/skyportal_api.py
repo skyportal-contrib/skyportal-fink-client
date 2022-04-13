@@ -1,4 +1,3 @@
-from pickletools import int4
 import requests
 from astropy.time import Time
 import time
@@ -1032,13 +1031,9 @@ def from_fink_to_skyportal(
             break
     if instrument_id is not None:
         instrument_id = instruments[existing_instrument]
-        status, source_ids = get_all_source_ids(url=url, token=token)
+        status = post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
         if status != 200:
             overall_status = status
-        if object_id not in source_ids:
-            status = post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
-            if status != 200:
-                overall_status = status
         passed_at = Time(mjd, format="mjd").isot
         status = post_candidate(
             object_id, ra, dec, [filter_id], passed_at, url=url, token=token

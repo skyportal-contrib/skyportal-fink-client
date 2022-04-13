@@ -89,7 +89,7 @@ def poll_alerts():
     if conf["testing"] == True:
         print("Using fake alerts for testing")
         schema = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "testing/schemas/schema_test.avsc")
+            os.path.join(os.path.dirname(__file__), "tests/schemas/schema_test.avsc")
         )
         consumer = AlertConsumer(topics, myconfig, schema_path=schema)
     else:
