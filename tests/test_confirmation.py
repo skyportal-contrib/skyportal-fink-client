@@ -72,6 +72,3 @@ def test_verify_pooling():
 
     for source in alerts_by_source:
         print()
-
-
-test_verify_pooling()
