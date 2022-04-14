@@ -121,11 +121,7 @@ jobs:
 
       - name: Install dependencies for skyportal-fink-client in a virtualenv
         run: |
-          pip install virtualenv;
-          virtualenv env;
-          source env/bin/activate;
-          pip install -r requirements.txt;
-          deactivate
+          pip install virtualenv; virtualenv env; source env/bin/activate; pip install -r requirements.txt; deactivate
 
       - name: Run SkyPortal
         run: |
