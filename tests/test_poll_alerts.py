@@ -156,4 +156,3 @@ def test_poll_alerts():
         print("interrupted!")
         # Close the connection to the servers
         consumer.close()
-
