@@ -5,7 +5,7 @@ import yaml
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 
-import skyportal_api as skyportal_api
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 
 # open yaml config file
 with open(
@@ -105,7 +105,7 @@ def test_poll_alerts():
         consumer = AlertConsumer(topics, myconfig)
     try:
         while True:
-            if failed_attempts > 10:
+            if failed_attempts > 2:
                 print("No more alerts to process")
                 break
             # Poll the servers
@@ -157,5 +157,3 @@ def test_poll_alerts():
         # Close the connection to the servers
         consumer.close()
 
-
-test_poll_alerts()

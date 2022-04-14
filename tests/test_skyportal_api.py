@@ -1,6 +1,6 @@
-import skyportal_api as skyportal_api
 import yaml
 import os
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 
 with open(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml",

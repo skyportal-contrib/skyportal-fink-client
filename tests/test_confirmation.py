@@ -1,8 +1,7 @@
 import os
 import yaml
-from unittest import result
-import skyportal_api as skyportal_api
 from fink_client.avroUtils import AlertReader
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 data_path = basedir + "/sample.avro"
