@@ -119,37 +119,46 @@ jobs:
           export NPM_CONFIG_LEGACY_PEER_DEPS="true"
           make dependencies
 
-      - name: Install dependencies for tests with kafka and fink-client
+      - name: Install dependencies for skyportal-fink-client in a virtualenv
         run: |
+          pip install virtualenv
+          virtualenv env
+          source env/bin/activate
           pip install -r requirements.txt
 
       - name: Run SkyPortal
         run: |
-          PYTHONPATH=. python tests/run_skyportal.py
+          source env/bin/activate
+          python tests/run_skyportal.py
 
       - name: Get admin token from SkyPortal
         run: |
-          PYTHONPATH=. py.test tests/test_skyportal_token.py
+          source env/bin/activate
+          py.test tests/test_skyportal_token.py
 
       - name: Unit testing of utils function with SkyPortal API
         if: ${{ matrix.test_subset == 'Unit Testing of utils functions (with skyportal API)' }}
         run: |
-          PYTHONPATH=. py.test tests/test_skyportal_api.py
+          source env/bin/activate
+          py.test tests/test_skyportal_api.py
 
       - name: Generate Fake Alerts for testing
         if: ${{ matrix.test_subset == 'Test Polling Alerts' }}
         run: |
-          PYTHONPATH=. python tests/produce_fake.py
+          source env/bin/activate
+          python tests/produce_fake.py
 
       - name: Test Poll Alerts using Fink Client and post it to SkyPortal
         if: ${{ matrix.test_subset == 'Test Polling Alerts' }}
         run: |
-          PYTHONPATH=. py.test tests/test_poll_alerts.py
+          source env/bin/activate
+          py.test tests/test_poll_alerts.py
 
       - name: Test if the alerts posted to SkyPortal correspond to the fake alerts generated
         if: ${{ matrix.test_subset == 'Test Polling Alerts' }}
         run: |
-          PYTHONPATH=. py.test tests/test_confirmation.py
+          source env/bin/activate
+          py.test tests/test_confirmation.py
 
       - name: Stop SkyPortal
         working-directory: ./skyportal
