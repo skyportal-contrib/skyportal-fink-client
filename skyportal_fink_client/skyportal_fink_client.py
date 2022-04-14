@@ -8,7 +8,7 @@ import utils.skyportal_api as skyportal_api
 
 # open yaml config file
 with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/config.yaml", "r"
+    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
 ) as stream:
     try:
         conf = yaml.safe_load(stream)
