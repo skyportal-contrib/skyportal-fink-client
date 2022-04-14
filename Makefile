@@ -14,7 +14,3 @@ skyportal/Makefile:
 
 make poll_alerts:
 	@PYTHONPATH=. python skyportal_fink_client/skyportal_fink_client.py
-
-
-
-

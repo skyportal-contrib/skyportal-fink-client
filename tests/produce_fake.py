@@ -10,6 +10,7 @@ basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 data_path = basedir + "/sample.avro"
 schema_path = basedir + "/schemas/schema_test.avsc"
 
+
 def produce_fake_alerts():
     """
     Generate fake alerts on a kafka server for testing purposes
@@ -48,5 +49,6 @@ def produce_fake_alerts():
             print("Connection Error")
 
     p.flush()
+
 
 produce_fake_alerts()
