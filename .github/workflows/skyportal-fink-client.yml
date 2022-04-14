@@ -129,7 +129,7 @@ jobs:
 
       - name: Run SkyPortal
         run: |
-          PYTHONPATH=. py.test tests/run_skyportal.py
+          PYTHONPATH=. python tests/run_skyportal.py
 
       - name: Get admin token from SkyPortal
         run: |
