@@ -110,7 +110,7 @@ jobs:
           pip list --format=columns
           npm ls --depth 0 || true
           # Stamp Alembic HEAD
-          alembic -x config=config.yaml stamp head
+          PYTHONPATH=. alembic -x config=config.yaml stamp head
 
       - name: Refresh SkyPortal dependencies for tested version
         working-directory: ./skyportal
@@ -125,7 +125,7 @@ jobs:
 
       - name: Run SkyPortal
         run: |
-          python tests/run_skyportal.py
+          PYTHONPATH=. python tests/run_skyportal.py
 
       - name: Get admin token from SkyPortal
         run: |
