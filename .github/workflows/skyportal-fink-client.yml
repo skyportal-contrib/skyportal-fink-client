@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres
@@ -110,7 +110,7 @@ jobs:
           pip list --format=columns
           npm ls --depth 0 || true
           # Stamp Alembic HEAD
-          PYTHONPATH=. alembic -x config=config.yaml stamp head
+          alembic -x config=config.yaml stamp head
 
       - name: Refresh SkyPortal dependencies for tested version
         working-directory: ./skyportal
@@ -125,7 +125,7 @@ jobs:
 
       - name: Run SkyPortal
         run: |
-          PYTHONPATH=. python tests/run_skyportal.py
+          python tests/run_skyportal.py
 
       - name: Get admin token from SkyPortal
         run: |
