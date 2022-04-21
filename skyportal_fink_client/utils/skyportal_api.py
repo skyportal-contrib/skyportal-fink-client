@@ -915,7 +915,6 @@ def init_skyportal(url: str, token: str):
     )
 
 
-# recursively look for a given class in a taxonomy hierarchy
 def class_exists_in_hierarchy(classification: str, branch: list):
     """
     Recursively look for a given class in a taxonomy hierarchy
