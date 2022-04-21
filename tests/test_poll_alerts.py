@@ -6,34 +6,13 @@ from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
+import skyportal_fink_client.utils.files as files
+from skyportal_fink_client.utils.switchers import fid_to_filter_ztf
 
 # open yaml config file
-with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml", "r"
-) as stream:
-    try:
-        conf = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-
-
-def fid_to_filter(fid: int):
-    """
-    Convert a fid to a filter name.
-    In the alert data from Fink, the fid corresponds to the 3 different filters used by the ZTF telescope.
-
-    Parameters
-    ----------
-    fid: int
-        id of a filter in an alert
-
-    Returns
-    ----------
-    filter: str
-        name of the filter
-    """
-    switcher = {1: "ztfg", 2: "ztfr", 3: "ztfi"}
-    return switcher.get(fid)
+conf = files.yaml_to_dict(
+    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
+)
 
 
 def test_poll_alerts():
@@ -116,7 +95,7 @@ def test_poll_alerts():
                     object_id = alert["objectId"]
                     mjd = Time(alert["candidate"]["jd"], format="jd").mjd
                     instrument = "ZTF"
-                    filter = fid_to_filter(
+                    filter = fid_to_filter_ztf(
                         alert["candidate"]["fid"]
                     )  # fid is filter id
                     mag = alert["candidate"]["magpsf"]  # to be verified

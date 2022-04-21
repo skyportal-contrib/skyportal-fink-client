@@ -2,30 +2,20 @@ import os
 import yaml
 from fink_client.avroUtils import AlertReader
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
+import skyportal_fink_client.utils.files as files
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 data_path = basedir + "/sample.avro"
 
-with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml",
-    "r",
-) as stream:
-    try:
-        conf = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-
+conf = files.yaml_to_dict(
+    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
+)
 skyportal_token = conf["skyportal_token"]
 
-with open(
+demo_data = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__)))
-    + "/../skyportal/data/db_demo.yaml",
-    "r",
-) as stream:
-    try:
-        demo_data = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
+    + "/../skyportal/data/db_demo.yaml"
+)
 
 
 def test_verify_pooling():

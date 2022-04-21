@@ -9,6 +9,26 @@ def api(
     data=None,
     token=None,
 ):
+    """
+    Make an API call to skyportal
+
+    Parameters
+    ----------
+    method : str
+        HTTP method to use
+    endpoint : str
+        Endpoint to call
+    data : dict
+        Data to send with the request
+    token : str
+        Skyportal token
+
+    Returns
+    ----------
+    response : requests.Response
+        Response from skyportal
+
+    """
     headers = {"Authorization": f"token {token}"}
     response = requests.request(method, endpoint, json=data, headers=headers)
     return response

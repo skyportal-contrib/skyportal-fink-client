@@ -2,6 +2,8 @@
 import os
 import yaml
 
+import skyportal_fink_client.utils.files as files
+
 
 def test_getting_skyportal_admin_token():
     """
@@ -15,37 +17,21 @@ def test_getting_skyportal_admin_token():
     ----------
     None
     """
-
-    with open(
+    conf_skyportal = files.yaml_to_dict(
         os.path.abspath(os.path.join(os.path.dirname(__file__)))
-        + "/../skyportal/.tokens.yaml",
-        "r",
-    ) as stream:
-        try:
-            conf_skyportal = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
+        + "/../skyportal/.tokens.yaml"
+    )
 
     skyportal_token = conf_skyportal["INITIAL_ADMIN"]
     assert skyportal_token is not None
     assert skyportal_token is not ""
 
-    with open(
-        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml",
-        "r",
-    ) as stream:
-        try:
-            conf = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
-
+    conf = files.yaml_to_dict(
+        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
+    )
     conf["skyportal_token"] = skyportal_token
 
-    with open(
+    files.dict_to_yaml(
+        conf,
         os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml",
-        "w",
-    ) as stream:
-        try:
-            yaml.dump(conf, stream)
-        except yaml.YAMLError as exc:
-            print(exc)
+    )

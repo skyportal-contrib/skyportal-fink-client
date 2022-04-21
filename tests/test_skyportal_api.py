@@ -1,16 +1,11 @@
 import yaml
 import os
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
+import skyportal_fink_client.utils.files as files
 
-with open(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml",
-    "r",
-) as stream:
-    try:
-        conf = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-
+conf = files.yaml_to_dict(
+    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
+)
 skyportal_token = conf["skyportal_token"]
 
 
