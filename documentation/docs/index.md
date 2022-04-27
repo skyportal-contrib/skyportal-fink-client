@@ -28,13 +28,9 @@ As a user, if you wish to recover said alerts from fink, you can use the [Fink C
 
 ## Quick start
 
-First, you need to recover an api token from a running SkyPortal instance and set it in the configuration file `config.yaml`.
+First, you need to fill the configuration file `config.yaml` as instructed [here](user_guide.md).
 
-Next, you need to recover credentials for Fink, and set them in the configuration file `config.yaml`. You ask for those said credentials [here](https://forms.gle/2td4jysT4e9pkf889).
-
-Then, you need to fill the rest of the configuration file `config.yaml` as instructed [here](https://skyportal.io/docs/setup/).
-
-Now, you need to [install the required dependencies](user_guide.md), and you are ready to start polling alerts ! In your terminal, ust navigate to the root directory of `skyportal-fink-client` and run:
+Then, you need to [install the required dependencies](user_guide.md), and you are ready to start polling alerts ! In your terminal, ust navigate to the root directory of `skyportal-fink-client` and run:
 
 ```
 source venv/bin/activate
@@ -51,3 +47,5 @@ make poll
 Now, when need alerts come in, they will be processed and pushed to SkyPortal. You'll see new candidate and sources appear in SkyPortal.
 
 To stop polling, hit `ctrl+c` on your keyboard.
+
+For more details, see the [user guide](user_guide.md).
