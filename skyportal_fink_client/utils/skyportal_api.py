@@ -51,7 +51,7 @@ def get_all_group_ids(url: str, token: str):
             HTTP status code
         data : list
             List of group ids
-            
+
     """
     groups = api("GET", f"{url}/api/groups", token=token)
 
@@ -1035,7 +1035,7 @@ def from_fink_to_skyportal(
         url : str
             Skyportal url
         token : str
-            Skyportal token  
+            Skyportal token
 
     Returns
     ----------
