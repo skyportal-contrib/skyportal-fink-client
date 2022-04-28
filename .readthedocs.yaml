@@ -15,9 +15,9 @@ submodules:
   include: []
   recursive: false
 mkdocs:
-  configuration: documentation/mkdocs.yml
+  configuration: mkdocs.yml
 
 # Optionally declare the Python requirements required to build your docs
 python:
    install:
-   - requirements: documentation/requirements-doc.txt
+   - requirements: requirements-doc.txt
