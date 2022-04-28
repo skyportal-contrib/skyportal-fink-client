@@ -5,13 +5,13 @@ def fid_to_filter_ztf(fid: int):
 
     Parameters
     ----------
-    fid: int
-        id of a filter in an alert
+        fid : int
+            id of a filter in an alert
 
     Returns
     ----------
-    filter: str
-        name of the filter
+        filter : str
+            name of the filter
     """
     switcher = {1: "ztfg", 2: "ztfr", 3: "ztfi"}
     return switcher.get(fid)

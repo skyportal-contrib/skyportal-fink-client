@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-import yaml
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 
@@ -20,15 +19,15 @@ def poll_alerts(maxtimeout: int = 5):
     the necessary access credentials to both fink and skyportal, as well as a list of topics to subscribe to
     (corresponding to a classification in skyportal).
 
-    Parameters
+    Arguments
     ----------
-    maxtimeout: int
-        maximum time to wait for a message to be received from a topic
-        (max interval between two polling tries)
+        maxtimeout : int
+            maximum time to wait for a message to be received from a topic
+            (max interval between two polling tries)
 
     Returns
     ----------
-    None
+        None
     """
     myconfig = {
         "username": conf["username"],
