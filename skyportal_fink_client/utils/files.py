@@ -6,15 +6,15 @@ def yaml_to_dict(file_path):
     """
     Open a config file and return a dictionary containing the configuration.
 
-    Parameters
+    Arguments
     ----------
-    file_path: str
-        path to the yaml file
+        file_path : str
+            path to the yaml file
 
     Returns
     ----------
-    config: dict
-        dictionary containing the date from the yaml file
+        config : dict
+            dictionary containing the date from the yaml file
     """
 
     with open(file_path, "r") as stream:
@@ -29,16 +29,16 @@ def dict_to_yaml(dict, file_path):
     """
     Write a dictionary to a yaml file.
 
-    Parameters
+    Arguments
     ----------
-    dict: dict
-        dictionary to write to the yaml file
-    file_path: str
-        path to the yaml file
+        dict : dict
+            dictionary to write to the yaml file
+        file_path : str
+            path to the yaml file
 
     Returns
     ----------
-    None
+        None
     """
     with open(
         file_path,

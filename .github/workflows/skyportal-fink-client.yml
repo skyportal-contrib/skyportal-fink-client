@@ -1,4 +1,4 @@
-name: skyportal-install
+name: skyportal-fink-client
 
 on:
   pull_request:
