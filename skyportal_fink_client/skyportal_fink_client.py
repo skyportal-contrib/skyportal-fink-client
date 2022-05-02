@@ -3,10 +3,11 @@ import os
 import yaml
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
-
+from fink_filters.classification import extract_fink_classification_from_pdf
 import utils.skyportal_api as skyportal_api
 import utils.files as files
 from utils.switchers import fid_to_filter_ztf
+import pandas as pd
 
 # open yaml config file
 conf = files.yaml_to_dict(
@@ -40,26 +41,8 @@ def poll_alerts(maxtimeout: int = 5):
         myconfig["password"] = conf["password"]
 
     # extract all topics from conf['mytopics'] and create a list of topics names
-    topics = list(conf["mytopics"].keys())
+    topics = list(conf["mytopics"])
     print(f"Fink topics you subscribed to: {topics}")
-
-    taxonomy_ids = {}
-    for topic in topics:
-        status, taxonomy_id = skyportal_api.get_taxonomy_id_including_classification(
-            conf["mytopics"][topic]["classification"],
-            conf["skyportal_url"],
-            conf["skyportal_token"],
-        )
-        if status != 401:
-            if taxonomy_id is not None:
-                taxonomy_ids[topic] = taxonomy_id
-            else:
-                return print(
-                    "Classification not found in taxonomy:",
-                    conf["mytopics"][topic]["classification"],
-                )
-        else:
-            return print("Skyportal token not valid")
 
     fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
         conf["skyportal_url"], conf["skyportal_token"]
@@ -83,6 +66,12 @@ def poll_alerts(maxtimeout: int = 5):
             # Analyse output - we just print some values for example
             if topic is not None:
                 if alert is not None:
+                    classification = extract_fink_classification_from_pdf(
+                        pd.DataFrame([alert])
+                    )[0]
+                    print(
+                        f"\nReceived alert from topic {topic} with classification {classification}"
+                    )
                     object_id = alert["objectId"]
                     mjd = Time(alert["candidate"]["jd"], format="jd").mjd
                     instrument = "ZTF"
@@ -96,8 +85,8 @@ def poll_alerts(maxtimeout: int = 5):
                     ra = alert["candidate"]["ra"]
                     dec = alert["candidate"]["dec"]
                     skyportal_api.from_fink_to_skyportal(
-                        conf["mytopics"][topic]["classification"],
-                        conf["mytopics"][topic]["probability"],
+                        classification,
+                        1,
                         object_id,
                         mjd,
                         instrument,
@@ -111,7 +100,6 @@ def poll_alerts(maxtimeout: int = 5):
                         fink_id,
                         filter_id,
                         stream_id,
-                        taxonomy_ids[topic],
                         url=conf["skyportal_url"],
                         token=conf["skyportal_token"],
                     )
