@@ -12,21 +12,21 @@ def api(
     """
     Make an API call to skyportal
 
-    Parameters
+    Arguments
     ----------
-    method : str
-        HTTP method to use
-    endpoint : str
-        Endpoint to call
-    data : dict
-        Data to send with the request
-    token : str
-        Skyportal token
+        method : str
+            HTTP method to use
+        endpoint : str
+            Endpoint to call
+        data : dict
+            Data to send with the request
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    response : requests.Response
-        Response from skyportal
+        response : requests.Response
+            Response from skyportal
 
     """
     headers = {"Authorization": f"token {token}"}
@@ -38,19 +38,20 @@ def get_all_group_ids(url: str, token: str):
     """
     Get all group ids from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of group ids
+        status : int
+            HTTP status code
+        data : list
+            List of group ids
+
     """
     groups = api("GET", f"{url}/api/groups", token=token)
 
@@ -64,19 +65,19 @@ def get_group_ids_and_name(url: str, token: str):
     """
     Get all group ids and their names from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of group ids and their names
+        status_code : int
+            HTTP status code
+        data : list
+            List of group ids and their names
     """
 
     groups = api("GET", f"{url}/api/groups", token=token)
@@ -94,19 +95,19 @@ def get_all_instruments(url: str, token: str):
     """
     Get all instruments from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of instruments
+        status_code : int
+            HTTP status code
+        data : list
+            List of instruments
     """
     instruments = api("GET", f"{url}/api/instrument", token=token)
 
@@ -123,19 +124,19 @@ def get_all_source_ids(url: str, token: str):
     """
     Get all source ids from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of source ids
+        status_code : int
+            HTTP status code
+        data : list
+            List of source ids
     """
     sources = api("GET", f"{url}/api/sources", token=token)
 
@@ -149,19 +150,19 @@ def get_all_candidate_ids(url: str, token: str):
     """
     Get all candidate ids from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of candidate ids
+        status_code : int
+            HTTP status code
+        data : list
+            List of candidate ids
     """
     candidates = api("GET", f"{url}/api/candidates", token=token)
 
@@ -174,19 +175,19 @@ def get_all_streams(url: str, token: str):
     """
     Get all streams from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of streams
+        status_code : int
+            HTTP status code
+        data : list
+            List of streams
     """
     streams = api("GET", f"{url}/api/streams", token=token)
 
@@ -197,19 +198,19 @@ def get_all_stream_ids(url: str, token: str):
     """
     Get all stream ids from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of stream ids
+        status_code : int
+            HTTP status code
+        data : list
+            List of stream ids
     """
     streams = api("GET", f"{url}/api/streams", token=token)
 
@@ -223,19 +224,19 @@ def classification_exists_for_objs(object_id: str, url: str, token: str):
     """
     Check if a classification exists for a given object
 
-    Parameters
+    Arguments
     ----------
-    object_id : str
-        Object id to check if classification exists for
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        object_id : str
+            Object id to check if classification exists for
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    exists : bool
-        True if classification exists, False otherwise
+        exists : bool
+            True if classification exists, False otherwise
     """
     classifications = api(
         "GET",
@@ -249,21 +250,21 @@ def classification_id_for_objs(object_id: str, url: str, token: str):
     """
     Get classification id for a given object
 
-    Parameters
+    Arguments
     ----------
-    object_id : str
-        Object id to get classification id for
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        object_id : str
+            Object id to get classification id for
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of classification ids and their author ids
+        status_code : int
+            HTTP status code
+        data : list
+            List of classification ids and their author ids
     """
     classifications = api(
         "GET",
@@ -285,27 +286,27 @@ def post_source(
     """
     Post a source to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    object_id : str
-        Object id to post source for
-    ra : float
-        Right ascension of object
-    dec : float
-        Declination of object
-    group_ids : list
-        List of group ids to post source to
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        object_id : str
+            Object id to post source for
+        ra : float
+            Right ascension of object
+        dec : float
+            Declination of object
+        group_ids : list
+            List of group ids to post source to
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Source id
+        status_code : int
+            HTTP status code
+        data : int
+            Source id
     """
     data = {
         "ra": ra,
@@ -351,29 +352,29 @@ def post_candidate(
     """
     Post a candidate to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    object_id : str
-        Object id to post candidate for
-    ra : float
-        Right ascension of object
-    dec : float
-        Declination of object
-    filter_ids : list
-        List of filter ids for this candidate
-    passed_at : str
-        Date and time candidate was passed
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        object_id : str
+            Object id to post candidate for
+        ra : float
+            Right ascension of object
+        dec : float
+            Declination of object
+        filter_ids : list
+            List of filter ids for this candidate
+        passed_at : str
+            Date and time candidate was passed
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Candidate id
+        status_code : int
+            HTTP status code
+        data : int
+            Candidate id
     """
 
     data = {
@@ -428,43 +429,43 @@ def post_photometry(
 ):
     """
     Post a photometry to skyportal using its API
-    Parameters
+    Arguments
     ----------
-    object_id : str
-        Object id to post candidate for
-    mjd : float
-        Modified Julian Date of the observation
-    instrument_id : int
-        id of the instrument used to observe the object
-    filter : str
-        Filter used by the instrument to observe the object
-    mag : float
-        Magnitude value of the observation
-    magerr : float
-        Magnitude error value of the observation
-    limiting_mag : float
-        Limiting magnitude value of the observation
-    magsys : str
-        Magnitude system used for the magnitude values
-    ra : float
-        Right ascension of object
-    dec : float
-        Declination of object
-    group_ids : list
-        List of group ids to post photometry to
-    stream_ids : list
-        List of stream ids to post photometry to
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        object_id : str
+            Object id to post candidate for
+        mjd : float
+            Modified Julian Date of the observation
+        instrument_id : int
+            id of the instrument used to observe the object
+        filter : str
+            Filter used by the instrument to observe the object
+        mag : float
+            Magnitude value of the observation
+        magerr : float
+            Magnitude error value of the observation
+        limiting_mag : float
+            Limiting magnitude value of the observation
+        magsys : str
+            Magnitude system used for the magnitude values
+        ra : float
+            Right ascension of object
+        dec : float
+            Declination of object
+        group_ids : list
+            List of group ids to post photometry to
+        stream_ids : list
+            List of stream ids to post photometry to
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Source id
+        status_code : int
+            HTTP status code
+        data : int
+            Source id
     """
     data = {
         "ra": ra,
@@ -506,29 +507,29 @@ def post_classification(
     """
     Post a classification to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    object_id : str
-        Object id to post candidate for
-    classification : str
-        Classification of the object, e.g. 'kilonova'
-    probability : float
-        Probability of the classification
-    taxonomy_id : int
-        id of the taxonomy in which the classification is defined
-    groups_ids : list
-        List of group ids to post classification to
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        object_id : str
+            Object id to post candidate for
+        classification : str
+            Classification of the object, e.g. 'kilonova'
+        probability : float
+            Probability of the classification
+        taxonomy_id : int
+            id of the taxonomy in which the classification is defined
+        groups_ids : list
+            List of group ids to post classification to
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Classification id
+        status_code : int
+            HTTP status code
+        data : int
+            Classification id
     """
     data = {
         "classification": classification,
@@ -552,21 +553,21 @@ def post_streams(name: str, url: str, token: str):
     """
     Post a stream to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    name : str
-        Name of the stream to post
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        name : str
+            Name of the stream to post
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Stream id
+        status_code : int
+            HTTP status code
+        data : int
+            Stream id
     """
     data = {"name": name}
 
@@ -581,25 +582,25 @@ def post_filters(name: str, stream_id: int, group_id: int, url: str, token: str)
     """
     Post a filter to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    name : str
-        Name of the filter to post
-    stream_id : int
-        id of the stream to post filter to
-    group_id : int
-        id of the group to post filter to
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        name : str
+            Name of the filter to post
+        stream_id : int
+            id of the stream to post filter to
+        group_id : int
+            id of the group to post filter to
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Filter id
+        status_code : int
+            HTTP status code
+        data : int
+            Filter id
     """
     data = {"name": name, "stream_id": stream_id, "group_id": group_id}
 
@@ -614,25 +615,25 @@ def post_telescopes(name: str, nickname: str, diameter: float, url: str, token: 
     """
     Post a telescope to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    name : str
-        Name of the telescope to post
-    nickname : str
-        Nickname of the telescope to post
-    diameter : float
-        Diameter of the telescope to post
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        name : str
+            Name of the telescope to post
+        nickname : str
+            Nickname of the telescope to post
+        diameter : float
+            Diameter of the telescope to post
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Telescope id
+        status_code : int
+            HTTP status code
+        data : int
+            Telescope id
     """
     data = {"name": name, "nickname": nickname, "diameter": diameter}
     response = api("POST", f"{url}/api/telescope", data, token=token)
@@ -648,27 +649,27 @@ def post_instruments(
     """
     Post an instrument to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    name : str
-        Name of the instrument to post
-    type : str
-        Type of the instrument to post
-    telescope_id : int
-        Id of the telescope to which the instrument is attached
-    filters : list
-        List of filters the instrument has
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        name : str
+            Name of the instrument to post
+        type : str
+            Type of the instrument to post
+        telescope_id : int
+            Id of the telescope to which the instrument is attached
+        filters : list
+            List of filters the instrument has
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Instrument id
+        status_code : int
+            HTTP status code
+        data : int
+            Instrument id
     """
     data = {
         "name": name,
@@ -688,21 +689,21 @@ def post_groups(name: str, url: str, token: str):
     """
     Post a group to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    name : str
-        Name of the group to post
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        name : str
+            Name of the group to post
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Group id
+        status_code : int
+            HTTP status code
+        data : int
+            Group id
     """
     data = {
         "name": name,
@@ -719,25 +720,25 @@ def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str
     """
     Post a taxonomy to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    name: str
-        Name of the taxonomy to post
-    hierarchy: dict
-        Hierarchy of the taxonomy to post
-    version: str
-        Version of the taxonomy to post
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        name: str
+            Name of the taxonomy to post
+        hierarchy: dict
+            Hierarchy of the taxonomy to post
+        version: str
+            Version of the taxonomy to post
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : int
-        Taxonomy id
+        status_code : int
+            HTTP status code
+        data : int
+            Taxonomy id
     """
     data = {
         "name": name,
@@ -768,27 +769,27 @@ def update_classification(
     """
     Update a classification to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    object_id : str
-        Id of the object for which we update the classification
-    classification : str
-        Classification of the object
-    probability : float
-        Probability of classification
-    taxonomy_id : int
-        id of the taxonomy in which the classification is defined
-    group_ids : list
-        List of group ids to post the classification to
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        object_id : str
+            Id of the object for which we update the classification
+        classification : str
+            Classification of the object
+        probability : float
+            Probability of classification
+        taxonomy_id : int
+            id of the taxonomy in which the classification is defined
+        group_ids : list
+            List of group ids to post the classification to
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
+        status_code : int
+            HTTP status code
     """
 
     data_classification = classification_id_for_objs(object_id, url, token)[1]
@@ -820,19 +821,19 @@ def get_all_filters(url: str, token: str):
     """
     Get all filters from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of filters
+        status_code : int
+            HTTP status code
+        data : list
+            List of filters
     """
     response = api("GET", f"{url}/api/filters", token=token)
     return (response.status_code, response.json()["data"])
@@ -842,19 +843,19 @@ def get_all_taxonomies(url: str, token: str):
     """
     Get all taxonomies from skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    data : list
-        List of taxonomies
+        status_code : int
+            HTTP status code
+        data : list
+            List of taxonomies
     """
     response = api("GET", f"{url}/api/taxonomy", token=token)
     return (response.status_code, response.json()["data"])
@@ -865,21 +866,21 @@ def init_skyportal(url: str, token: str):
     Creates the different entities needed in skyportal to add the data of alerts from fink
     (streams, filters, groups) and returns the ids of the entities created, so they can be used to post the alerts to skyportal using its API
 
-    Parameters
+    Arguments
     ----------
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    fink_id : int
-        Id of the fink group in SkyPortal
-    stream_id : int
-        Id of the fink stream in SkyPortal
-    filter_id : int
-        Id of the fink filter in SkyPortal
+        fink_id : int
+            Id of the fink group in SkyPortal
+        stream_id : int
+            Id of the fink stream in SkyPortal
+        filter_id : int
+            Id of the fink filter in SkyPortal
     """
     streams = get_all_streams(url, token)[1]
     # check if a stream with name 'fink_stream' exists
@@ -918,17 +919,17 @@ def class_exists_in_hierarchy(classification: str, branch: list):
     """
     Recursively look for a given class in a taxonomy hierarchy
 
-    Parameters
+    Arguments
     ----------
-    classification : str
-        Classification to look for
-    branch : list
-        Branch of a taxonomy hierarchy in which we look for the classification recursively
+        classification : str
+            Classification to look for
+        branch : list
+            Branch of a taxonomy hierarchy in which we look for the classification recursively
 
     Returns
     ----------
-    exists : bool
-        True if the classification is in the hierarchy, False otherwise
+        exists : bool
+            True if the classification is in the hierarchy, False otherwise
     """
     for tax_class in branch:
         if classification == tax_class["class"].lower():
@@ -960,21 +961,21 @@ def get_taxonomy_id_including_classification(classification: str, url: str, toke
     """
     Get the taxonomy id of a classification if it exists in one of skyportal's taxonomies
 
-    Parameters
+    Arguments
     ----------
-    classification : str
-        Classification we are looking in skyportal taxonomies
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        classification : str
+            Classification we are looking in skyportal taxonomies
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    status_code : int
-        HTTP status code
-    exists : bool
-        True if the classification is in the hierarchy, False otherwise
+        status_code : int
+            HTTP status code
+        exists : bool
+            True if the classification is in the hierarchy, False otherwise
     """
     # find the id of a taxonomy that includes a given classification in its hierarchy
     classification = (
@@ -1021,46 +1022,46 @@ def from_fink_to_skyportal(
     Post an alert to skyportal using its API, that means posting
     a candidate, the associated source, the photometry of the observation and the classification given by fink
 
-    Parameters
+    Arguments
     ----------
-    classification : str
-        Classification of for the object
-    probability : float
-        Given probability for the object's classification
-    object_id : str
-        Id of the object
-    mjd : float
-        MJD of the observation (Modified Julian Date)
-    instrument:
-        Name of the instrument used to observe the object
-    filter:
-        Filter of the instrument used for the observation
-    mag : float
-        Magnitude value of the observation
-    magerr : float
-        Magnitude error value of the observation
-    limiting_mag : float
-        Limiting magnitude value of the observation
-    magsys : str
-        Magnitude system used for the magnitude values
-    ra : float
-        Right ascension of object
-    dec : float
-        Declination of object
-    fink_id : int
-        Id of the group in skyportal that contains the alerts from fink (group called Fink)
-    filter_id : int
-        Id of the filter in skyportal that contains the alerts from fink (filter called fink_filter)
-    stream_id : int
-        Id of the stream in skyportal that contains the alerts from fink (stream called fink_stream)
-    url : str
-        Skyportal url
-    token : str
-        Skyportal token
+        classification : str
+            Classification of for the object
+        probability : float
+            Given probability for the object's classification
+        object_id : str
+            Id of the object
+        mjd : float
+            MJD of the observation (Modified Julian Date)
+        instrument:
+            Name of the instrument used to observe the object
+        filter:
+            Filter of the instrument used for the observation
+        mag : float
+            Magnitude value of the observation
+        magerr : float
+            Magnitude error value of the observation
+        limiting_mag : float
+            Limiting magnitude value of the observation
+        magsys : str
+            Magnitude system used for the magnitude values
+        ra : float
+            Right ascension of object
+        dec : float
+            Declination of object
+        fink_id : int
+            Id of the group in skyportal that contains the alerts from fink (group called Fink)
+        filter_id : int
+            Id of the filter in skyportal that contains the alerts from fink (filter called fink_filter)
+        stream_id : int
+            Id of the stream in skyportal that contains the alerts from fink (stream called fink_stream)
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
 
     Returns
     ----------
-    None
+        None
     """
     time.sleep(1)
     overall_status = 200
