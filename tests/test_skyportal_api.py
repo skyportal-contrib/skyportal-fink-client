@@ -252,12 +252,23 @@ def test_class_exists_in_hierarchy():
 
 
 def test_get_taxonomy_id_including_classification():
+    hierarchy = {"class": "test", "subclasses": [{"class": "classificationTestAPI2"}]}
+    status, data = skyportal_api.post_taxonomy(
+        "TaxonomyTestAPI2",
+        hierarchy,
+        "1",
+        "http://localhost:5000",
+        skyportal_token,
+    )
+    assert status == 200
+    assert data is not None
+
     (
         status,
         classification,
         taxonomy_id,
     ) = skyportal_api.get_taxonomy_id_including_classification(
-        "kilonova", "http://localhost:5000", skyportal_token
+        "classificationTestAPI2", "http://localhost:5000", skyportal_token
     )
     assert status == 200
     assert classification is not None
