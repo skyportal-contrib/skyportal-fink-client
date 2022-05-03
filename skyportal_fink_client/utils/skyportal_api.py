@@ -928,8 +928,11 @@ def class_exists_in_hierarchy(classification: str, branch: list):
 
     Returns
     ----------
-        exists : bool
-            True if the classification is in the hierarchy, False otherwise
+        class:
+            Classification name found in the taxonomy hierarchy
+        exists:
+            True if the classification is found in the taxonomy hierarchy, False otherwise
+
     """
     for tax_class in branch:
         if classification == tax_class["class"].lower():
@@ -974,8 +977,10 @@ def get_taxonomy_id_including_classification(classification: str, url: str, toke
     ----------
         status_code : int
             HTTP status code
-        exists : bool
-            True if the classification is in the hierarchy, False otherwise
+        exists : string
+            Classification if it exists in one of skyportal's taxonomies, None otherwise
+        taxonomy_id : int
+            Id of the taxonomy in skyportal in which the classification is, None otherwise
     """
     # find the id of a taxonomy that includes a given classification in its hierarchy
     classification = (

@@ -243,20 +243,25 @@ def test_get_all_taxonomies():
 
 
 def test_class_exists_in_hierarchy():
-    result = skyportal_api.class_exists_in_hierarchy(
+    classification_name, exists = skyportal_api.class_exists_in_hierarchy(
         "classificationTestAPI",
         [{"class": "test", "subclasses": [{"class": "classificationTestAPI"}]}],
     )
-    assert result is not None
-    assert result == True
+    assert classification_name is not None
+    assert exists == True
 
 
 def test_get_taxonomy_id_including_classification():
-    status, data = skyportal_api.get_taxonomy_id_including_classification(
+    (
+        status,
+        classification,
+        taxonomy_id,
+    ) = skyportal_api.get_taxonomy_id_including_classification(
         "kilonova", "http://localhost:5000", skyportal_token
     )
     assert status == 200
-    assert data is not None
+    assert classification is not None
+    assert taxonomy_id is not None
 
 
 def test_init_skyportal():
@@ -287,7 +292,6 @@ def test_from_fink_to_skyportal():
         fink_id,
         filter_id,
         stream_id,
-        1,
         "http://localhost:5000",
         skyportal_token,
     )
