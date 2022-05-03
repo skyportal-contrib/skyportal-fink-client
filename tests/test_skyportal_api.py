@@ -287,7 +287,6 @@ def test_from_fink_to_skyportal():
     )
     result = skyportal_api.from_fink_to_skyportal(
         "kilonova",
-        0.75,
         "ZTFAPITESTFINAL",
         59000.0,
         "ZTF",
