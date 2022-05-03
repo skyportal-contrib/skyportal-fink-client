@@ -96,7 +96,6 @@ def test_poll_alerts():
                     dec = alert["candidate"]["dec"]
                     skyportal_api.from_fink_to_skyportal(
                         classification,
-                        1,
                         object_id,
                         mjd,
                         instrument,

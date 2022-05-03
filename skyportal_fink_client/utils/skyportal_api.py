@@ -498,7 +498,6 @@ def post_photometry(
 def post_classification(
     object_id: str,
     classification: str,
-    probability: float,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -513,8 +512,6 @@ def post_classification(
             Object id to post candidate for
         classification : str
             Classification of the object, e.g. 'kilonova'
-        probability : float
-            Probability of the classification
         taxonomy_id : int
             id of the taxonomy in which the classification is defined
         groups_ids : list
@@ -534,7 +531,6 @@ def post_classification(
     data = {
         "classification": classification,
         "taxonomy_id": taxonomy_id,
-        "probability": probability,
         "obj_id": object_id,
         "group_ids": group_ids,
     }
@@ -760,7 +756,6 @@ def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str
 def update_classification(
     object_id: str,
     classification: str,
-    probability: float,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -775,8 +770,6 @@ def update_classification(
             Id of the object for which we update the classification
         classification : str
             Classification of the object
-        probability : float
-            Probability of classification
         taxonomy_id : int
             id of the taxonomy in which the classification is defined
         group_ids : list
@@ -801,7 +794,6 @@ def update_classification(
     data = {
         "obj_id": object_id,
         "classification": classification,
-        "probability": probability,
         "taxonomy_id": taxonomy_id,
         "group_ids": group_ids,
         "author_id": author_id,
@@ -1006,7 +998,6 @@ def get_taxonomy_id_including_classification(classification: str, url: str, toke
 
 def from_fink_to_skyportal(
     classification: str,
-    probability: float,
     object_id: str,
     mjd: float,
     instrument: str,
@@ -1031,8 +1022,6 @@ def from_fink_to_skyportal(
     ----------
         classification : str
             Classification of for the object
-        probability : float
-            Given probability for the object's classification
         object_id : str
             Id of the object
         mjd : float
@@ -1115,7 +1104,6 @@ def from_fink_to_skyportal(
                 status = update_classification(
                     object_id,
                     classification,
-                    probability,
                     taxonomy_id,
                     [fink_id],
                     url=url,
@@ -1127,7 +1115,6 @@ def from_fink_to_skyportal(
                 status = post_classification(
                     object_id,
                     classification,
-                    probability,
                     taxonomy_id,
                     [fink_id],
                     url=url,
