@@ -94,7 +94,7 @@ def test_poll_alerts():
                 if alert is not None:
                     object_id = alert["objectId"]
                     mjd = Time(alert["candidate"]["jd"], format="jd").mjd
-                    instrument = "ZTF"
+                    instruments = ["CFH12k", "ZTF"]
                     filter = fid_to_filter_ztf(
                         alert["candidate"]["fid"]
                     )  # fid is filter id
@@ -109,7 +109,7 @@ def test_poll_alerts():
                         conf["mytopics"][topic]["probability"],
                         object_id,
                         mjd,
-                        instrument,
+                        instruments,
                         filter,
                         mag,
                         magerr,
