@@ -1000,7 +1000,7 @@ def from_fink_to_skyportal(
     classification: str,
     object_id: str,
     mjd: float,
-    instrument: str,
+    instruments: list,
     filter: str,
     mag: float,
     magerr: float,
@@ -1026,8 +1026,8 @@ def from_fink_to_skyportal(
             Id of the object
         mjd : float
             MJD of the observation (Modified Julian Date)
-        instrument:
-            Name of the instrument used to observe the object
+        instruments:
+            List of possible names of the instrument used to observe the object
         filter:
             Filter of the instrument used for the observation
         mag : float
@@ -1059,14 +1059,14 @@ def from_fink_to_skyportal(
     """
     time.sleep(1)
     overall_status = 200
-    overall_status, instruments = get_all_instruments(url=url, token=token)
+    overall_status, skyportal_instruments = get_all_instruments(url=url, token=token)
     instrument_id = None
-    for existing_instrument in instruments:
-        if instrument.lower() in existing_instrument.lower():
-            instrument_id = instruments[existing_instrument]
-            break
+    for existing_instrument in skyportal_instruments:
+        for instrument in instruments:
+            if instrument.lower() in existing_instrument.lower():
+                instrument_id = skyportal_instruments[existing_instrument]
+                break
     if instrument_id is not None:
-        instrument_id = instruments[existing_instrument]
         status = post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
         if status != 200:
             overall_status = status
