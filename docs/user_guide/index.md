@@ -44,9 +44,7 @@ password: 'fink_user_password'
 group_id: 'your_fink_group'
 servers: localhost:9093
 mytopics:
-  test_stream:
-    classification: kilonova
-    probability: 0.75
+  ["test_stream"]
 testing: false
 skyportal_url: http://localhost:5000
 skyportal_token: 9d2530a0-a3dc-446b-9cf9-968736699e5a
@@ -60,10 +58,12 @@ You can simply replace the `fink_user_name` and `fink_user_password` with your c
 
 Same procedure as above for the `servers` and `group_id` field. These are the address of the Fink broker's server and port you want to connect to, and the fink broker group that your user is in. You received those along with your credentials.
 
-#### Fink Topics and classification
+#### Fink Topics
 
-The `mytopics` field is a list of topics that you want to subscribe to. For each topic, you can specify a classification and a probability. The classification is used when adding the alert to SkyPortal, as well as the probability.
-Example: you poll an alert coming from the `fink_test_stream` topic, and you want to add it to SkyPortal classified as a `kilonova` event with a `0.75` probability.
+The `mytopics` field is a list of topics that you want to subscribe to. The topics are fink topics, to learn more about it, click [HERE](https://fink-broker.readthedocs.io/en/latest/topics/).
+
+Each topic contains objects that have been classified, and then passed through specific filters that correspond to the topic (one fink filter = one topic of alerts).
+By the way, after polling the alert, we will recreate the classification using [Fink Filters](https://github.com/astrolabsoftware/fink-filters), which will be used to classify the alert in SkyPortal.
 
 #### Testing
 

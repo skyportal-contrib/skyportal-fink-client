@@ -489,7 +489,6 @@ def post_photometry(
     }
 
     response = api("POST", f"{url}/api/photometry", data, token=token)
-    print(response.json())
     return (
         response.status_code,
         response.json()["data"]["ids"] if response.json()["data"] != {} else {},
@@ -499,7 +498,6 @@ def post_photometry(
 def post_classification(
     object_id: str,
     classification: str,
-    probability: float,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -514,8 +512,6 @@ def post_classification(
             Object id to post candidate for
         classification : str
             Classification of the object, e.g. 'kilonova'
-        probability : float
-            Probability of the classification
         taxonomy_id : int
             id of the taxonomy in which the classification is defined
         groups_ids : list
@@ -535,7 +531,6 @@ def post_classification(
     data = {
         "classification": classification,
         "taxonomy_id": taxonomy_id,
-        "probability": probability,
         "obj_id": object_id,
         "group_ids": group_ids,
     }
@@ -761,7 +756,6 @@ def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str
 def update_classification(
     object_id: str,
     classification: str,
-    probability: float,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -776,8 +770,6 @@ def update_classification(
             Id of the object for which we update the classification
         classification : str
             Classification of the object
-        probability : float
-            Probability of classification
         taxonomy_id : int
             id of the taxonomy in which the classification is defined
         group_ids : list
@@ -802,7 +794,6 @@ def update_classification(
     data = {
         "obj_id": object_id,
         "classification": classification,
-        "probability": probability,
         "taxonomy_id": taxonomy_id,
         "group_ids": group_ids,
         "author_id": author_id,
@@ -929,24 +920,41 @@ def class_exists_in_hierarchy(classification: str, branch: list):
 
     Returns
     ----------
-        exists : bool
-            True if the classification is in the hierarchy, False otherwise
+        class:
+            Classification name found in the taxonomy hierarchy
+        exists:
+            True if the classification is found in the taxonomy hierarchy, False otherwise
+
     """
     for tax_class in branch:
-        if tax_class["class"] == classification:
-            return True
+        if classification == tax_class["class"].lower():
+            return (tax_class["class"], True)
+        elif "other names" in tax_class:
+            if any(
+                classification == other_name.lower()
+                for other_name in tax_class["other names"]
+            ):
+                return (tax_class["class"], True)
+            else:
+                if "subclasses" in tax_class.keys():
+                    skyportal_classification, exists = class_exists_in_hierarchy(
+                        classification, tax_class["subclasses"]
+                    )
+                    if skyportal_classification is not None and exists is not None:
+                        return (skyportal_classification, exists)
         else:
             if "subclasses" in tax_class.keys():
-                exists = class_exists_in_hierarchy(
+                skyportal_classification, exists = class_exists_in_hierarchy(
                     classification, tax_class["subclasses"]
                 )
-                if exists is not None:
-                    return exists
+                if skyportal_classification is not None and exists is not None:
+                    return (skyportal_classification, exists)
+    return (None, False)
 
 
 def get_taxonomy_id_including_classification(classification: str, url: str, token: str):
     """
-    Get the taxonomy id of a classification if it exists in one of skyportal's taxonomies
+    Get the taxonomy id and skyportal classification name of a classification if it exists in one of skyportal's taxonomies
 
     Arguments
     ----------
@@ -959,26 +967,36 @@ def get_taxonomy_id_including_classification(classification: str, url: str, toke
 
     Returns
     ----------
-        status_code : int
+        out : int
             HTTP status code
-        exists : bool
-            True if the classification is in the hierarchy, False otherwise
+        out : string
+            Classification if it exists in one of skyportal's taxonomies, None otherwise
+        out : int
+            Id of the taxonomy in skyportal in which the classification is, None otherwise
     """
-    # find the id of a taxonomy that includes a given classification in its hierarchy
-    status, taxonomies = get_all_taxonomies(url, token)
-    if status != 200:
-        return status, None
-    else:
-        for taxonomy in taxonomies:
-            exists = class_exists_in_hierarchy(classification, [taxonomy["hierarchy"]])
-            if exists is not None:
-                return (200, taxonomy["id"])
-        return (404, None)
+    classification = (
+        classification.lower()
+        .replace(" candidate", "")
+        .replace("(tns) ", "")
+        .replace("(simbad) ", "")
+        .replace("candidate_", "")
+    )
+    if classification != "Ambiguous" and classification != "Unknown":
+        status, taxonomies = get_all_taxonomies(url, token)
+        if status != 200:
+            return (status, None, None)
+        else:
+            for taxonomy in taxonomies:
+                skyportal_classification, exists = class_exists_in_hierarchy(
+                    classification, [taxonomy["hierarchy"]]
+                )
+                if exists is not None:
+                    return (200, skyportal_classification, taxonomy["id"])
+        return (404, None, None)
 
 
 def from_fink_to_skyportal(
     classification: str,
-    probability: float,
     object_id: str,
     mjd: float,
     instruments: list,
@@ -992,7 +1010,6 @@ def from_fink_to_skyportal(
     fink_id: int,
     filter_id: int,
     stream_id: int,
-    taxonomy_id: int,
     url: str,
     token: str,
 ):
@@ -1004,8 +1021,6 @@ def from_fink_to_skyportal(
     ----------
         classification : str
             Classification of for the object
-        probability : float
-            Given probability for the object's classification
         object_id : str
             Id of the object
         mjd : float
@@ -1076,33 +1091,39 @@ def from_fink_to_skyportal(
             url=url,
             token=token,
         )[0]
-        if classification_exists_for_objs(object_id, url=url, token=token):
-            status = update_classification(
-                object_id,
-                classification,
-                probability,
-                taxonomy_id,
-                [fink_id],
-                url=url,
-                token=token,
+        classification, taxonomy_id = get_taxonomy_id_including_classification(
+            classification, url, token
+        )[1:]
+        if classification is None:
+            print(
+                "Classification not found in any skyportal taxonomy, added to SkyPortal without classification"
             )
-            if status != 200:
-                overall_status = status
         else:
-            status = post_classification(
-                object_id,
-                classification,
-                probability,
-                taxonomy_id,
-                [fink_id],
-                url=url,
-                token=token,
-            )[0]
-            if status != 200:
-                overall_status = status
-        print(
-            f"Candidate with source: {object_id}, classified as a {classification} added to SkyPortal"
-        )
+            if classification_exists_for_objs(object_id, url=url, token=token):
+                status = update_classification(
+                    object_id,
+                    classification,
+                    taxonomy_id,
+                    [fink_id],
+                    url=url,
+                    token=token,
+                )
+                if status != 200:
+                    overall_status = status
+            else:
+                status = post_classification(
+                    object_id,
+                    classification,
+                    taxonomy_id,
+                    [fink_id],
+                    url=url,
+                    token=token,
+                )[0]
+                if status != 200:
+                    overall_status = status
+            print(
+                f"Candidate with source: {object_id}, classified as a {classification} added to SkyPortal"
+            )
     else:
         print("error: instrument named {} does not exist".format(instrument))
     return overall_status
