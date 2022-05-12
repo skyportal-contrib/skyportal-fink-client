@@ -954,7 +954,7 @@ def class_exists_in_hierarchy(classification: str, branch: list):
 
 def get_taxonomy_id_including_classification(classification: str, url: str, token: str):
     """
-    Get the taxonomy id of a classification if it exists in one of skyportal's taxonomies
+    Get the taxonomy id and skyportal classification name of a classification if it exists in one of skyportal's taxonomies
 
     Arguments
     ----------
@@ -967,14 +967,13 @@ def get_taxonomy_id_including_classification(classification: str, url: str, toke
 
     Returns
     ----------
-        status_code : int
+        out : int
             HTTP status code
-        exists : string
+        out : string
             Classification if it exists in one of skyportal's taxonomies, None otherwise
-        taxonomy_id : int
+        out : int
             Id of the taxonomy in skyportal in which the classification is, None otherwise
     """
-    # find the id of a taxonomy that includes a given classification in its hierarchy
     classification = (
         classification.lower()
         .replace(" candidate", "")
