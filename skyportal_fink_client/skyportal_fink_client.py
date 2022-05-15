@@ -10,7 +10,7 @@ import pandas as pd
 
 # open yaml config file
 conf = files.yaml_to_dict(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
+    os.path.abspath(os.path.join(os.path.dirname('__file__'))) + "/../config.yaml"
 )
 
 
