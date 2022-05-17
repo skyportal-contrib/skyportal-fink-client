@@ -65,8 +65,9 @@ def poll_alerts(maxtimeout: int = 5):
             # Analyse output - we just print some values for example
             if topic is not None:
                 if alert is not None:
+                    alert_pd['tracklet'] = ''
                     classification = extract_fink_classification_from_pdf(
-                        pd.DataFrame([alert])
+                        alert_pd
                     )[0]
                     print(
                         f"\nReceived alert from topic {topic} with classification {classification}"
