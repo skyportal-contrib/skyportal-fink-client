@@ -928,7 +928,9 @@ def init_skyportal(group: str, url: str, token: str):
                 filter_id = filter["id"]
                 break
     if not filter_id:
-        filter_id = post_filters(f"{group.lower()}_filter", stream_id, group_id, url, token)[1]
+        filter_id = post_filters(
+            f"{group.lower()}_filter", stream_id, group_id, url, token
+        )[1]
 
     post_stream_access_to_group(stream_id, group_id, url, token)
 
