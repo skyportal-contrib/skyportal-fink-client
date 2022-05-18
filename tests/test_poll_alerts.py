@@ -72,7 +72,12 @@ def test_poll_alerts():
                 print("No more alerts to process")
                 break
             # Poll the servers
-            topic, alert, key = consumer.poll(maxtimeout)
+            try:
+                # Poll the servers
+                topic, alert, key = consumer.poll(maxtimeout)
+            except Exception as e:
+                print(f"Error while polling: {e}")
+                continue
             # Analyse output - we just print some values for example
             if topic is not None:
                 if alert is not None:
