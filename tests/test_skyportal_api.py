@@ -305,6 +305,7 @@ def test_init_skyportal():
 
 
 def test_from_fink_to_skyportal():
+
     group_id, stream_id, filter_id = skyportal_api.init_skyportal(
         "fink", "http://localhost:5000", skyportal_token
     )
