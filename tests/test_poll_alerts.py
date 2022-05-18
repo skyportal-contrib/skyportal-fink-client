@@ -46,11 +46,11 @@ def test_poll_alerts():
     print(f"Fink topics you subscribed to: {topics}")
     print("adding alerts")
 
-    fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
-        conf["skyportal_url"], conf["skyportal_token"]
+    group_id, stream_id, filter_id = skyportal_api.init_skyportal(
+        conf["skyportal_group"], conf["skyportal_url"], conf["skyportal_token"]
     )
 
-    assert fink_id is not None
+    assert group_id is not None
     assert stream_id is not None
     assert filter_id is not None
     failed_attempts = 0
@@ -111,7 +111,7 @@ def test_poll_alerts():
                         magsys,
                         ra,
                         dec,
-                        fink_id,
+                        group_id,
                         filter_id,
                         stream_id,
                         url=conf["skyportal_url"],

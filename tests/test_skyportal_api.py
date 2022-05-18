@@ -152,6 +152,31 @@ def test_post_streams():
     assert data is not None
 
 
+# def test_post_stream_access_to_group():
+#     # post a group
+#     status, group_id = skyportal_api.post_groups(
+#         "StreamAccessTestGroup",
+#         "http://localhost:5000",
+#         skyportal_token,
+#     )
+#     assert status == 200
+#     assert group_id is not None
+#     status, stream_id = skyportal_api.post_streams(
+#         "StreamTestAccessedByGroup",
+#         "http://localhost:5000",
+#         skyportal_token,
+#     )
+#     assert status == 200
+#     assert stream_id is not None
+#     status = skyportal_api.post_stream_access_to_group(
+#         stream_id,
+#         group_id,
+#         "http://localhost:5000",
+#         skyportal_token,
+#     )
+#     assert status == 200
+
+
 def test_post_filters():
     status, data = skyportal_api.post_filters(
         "FilterTestAPI",
@@ -274,7 +299,9 @@ def test_get_taxonomy_id_including_classification():
 
 
 def test_init_skyportal():
-    result = skyportal_api.init_skyportal("http://localhost:5000", skyportal_token)
+    result = skyportal_api.init_skyportal(
+        "TestInitSkyPortalGroup", "http://localhost:5000", skyportal_token
+    )
     assert result is not None
     assert result[0] is not None
     assert result[1] is not None
@@ -283,7 +310,7 @@ def test_init_skyportal():
 
 def test_from_fink_to_skyportal():
     fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
-        "http://localhost:5000", skyportal_token
+        "fink", "http://localhost:5000", skyportal_token
     )
     result = skyportal_api.from_fink_to_skyportal(
         "kilonova",

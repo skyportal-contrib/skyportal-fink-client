@@ -74,6 +74,7 @@ Here, if you are running the client in testing mode, you can set the `testing` f
 #### SkyPortal Credentials
 
 The `skyportal_url` and `skyportal_token` fields are used to connect to the SkyPortal instance. The url is simply the address of the SkyPortal instance, and the token is an api token that you can create and/or find in your SkyPortal's user profile.
+The `skyportal_group` field is the group that you want the alerts to belong to. On SkyPortal, if a user wants to see the data you poll from Fink, he should be in this group.
 
 
 ## Running the Tests
