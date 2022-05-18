@@ -54,7 +54,6 @@ def test_poll_alerts():
     status, taxonomy_id = skyportal_api.get_fink_taxonomy_id(
         conf["skyportal_url"], conf["skyportal_token"]
     )
-    assert taxonomy_id is not None
     if taxonomy_id is None:
         # post taxonomy
         # load taxonomy from data/taxonomy.yaml
@@ -76,6 +75,7 @@ def test_poll_alerts():
             print("Error while posting taxonomy")
             return
         print(f"Fink Taxonomy posted with id {taxonomy_id}")
+        assert taxonomy_id is not None
 
     failed_attempts = 0
     maxtimeout = 5
