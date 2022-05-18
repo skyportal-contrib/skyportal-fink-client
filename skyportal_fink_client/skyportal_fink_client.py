@@ -43,8 +43,8 @@ def poll_alerts(maxtimeout: int = 5):
     topics = list(conf["mytopics"])
     print(f"Fink topics you subscribed to: {topics}")
 
-    fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
-        conf["skyportal_url"], conf["skyportal_token"]
+    group_id, stream_id, filter_id = skyportal_api.init_skyportal(
+        conf["skyportal_group"], conf["skyportal_url"], conf["skyportal_token"]
     )
 
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
@@ -98,7 +98,7 @@ def poll_alerts(maxtimeout: int = 5):
                         magsys,
                         ra,
                         dec,
-                        fink_id,
+                        group_id,
                         filter_id,
                         stream_id,
                         url=conf["skyportal_url"],

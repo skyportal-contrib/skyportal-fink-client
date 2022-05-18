@@ -1,9 +1,10 @@
+group_id: test_group
+mytopics:
+- test_stream
 username: testuser
 password: null
 servers: localhost:9093
-mytopics:
-  ["test_stream"]
-group_id: test_group
-testing: true
+skyportal_token: 6bfc9d88-95d5-40a9-8b1b-2bba1e773599
 skyportal_url: http://localhost:5000
-skyportal_token: 1a7141f1-3e6e-483e-badd-efe5fa0e8597
+skyportal_group: Fink
+testing: true

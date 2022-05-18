@@ -574,6 +574,32 @@ def post_streams(name: str, url: str, token: str):
     )
 
 
+def post_stream_access_to_group(stream_id, group_id, url: str, token: str):
+    """
+    Post a stream to skyportal using its API
+
+    Arguments
+    ----------
+        stream_id : int
+            Id of the stream that the group will be able to access
+        group_id : int
+            Id of the group to give access to the stream
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
+
+    Returns
+    ----------
+        status_code : int
+            HTTP status code
+    """
+    data = {"stream_id": stream_id}
+
+    response = api("POST", f"{url}/api/groups/{group_id}/streams", data, token=token)
+    return (response.status_code,)
+
+
 def post_filters(name: str, stream_id: int, group_id: int, url: str, token: str):
     """
     Post a filter to skyportal using its API
@@ -853,13 +879,15 @@ def get_all_taxonomies(url: str, token: str):
     return (response.status_code, response.json()["data"])
 
 
-def init_skyportal(url: str, token: str):
+def init_skyportal(group: str, url: str, token: str):
     """
     Creates the different entities needed in skyportal to add the data of alerts from fink
     (streams, filters, groups) and returns the ids of the entities created, so they can be used to post the alerts to skyportal using its API
 
     Arguments
     ----------
+        group : str
+            Name of the group to create if it doesn't exist, or return the id if it does
         url : str
             Skyportal url
         token : str
@@ -867,41 +895,42 @@ def init_skyportal(url: str, token: str):
 
     Returns
     ----------
-        fink_id : int
-            Id of the fink group in SkyPortal
+        group_id : int
+            Id of the group in SkyPortal
         stream_id : int
-            Id of the fink stream in SkyPortal
+            Id of the stream in SkyPortal
         filter_id : int
-            Id of the fink filter in SkyPortal
+            Id of the filter in SkyPortal
     """
     streams = get_all_streams(url, token)[1]
-    # check if a stream with name 'fink_stream' exists
     stream_id = None
     if streams:
         for stream in streams:
-            if stream["name"] == "fink_stream":
+            if stream["name"] == f"{group}_stream":
                 stream_id = stream["id"]
                 break
     if not stream_id:
-        stream_id = post_streams("fink_stream", url, token)[1]
+        stream_id = post_streams(f"{group}_stream", url, token)[1]
     groups_dict = get_group_ids_and_name(url=url, token=token)[1]
-    fink_id = None
-    if "Fink" not in list(groups_dict.keys()):
-        fink_id = post_groups("Fink", url=url, token=token)[1]
+    group_id = None
+    if group not in list(groups_dict.keys()):
+        group_id = post_groups(group, url=url, token=token)[1]
     else:
-        fink_id = groups_dict["Fink"]
+        group_id = groups_dict[group]
     filters = get_all_filters(url=url, token=token)[1]
     filter_id = None
     if filters:
         for filter in filters:
-            if filter["name"] == "fink_filter":
+            if filter["name"] == f"{group}_filter":
                 filter_id = filter["id"]
                 break
     if not filter_id:
-        filter_id = post_filters("fink_filter", stream_id, fink_id, url, token)[1]
+        filter_id = post_filters(f"{group}_filter", stream_id, group_id, url, token)[1]
+
+    post_stream_access_to_group(stream_id, group_id, url, token)
 
     return (
-        fink_id,
+        group_id,
         stream_id,
         filter_id,
     )
