@@ -230,6 +230,7 @@ def test_post_taxonomy():
         "TaxonomyTestAPI",
         hierarchy,
         "1",
+        None,
         "http://localhost:5000",
         skyportal_token,
     )
@@ -265,37 +266,32 @@ def test_get_all_taxonomies():
     assert data is not None
 
 
-def test_class_exists_in_hierarchy():
-    classification_name, exists = skyportal_api.class_exists_in_hierarchy(
-        "classificationTestAPI".lower(),
-        [{"class": "test", "subclasses": [{"class": "classificationTestAPI"}]}],
+def test_class_exists_in_fink_taxonomy_hierarchy():
+    classification_name, exists = skyportal_api.class_exists_in_fink_taxonomy_hierarchy(
+        "Test",
+        [{"class": "Fink Tax Test", "subclasses": [{"class": "(SIMBAD) Test"}]}],
     )
     assert classification_name is not None
     assert exists == True
 
 
-def test_get_taxonomy_id_including_classification():
-    hierarchy = {"class": "test", "subclasses": [{"class": "classificationTestAPI2"}]}
-    status, data = skyportal_api.post_taxonomy(
-        "TaxonomyTestAPI2",
+def test_get_classification_in_fink_taxonomy():
+    hierarchy = {"class": "Fink Tax Test", "subclasses": [{"class": "(SIMBAD) Test"}]}
+    status, taxonomy_id = skyportal_api.post_taxonomy(
+        "FinkTaxonomyTestAPI",
         hierarchy,
         "1",
+        None,
         "http://localhost:5000",
         skyportal_token,
     )
     assert status == 200
-    assert data is not None
-
-    (
-        status,
-        classification,
-        taxonomy_id,
-    ) = skyportal_api.get_taxonomy_id_including_classification(
-        "classificationTestAPI2", "http://localhost:5000", skyportal_token
-    )
-    assert status == 200
-    assert classification is not None
     assert taxonomy_id is not None
+
+    classification = skyportal_api.get_classification_in_fink_taxonomy(
+        "Test", taxonomy_id, "http://localhost:5000", skyportal_token
+    )
+    assert classification is not None
 
 
 def test_init_skyportal():
@@ -309,9 +305,26 @@ def test_init_skyportal():
 
 
 def test_from_fink_to_skyportal():
-    fink_id, stream_id, filter_id = skyportal_api.init_skyportal(
+    group_id, stream_id, filter_id = skyportal_api.init_skyportal(
         "fink", "http://localhost:5000", skyportal_token
     )
+    assert group_id is not None
+    assert stream_id is not None
+    assert filter_id is not None
+    taxonomy_dict = files.yaml_to_dict(
+        os.path.abspath(os.path.join(os.path.dirname(__file__)))
+        + "/../skyportal_fink_client/data/taxonomy.yaml"
+    )
+    assert taxonomy_dict is not None
+    status, taxonomy_id = skyportal_api.post_taxonomy(
+        taxonomy_dict["name"],
+        taxonomy_dict["hierarchy"],
+        taxonomy_dict["version"],
+        [group_id],
+        conf["skyportal_url"],
+        conf["skyportal_token"],
+    )
+    assert status == 200
     result = skyportal_api.from_fink_to_skyportal(
         "kilonova",
         "ZTFAPITESTFINAL",
@@ -324,9 +337,10 @@ def test_from_fink_to_skyportal():
         "ab",
         5.0,
         5.0,
-        fink_id,
+        group_id,
         filter_id,
         stream_id,
+        taxonomy_id,
         "http://localhost:5000",
         skyportal_token,
     )

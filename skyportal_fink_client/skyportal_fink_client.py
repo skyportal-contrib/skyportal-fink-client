@@ -47,6 +47,28 @@ def poll_alerts(maxtimeout: int = 5):
         conf["skyportal_group"], conf["skyportal_url"], conf["skyportal_token"]
     )
 
+    status, taxonomy_id = skyportal_api.get_fink_taxonomy_id(
+        conf["skyportal_url"], conf["skyportal_token"]
+    )
+    if taxonomy_id is None:
+        # post taxonomy
+        # load taxonomy from data/taxonomy.yaml
+        taxonomy_dict = files.yaml_to_dict(
+            os.path.abspath(os.path.join(os.path.dirname(__file__)))
+            + "/data/taxonomy.yaml"
+        )
+        status, taxonomy_id = skyportal_api.post_taxonomy(
+            taxonomy_dict["name"],
+            taxonomy_dict["hierarchy"],
+            taxonomy_dict["version"],
+            [group_id],
+            conf["skyportal_url"],
+            conf["skyportal_token"],
+        )
+        if status != 200:
+            print("Error while posting taxonomy")
+            return
+        print(f"Fink Taxonomy posted with id {taxonomy_id}")
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
     if conf["testing"] == True:
         print("Using fake alerts for testing")
@@ -101,6 +123,7 @@ def poll_alerts(maxtimeout: int = 5):
                         group_id,
                         filter_id,
                         stream_id,
+                        taxonomy_id,
                         url=conf["skyportal_url"],
                         token=conf["skyportal_token"],
                     )

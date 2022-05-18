@@ -1,15 +1,12 @@
 # coding: utf-8
-from cgi import test
 import os
-import yaml
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
-import pandas as pd
-
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
 from skyportal_fink_client.utils.switchers import fid_to_filter_ztf
 from fink_filters.classification import extract_fink_classification_from_pdf
+import pandas as pd
 
 # open yaml config file
 conf = files.yaml_to_dict(
@@ -53,6 +50,33 @@ def test_poll_alerts():
     assert group_id is not None
     assert stream_id is not None
     assert filter_id is not None
+
+    status, taxonomy_id = skyportal_api.get_fink_taxonomy_id(
+        conf["skyportal_url"], conf["skyportal_token"]
+    )
+    assert taxonomy_id is not None
+    if taxonomy_id is None:
+        # post taxonomy
+        # load taxonomy from data/taxonomy.yaml
+        taxonomy_dict = files.yaml_to_dict(
+            os.path.abspath(os.path.join(os.path.dirname(__file__)))
+            + "/data/taxonomy.yaml"
+        )
+        assert taxonomy_dict is not None
+        status, taxonomy_id = skyportal_api.post_taxonomy(
+            taxonomy_dict["name"],
+            taxonomy_dict["hierarchy"],
+            taxonomy_dict["version"],
+            [group_id],
+            conf["skyportal_url"],
+            conf["skyportal_token"],
+        )
+        assert status == 200
+        if status != 200:
+            print("Error while posting taxonomy")
+            return
+        print(f"Fink Taxonomy posted with id {taxonomy_id}")
+
     failed_attempts = 0
     maxtimeout = 5
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
@@ -114,6 +138,7 @@ def test_poll_alerts():
                         group_id,
                         filter_id,
                         stream_id,
+                        taxonomy_id,
                         url=conf["skyportal_url"],
                         token=conf["skyportal_token"],
                     )
