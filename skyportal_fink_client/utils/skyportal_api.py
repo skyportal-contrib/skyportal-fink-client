@@ -700,7 +700,6 @@ def post_instruments(
         "telescope_id": telescope_id,
     }
     response = api("POST", f"{url}/api/instrument", data, token=token)
-    print(response.json())
     return (
         response.status_code,
         response.json()["data"]["id"] if response.json()["data"] != {} else {},
@@ -738,7 +737,9 @@ def post_groups(name: str, url: str, token: str):
     )
 
 
-def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str):
+def post_taxonomy(
+    name: str, hierarchy: dict, version: str, group_ids: list, url: str, token: str
+):
     """
     Post a taxonomy to skyportal using its API
 
@@ -770,6 +771,8 @@ def post_taxonomy(name: str, hierarchy: dict, version: str, url: str, token: str
         # "provenance": provenance,
         # "isLatest": true
     }
+    if group_ids is not None:
+        data["group_ids"] = group_ids
     response = api("POST", f"{url}/api/taxonomy", data, token=token)
     return (
         response.status_code,
@@ -936,9 +939,9 @@ def init_skyportal(group: str, url: str, token: str):
     )
 
 
-def class_exists_in_hierarchy(classification: str, branch: list):
+def class_exists_in_fink_taxonomy_hierarchy(classification: str, branch: list):
     """
-    Recursively look for a given class in a taxonomy hierarchy
+    Recursively look for a given fink class in a fink's taxonomy hierarchy
 
     Arguments
     ----------
@@ -956,24 +959,36 @@ def class_exists_in_hierarchy(classification: str, branch: list):
 
     """
     for tax_class in branch:
-        if classification == tax_class["class"].lower():
+        if (
+            f"(TNS) {classification}" == tax_class["class"]
+            or f"(SIMBAD) {classification}" == tax_class["class"]
+            or classification == tax_class["class"]
+        ):
             return (tax_class["class"], True)
         elif "other names" in tax_class:
-            if any(
-                classification == other_name.lower()
-                for other_name in tax_class["other names"]
-            ):
-                return (tax_class["class"], True)
+            for other_name in tax_class["other names"]:
+                if (
+                    f"(TNS) {classification}" == other_name
+                    or f"(SIMBAD) {classification}" == other_name
+                    or classification == other_name
+                ):
+                    return (tax_class["class"], True)
             else:
                 if "subclasses" in tax_class.keys():
-                    skyportal_classification, exists = class_exists_in_hierarchy(
+                    (
+                        skyportal_classification,
+                        exists,
+                    ) = class_exists_in_fink_taxonomy_hierarchy(
                         classification, tax_class["subclasses"]
                     )
                     if skyportal_classification is not None and exists is not None:
                         return (skyportal_classification, exists)
         else:
             if "subclasses" in tax_class.keys():
-                skyportal_classification, exists = class_exists_in_hierarchy(
+                (
+                    skyportal_classification,
+                    exists,
+                ) = class_exists_in_fink_taxonomy_hierarchy(
                     classification, tax_class["subclasses"]
                 )
                 if skyportal_classification is not None and exists is not None:
@@ -981,14 +996,18 @@ def class_exists_in_hierarchy(classification: str, branch: list):
     return (None, False)
 
 
-def get_taxonomy_id_including_classification(classification: str, url: str, token: str):
+def get_classification_in_fink_taxonomy(
+    classification: str, fink_taxonomy_id: int, url: str, token: str
+):
     """
-    Get the taxonomy id and skyportal classification name of a classification if it exists in one of skyportal's taxonomies
+    Get the classification of a fink taxonomy
 
     Arguments
     ----------
         classification : str
-            Classification we are looking in skyportal taxonomies
+            Classification to look for
+        fink_taxonomy_id : int
+            Id of the fink taxonomy
         url : str
             Skyportal url
         token : str
@@ -996,32 +1015,43 @@ def get_taxonomy_id_including_classification(classification: str, url: str, toke
 
     Returns
     ----------
-        out : int
-            HTTP status code
-        out : string
-            Classification if it exists in one of skyportal's taxonomies, None otherwise
-        out : int
-            Id of the taxonomy in skyportal in which the classification is, None otherwise
+        classification:
+            Classification of the fink taxonomy
     """
-    classification = (
-        classification.lower()
-        .replace(" candidate", "")
-        .replace("(tns) ", "")
-        .replace("(simbad) ", "")
-        .replace("candidate_", "")
+    response = api("GET", f"{url}/api/taxonomy/{fink_taxonomy_id}", token=token)
+    hierarchy = response.json()["data"]["hierarchy"]
+    classification, exists = class_exists_in_fink_taxonomy_hierarchy(
+        classification, [hierarchy]
     )
-    if classification != "Ambiguous" and classification != "Unknown":
-        status, taxonomies = get_all_taxonomies(url, token)
-        if status != 200:
-            return (status, None, None)
-        else:
-            for taxonomy in taxonomies:
-                skyportal_classification, exists = class_exists_in_hierarchy(
-                    classification, [taxonomy["hierarchy"]]
-                )
-                if exists is not None:
-                    return (200, skyportal_classification, taxonomy["id"])
-        return (404, None, None)
+    if exists:
+        return classification
+    else:
+        return None
+
+
+def get_fink_taxonomy_id(url: str, token: str):
+    """
+    Get the id of the taxonomy in skyportal that is used to classify the alerts
+
+    Arguments
+    ----------
+        url : str
+            Skyportal url
+        token : str
+            Skyportal token
+
+    Returns
+    ----------
+        status_code : int
+            HTTP status code
+        taxonomy_id : int
+            Id of the taxonomy in skyportal
+    """
+    taxonomies = get_all_taxonomies(url, token)[1]
+    for taxonomy in taxonomies:
+        if taxonomy["name"] == "Fink Taxonomy":
+            return (200, taxonomy["id"])
+    return (404, None)
 
 
 def from_fink_to_skyportal(
@@ -1036,9 +1066,10 @@ def from_fink_to_skyportal(
     magsys: str,
     ra: float,
     dec: float,
-    fink_id: int,
+    group_id: int,
     filter_id: int,
     stream_id: int,
+    taxonomy_id: int,
     url: str,
     token: str,
 ):
@@ -1070,12 +1101,14 @@ def from_fink_to_skyportal(
             Right ascension of object
         dec : float
             Declination of object
-        fink_id : int
-            Id of the group in skyportal that contains the alerts from fink (group called Fink)
+        group_id : int
+            Id of the group in skyportal that will contain the alerts from fink
         filter_id : int
             Id of the filter in skyportal that contains the alerts from fink (filter called fink_filter)
         stream_id : int
             Id of the stream in skyportal that contains the alerts from fink (stream called fink_stream)
+        taxonomy_id : int
+            Id of the taxonomy in skyportal that contains the alerts from fink (taxonomy called Fink Taxonomy, but can also be omitted. If omitted, the classification will be searched in existing taxonomies)
         url : str
             Skyportal url
         token : str
@@ -1095,7 +1128,7 @@ def from_fink_to_skyportal(
                 instrument_id = skyportal_instruments[existing_instrument]
                 break
     if instrument_id is not None:
-        status = post_source(object_id, ra, dec, [fink_id], url=url, token=token)[0]
+        status = post_source(object_id, ra, dec, [group_id], url=url, token=token)[0]
         if status != 200:
             overall_status = status
         passed_at = Time(mjd, format="mjd").isot
@@ -1115,15 +1148,17 @@ def from_fink_to_skyportal(
             magsys,
             ra,
             dec,
-            [fink_id],
+            [group_id],
             [stream_id],
             url=url,
             token=token,
         )[0]
-        classification, taxonomy_id = get_taxonomy_id_including_classification(
-            classification, url, token
-        )[1:]
-        if classification is None:
+        if taxonomy_id is not None:
+            classification = get_classification_in_fink_taxonomy(
+                classification, taxonomy_id, url, token
+            )
+
+        if classification is None or taxonomy_id is None:
             print(
                 "Classification not found in any skyportal taxonomy, added to SkyPortal without classification"
             )
@@ -1133,7 +1168,7 @@ def from_fink_to_skyportal(
                     object_id,
                     classification,
                     taxonomy_id,
-                    [fink_id],
+                    [group_id],
                     url=url,
                     token=token,
                 )
@@ -1144,7 +1179,7 @@ def from_fink_to_skyportal(
                     object_id,
                     classification,
                     taxonomy_id,
-                    [fink_id],
+                    [group_id],
                     url=url,
                     token=token,
                 )[0]
@@ -1154,5 +1189,7 @@ def from_fink_to_skyportal(
                 f"Candidate with source: {object_id}, classified as a {classification} added to SkyPortal"
             )
     else:
-        print("error: instrument named {} does not exist".format(instrument))
+        print(
+            "error: instruments named {} does not exist".format(" / ".join(instruments))
+        )
     return overall_status
