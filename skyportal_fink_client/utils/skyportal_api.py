@@ -597,7 +597,7 @@ def post_stream_access_to_group(stream_id, group_id, url: str, token: str):
     data = {"stream_id": stream_id}
 
     response = api("POST", f"{url}/api/groups/{group_id}/streams", data, token=token)
-    return (response.status_code,)
+    return response.status_code
 
 
 def post_filters(name: str, stream_id: int, group_id: int, url: str, token: str):
