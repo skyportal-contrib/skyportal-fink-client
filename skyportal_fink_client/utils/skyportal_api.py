@@ -909,11 +909,11 @@ def init_skyportal(group: str, url: str, token: str):
     stream_id = None
     if streams:
         for stream in streams:
-            if stream["name"] == f"{group}_stream":
+            if stream["name"] == f"{group.lower()}_stream":
                 stream_id = stream["id"]
                 break
     if not stream_id:
-        stream_id = post_streams(f"{group}_stream", url, token)[1]
+        stream_id = post_streams(f"{group.lower()}_stream", url, token)[1]
     groups_dict = get_group_ids_and_name(url=url, token=token)[1]
     group_id = None
     if group not in list(groups_dict.keys()):
@@ -924,11 +924,11 @@ def init_skyportal(group: str, url: str, token: str):
     filter_id = None
     if filters:
         for filter in filters:
-            if filter["name"] == f"{group}_filter":
+            if filter["name"] == f"{group.lower()}_filter":
                 filter_id = filter["id"]
                 break
     if not filter_id:
-        filter_id = post_filters(f"{group}_filter", stream_id, group_id, url, token)[1]
+        filter_id = post_filters(f"{group.lower()}_filter", stream_id, group_id, url, token)[1]
 
     post_stream_access_to_group(stream_id, group_id, url, token)
 

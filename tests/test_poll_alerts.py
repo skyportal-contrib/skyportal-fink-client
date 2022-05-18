@@ -59,7 +59,7 @@ def test_poll_alerts():
         # load taxonomy from data/taxonomy.yaml
         taxonomy_dict = files.yaml_to_dict(
             os.path.abspath(os.path.join(os.path.dirname(__file__)))
-            + "/data/taxonomy.yaml"
+            + "/../skyportal_fink_client/data/taxonomy.yaml"
         )
         assert taxonomy_dict is not None
         status, taxonomy_id = skyportal_api.post_taxonomy(
