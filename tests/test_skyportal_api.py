@@ -294,9 +294,9 @@ def test_get_classification_in_fink_taxonomy():
 
 
 def test_get_fink_taxonomy_id():
-    hierarchy = {"class": "Fink Taxonomy", "subclasses": [{"class": "(SIMBAD) Test"}]}
+    hierarchy = {"class": "Fink Tax Test", "subclasses": [{"class": "(SIMBAD) Test"}]}
     status = skyportal_api.post_taxonomy(
-        "FinkTaxonomyTestUpdateAPI",
+        "Fink Taxonomy",
         hierarchy,
         "1.0",
         None,
