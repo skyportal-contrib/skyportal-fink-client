@@ -45,9 +45,11 @@ group_id: 'your_fink_group'
 servers: localhost:9093
 mytopics:
   ["test_stream"]
-testing: false
 skyportal_url: http://localhost:5000
 skyportal_token: 9d2530a0-a3dc-446b-9cf9-968736699e5a
+skyportal_group: 'group_name'
+testing: true
+whitelisted: false
 ```
 
 #### Fink credentials
@@ -73,3 +75,4 @@ This simple argument is a boolean that indicates whether you want to run the cli
 
 The `skyportal_url` and `skyportal_token` fields are used to connect to the SkyPortal instance. The url is simply the address of the SkyPortal instance, and the token is an api token that you can create and/or find in your SkyPortal's user profile.
 The `skyportal_group` field is the group that you want the alerts to belong to. On SkyPortal, if a user wants to see the data you poll from Fink, he should be in this group.
+The `whitelisted` field indicates if your IP address is whitelisted in SkyPortal. Indeed, SkyPortal's limits how many API calls can be in "queue" at once. If you are not whitelisted and make too many API calls at once, they will be skipped. Therefore, we added a delay of 1 second between alerts. But if you are whitelisted, you can set this to `true` to skip that delay.

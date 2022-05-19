@@ -1072,6 +1072,7 @@ def from_fink_to_skyportal(
     filter_id: int,
     stream_id: int,
     taxonomy_id: int,
+    whitelisted: bool,
     url: str,
     token: str,
 ):
@@ -1111,6 +1112,8 @@ def from_fink_to_skyportal(
             Id of the stream in skyportal that contains the alerts from fink (stream called fink_stream)
         taxonomy_id : int
             Id of the taxonomy in skyportal that contains the alerts from fink (taxonomy called Fink Taxonomy, but can also be omitted. If omitted, the classification will be searched in existing taxonomies)
+        whitelisted: bool
+            True if your IP is whitelisted in SkyPortal, False otherwise. This allows you to skip the delay of one second set in between alerts as SkyPortal limits API calls.
         url : str
             Skyportal url
         token : str
@@ -1120,7 +1123,8 @@ def from_fink_to_skyportal(
     ----------
         None
     """
-    time.sleep(1)
+    if not whitelisted:
+        time.sleep(1)
     overall_status = 200
     overall_status, skyportal_instruments = get_all_instruments(url=url, token=token)
     instrument_id = None

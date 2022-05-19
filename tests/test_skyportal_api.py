@@ -342,6 +342,7 @@ def test_from_fink_to_skyportal():
         filter_id,
         stream_id,
         taxonomy_id,
+        False,
         "http://localhost:5000",
         skyportal_token,
     )

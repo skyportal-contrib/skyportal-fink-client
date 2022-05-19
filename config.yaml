@@ -4,7 +4,8 @@ mytopics:
 username: testuser
 password: null
 servers: localhost:9093
-skyportal_token: 6bfc9d88-95d5-40a9-8b1b-2bba1e773599
+skyportal_token: d47f6fb0-5b11-43fa-a725-7dbec3b8bd6b
 skyportal_url: http://localhost:5000
 skyportal_group: Fink
 testing: true
+whitelisted: false
