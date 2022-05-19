@@ -1,5 +1,5 @@
 name: Fink Taxonomy
-version: "1.0"
+version: "1.1"
 hierarchy:
   class: Fink Taxonomy
   subclasses:
@@ -12,7 +12,7 @@ hierarchy:
         - class: SN candidate
         - class: Solar System candidate
         - class: Solar System MPC
-        - class: Tracklet"
+        - class: Tracklet
     - class: TNS classified data
       subclasses:
         - class: (TNS) Afterglow

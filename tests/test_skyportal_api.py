@@ -1,4 +1,3 @@
-import yaml
 import os
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
@@ -292,6 +291,32 @@ def test_get_classification_in_fink_taxonomy():
         "Test", taxonomy_id, "http://localhost:5000", skyportal_token
     )
     assert classification is not None
+
+
+def test_get_fink_taxonomy_id():
+    hierarchy = {"class": "Fink Tax Test", "subclasses": [{"class": "(SIMBAD) Test"}]}
+    status = skyportal_api.post_taxonomy(
+        "Fink Taxonomy",
+        hierarchy,
+        "1.0",
+        None,
+        "http://localhost:5000",
+        skyportal_token,
+    )[0]
+    assert status == 200
+    status, id, latest = skyportal_api.get_fink_taxonomy_id(
+        "1.0", "http://localhost:5000", skyportal_token
+    )
+    assert status == 200
+    assert latest == True
+    assert id is not None
+
+    status, id, latest = skyportal_api.get_fink_taxonomy_id(
+        "2.0", "http://localhost:5000", skyportal_token
+    )
+    assert status == 200
+    assert latest == False
+    assert id is not None
 
 
 def test_init_skyportal():
