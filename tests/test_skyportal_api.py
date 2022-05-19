@@ -1,5 +1,3 @@
-from sqlalchemy import true
-import yaml
 import os
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
