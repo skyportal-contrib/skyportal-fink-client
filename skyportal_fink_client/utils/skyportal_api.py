@@ -1031,12 +1031,14 @@ def get_classification_in_fink_taxonomy(
         return None
 
 
-def get_fink_taxonomy_id(url: str, token: str):
+def get_fink_taxonomy_id(version: str, url: str, token: str):
     """
     Get the id of the taxonomy in skyportal that is used to classify the alerts
 
     Arguments
     ----------
+        version : str
+            Version of the latest taxonomy
         url : str
             Skyportal url
         token : str
@@ -1048,12 +1050,19 @@ def get_fink_taxonomy_id(url: str, token: str):
             HTTP status code
         taxonomy_id : int
             Id of the taxonomy in skyportal
+        latest : bool
+            Boolean telling if the version in SkyPortal is the latest version or not
     """
     taxonomies = get_all_taxonomies(url, token)[1]
+    status, id, latest = 404, None, False
     for taxonomy in taxonomies:
         if taxonomy["name"] == "Fink Taxonomy":
-            return (200, taxonomy["id"])
-    return (404, None)
+            if version == taxonomy["version"]:
+                status, id, latest = 200, taxonomy["id"], True
+                break
+            else:
+                status, id, latest = 200, taxonomy["id"], False
+    return (status, id, latest)
 
 
 def from_fink_to_skyportal(

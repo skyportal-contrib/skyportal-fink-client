@@ -49,16 +49,16 @@ def poll_alerts(maxtimeout: int = 5):
         conf["skyportal_group"], conf["skyportal_url"], conf["skyportal_token"]
     )
 
-    status, taxonomy_id = skyportal_api.get_fink_taxonomy_id(
-        conf["skyportal_url"], conf["skyportal_token"]
+    # load taxonomy from data/taxonomy.yaml
+    taxonomy_dict = files.yaml_to_dict(
+        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/data/taxonomy.yaml"
     )
-    if taxonomy_id is None:
+
+    status, taxonomy_id, latest = skyportal_api.get_fink_taxonomy_id(
+        taxonomy_dict["version"], conf["skyportal_url"], conf["skyportal_token"]
+    )
+    if taxonomy_id is None or not latest:
         # post taxonomy
-        # load taxonomy from data/taxonomy.yaml
-        taxonomy_dict = files.yaml_to_dict(
-            os.path.abspath(os.path.join(os.path.dirname(__file__)))
-            + "/data/taxonomy.yaml"
-        )
         status, taxonomy_id = skyportal_api.post_taxonomy(
             taxonomy_dict["name"],
             taxonomy_dict["hierarchy"],
