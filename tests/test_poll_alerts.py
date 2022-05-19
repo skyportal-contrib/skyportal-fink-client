@@ -51,6 +51,9 @@ def test_poll_alerts():
     assert stream_id is not None
     assert filter_id is not None
 
+    whitelisted = conf["whitelisted"]
+    assert whitelisted is not None
+
     status, taxonomy_id = skyportal_api.get_fink_taxonomy_id(
         conf["skyportal_url"], conf["skyportal_token"]
     )
@@ -139,6 +142,7 @@ def test_poll_alerts():
                         filter_id,
                         stream_id,
                         taxonomy_id,
+                        whitelisted,
                         url=conf["skyportal_url"],
                         token=conf["skyportal_token"],
                     )

@@ -36,6 +36,8 @@ def poll_alerts(maxtimeout: int = 5):
         "group_id": conf["group_id"],
     }
 
+    whitelisted = conf["whitelisted"]
+
     if conf["password"] is not None:
         myconfig["password"] = conf["password"]
 
@@ -124,6 +126,7 @@ def poll_alerts(maxtimeout: int = 5):
                         filter_id,
                         stream_id,
                         taxonomy_id,
+                        whitelisted,
                         url=conf["skyportal_url"],
                         token=conf["skyportal_token"],
                     )
