@@ -15,7 +15,7 @@ conf = files.yaml_to_dict(
 )
 
 
-def poll_alerts(maxtimeout: int = 5, log=None):
+def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None):
     if log is None:
         log = make_log("fink")
     """
@@ -40,6 +40,12 @@ def poll_alerts(maxtimeout: int = 5, log=None):
     }
 
     whitelisted = conf["whitelisted"]
+    
+    if url is None:
+        url = conf["skyportal_url"]
+    
+    if token is None:
+        token = conf["skyportal_token"]
 
     if conf["password"] is not None:
         myconfig["password"] = conf["password"]
@@ -49,7 +55,7 @@ def poll_alerts(maxtimeout: int = 5, log=None):
     log(f"Fink topics you subscribed to: {topics}")
 
     group_id, stream_id, filter_id = skyportal_api.init_skyportal(
-        conf["skyportal_group"], conf["skyportal_url"], conf["skyportal_token"]
+        conf["skyportal_group"], url, token
     )
 
     # load taxonomy from data/taxonomy.yaml
@@ -58,7 +64,7 @@ def poll_alerts(maxtimeout: int = 5, log=None):
     )
 
     status, taxonomy_id, latest = skyportal_api.get_fink_taxonomy_id(
-        taxonomy_dict["version"], conf["skyportal_url"], conf["skyportal_token"]
+        taxonomy_dict["version"], url, token
     )
     if taxonomy_id is None or not latest:
         # post taxonomy
@@ -67,8 +73,8 @@ def poll_alerts(maxtimeout: int = 5, log=None):
             taxonomy_dict["hierarchy"],
             taxonomy_dict["version"],
             [group_id],
-            conf["skyportal_url"],
-            conf["skyportal_token"],
+            url,
+            token,
         )
         if status != 200:
             log("Error while posting taxonomy")
@@ -130,8 +136,8 @@ def poll_alerts(maxtimeout: int = 5, log=None):
                         stream_id,
                         taxonomy_id,
                         whitelisted,
-                        url=conf["skyportal_url"],
-                        token=conf["skyportal_token"],
+                        url,
+                        token,
                         log=log,
                     )
                     topic = None
