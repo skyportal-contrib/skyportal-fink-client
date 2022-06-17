@@ -1,6 +1,6 @@
 group_id: test_group
 mytopics:
-- test_stream
+  - test_stream
 username: testuser
 password: null
 servers: localhost:9093
