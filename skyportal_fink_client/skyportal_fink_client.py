@@ -15,9 +15,14 @@ conf = files.yaml_to_dict(
 )
 
 
-def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None, testing= False, whitelisted= False):
-    if log is None:
-        log = make_log("fink")
+def poll_alerts(
+    url=None,
+    token=None,
+    maxtimeout: int = 5,
+    log=None,
+    testing=False,
+    whitelisted=False,
+):
     """
     Connect to and poll alerts from fink servers to post them in skyportal using its API, using a config file containing
     the necessary access credentials to both fink and skyportal, as well as a list of topics to subscribe to
@@ -33,6 +38,10 @@ def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None, testing= Fa
     ----------
         None
     """
+    
+    if log is None:
+    log = make_log("fink")
+    
     myconfig = {
         "username": conf["username"],
         "bootstrap.servers": conf["servers"],
