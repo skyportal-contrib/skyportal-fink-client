@@ -15,7 +15,7 @@ conf = files.yaml_to_dict(
 )
 
 
-def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None, testing= False):
+def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None, testing= False, whitelisted= False):
     if log is None:
         log = make_log("fink")
     """
@@ -39,8 +39,6 @@ def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None, testing= Fa
         "group_id": conf["group_id"],
     }
     
-    whitelisted = conf["whitelisted"]
-    
     if url is None:
         url = conf["skyportal_url"]
     
@@ -49,6 +47,9 @@ def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None, testing= Fa
         
     if testing is None:
         testing = conf["testing"]
+        
+    if whitelisted is None:
+        whitelisted = conf["whitelisted"]
 
     if conf["password"] is not None:
         myconfig["password"] = conf["password"]
