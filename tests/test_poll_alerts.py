@@ -29,8 +29,8 @@ def test_poll_alerts():
     ----------
     None
     """
-    if log is None:
-        log = make_log("fink")
+
+    log = make_log("fink")
     assert conf["skyportal_token"] is not None
     myconfig = {
         "username": conf["username"],
