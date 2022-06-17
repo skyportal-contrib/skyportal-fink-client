@@ -15,7 +15,7 @@ conf = files.yaml_to_dict(
 )
 
 
-def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None):
+def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None, testing= False):
     if log is None:
         log = make_log("fink")
     """
@@ -38,7 +38,7 @@ def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None):
         "bootstrap.servers": conf["servers"],
         "group_id": conf["group_id"],
     }
-
+    
     whitelisted = conf["whitelisted"]
     
     if url is None:
@@ -46,6 +46,9 @@ def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None):
     
     if token is None:
         token = conf["skyportal_token"]
+        
+    if testing is None:
+        testing = conf["testing"]
 
     if conf["password"] is not None:
         myconfig["password"] = conf["password"]
@@ -81,7 +84,7 @@ def poll_alerts(url=None, token=None, maxtimeout: int = 5, log=None):
             return
         log(f"Fink Taxonomy posted with id {taxonomy_id}")
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
-    if conf["testing"] == True:
+    if testing == True:
         log("Using fake alerts for testing")
         schema = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "../tests/schemas/schema_test.avsc")
