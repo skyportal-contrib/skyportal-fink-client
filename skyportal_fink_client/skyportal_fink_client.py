@@ -6,6 +6,7 @@ from fink_filters.classification import extract_fink_classification_from_pdf
 from .utils import skyportal_api
 from .utils import files
 from .utils.switchers import fid_to_filter_ztf
+from .utils.log import make_log
 import pandas as pd
 
 # open yaml config file
@@ -14,7 +15,9 @@ conf = files.yaml_to_dict(
 )
 
 
-def poll_alerts(maxtimeout: int = 5):
+def poll_alerts(maxtimeout: int = 5, log=None):
+    if log is None:
+        log = make_log("fink")
     """
     Connect to and poll alerts from fink servers to post them in skyportal using its API, using a config file containing
     the necessary access credentials to both fink and skyportal, as well as a list of topics to subscribe to
@@ -43,7 +46,7 @@ def poll_alerts(maxtimeout: int = 5):
 
     # extract all topics from conf['mytopics'] and create a list of topics names
     topics = list(conf["mytopics"])
-    print(f"Fink topics you subscribed to: {topics}")
+    log(f"Fink topics you subscribed to: {topics}")
 
     group_id, stream_id, filter_id = skyportal_api.init_skyportal(
         conf["skyportal_group"], conf["skyportal_url"], conf["skyportal_token"]
@@ -68,18 +71,18 @@ def poll_alerts(maxtimeout: int = 5):
             conf["skyportal_token"],
         )
         if status != 200:
-            print("Error while posting taxonomy")
+            log("Error while posting taxonomy")
             return
-        print(f"Fink Taxonomy posted with id {taxonomy_id}")
+        log(f"Fink Taxonomy posted with id {taxonomy_id}")
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
     if conf["testing"] == True:
-        print("Using fake alerts for testing")
+        log("Using fake alerts for testing")
         schema = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "../tests/schemas/schema_test.avsc")
         )
         consumer = AlertConsumer(topics, myconfig, schema_path=schema)
     else:
-        print("Using Fink Broker")
+        log("Using Fink Broker")
         consumer = AlertConsumer(topics, myconfig)
     try:
         while True:
@@ -87,7 +90,7 @@ def poll_alerts(maxtimeout: int = 5):
                 # Poll the servers
                 topic, alert, key = consumer.poll(maxtimeout)
             except Exception as e:
-                print(f"Error while polling: {e}")
+                log(f"Error while polling: {e}")
                 continue
             # Analyse output - we just print some values for example
             if topic is not None:
@@ -95,7 +98,7 @@ def poll_alerts(maxtimeout: int = 5):
                     alert_pd = pd.DataFrame([alert])
                     alert_pd["tracklet"] = ""
                     classification = extract_fink_classification_from_pdf(alert_pd)[0]
-                    print(
+                    log(
                         f"\nReceived alert from topic {topic} with classification {classification}"
                     )
                     object_id = alert["objectId"]
@@ -129,15 +132,16 @@ def poll_alerts(maxtimeout: int = 5):
                         whitelisted,
                         url=conf["skyportal_url"],
                         token=conf["skyportal_token"],
+                        log=log,
                     )
                     topic = None
                     alert = None
 
             else:
-                print("No alerts received in the last {} seconds".format(maxtimeout))
+                log("No alerts received in the last {} seconds".format(maxtimeout))
 
     except KeyboardInterrupt:
-        print("interrupted!")
+        log("interrupted!")
         # Close the connection to the servers
         consumer.close()
 

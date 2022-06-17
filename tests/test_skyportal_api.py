@@ -1,6 +1,7 @@
 import os
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
+from skyportal_fink_client.utils.log import make_log
 
 conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
@@ -331,6 +332,8 @@ def test_init_skyportal():
 
 def test_from_fink_to_skyportal():
 
+    log = make_log("fink_test")
+
     group_id, stream_id, filter_id = skyportal_api.init_skyportal(
         "fink", "http://localhost:5000", skyportal_token
     )
@@ -370,6 +373,7 @@ def test_from_fink_to_skyportal():
         False,
         "http://localhost:5000",
         skyportal_token,
+        log,
     )
 
     assert result is not None

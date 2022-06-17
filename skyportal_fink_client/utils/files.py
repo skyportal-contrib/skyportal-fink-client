@@ -21,7 +21,7 @@ def yaml_to_dict(file_path):
         try:
             conf = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
-            print(exc)
+            raise exc
     return conf
 
 
@@ -47,4 +47,4 @@ def dict_to_yaml(dict, file_path):
         try:
             yaml.dump(dict, stream)
         except yaml.YAMLError as exc:
-            print(exc)
+            raise exc

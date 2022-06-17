@@ -1084,6 +1084,7 @@ def from_fink_to_skyportal(
     whitelisted: bool,
     url: str,
     token: str,
+    log: function,
 ):
     """
     Post an alert to skyportal using its API, that means posting
@@ -1127,6 +1128,8 @@ def from_fink_to_skyportal(
             Skyportal url
         token : str
             Skyportal token
+        log : function
+            Function to log messages
 
     Returns
     ----------
@@ -1174,7 +1177,7 @@ def from_fink_to_skyportal(
             )
 
         if classification is None or taxonomy_id is None:
-            print(
+            log(
                 "Classification not found in any skyportal taxonomy, added to SkyPortal without classification"
             )
         else:
@@ -1200,11 +1203,11 @@ def from_fink_to_skyportal(
                 )[0]
                 if status != 200:
                     overall_status = status
-            print(
+            log(
                 f"Candidate with source: {object_id}, classified as a {classification} added to SkyPortal"
             )
     else:
-        print(
+        log(
             "error: instruments named {} does not exist".format(" / ".join(instruments))
         )
     return overall_status

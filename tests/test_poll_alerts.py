@@ -4,6 +4,7 @@ from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
+from skyportal_fink_client.utils.log import make_log
 from skyportal_fink_client.utils.switchers import fid_to_filter_ztf
 from fink_filters.classification import extract_fink_classification_from_pdf
 import pandas as pd
@@ -28,6 +29,8 @@ def test_poll_alerts():
     ----------
     None
     """
+    if log is None:
+        log = make_log("fink")
     assert conf["skyportal_token"] is not None
     myconfig = {
         "username": conf["username"],
@@ -147,6 +150,7 @@ def test_poll_alerts():
                         whitelisted,
                         url=conf["skyportal_url"],
                         token=conf["skyportal_token"],
+                        log=log,
                     )
                     topic = None
                     alert = None
