@@ -38,25 +38,25 @@ def poll_alerts(
     ----------
         None
     """
-    
+
     if log is None:
-    log = make_log("fink")
-    
+        log = make_log("fink")
+
     myconfig = {
         "username": conf["username"],
         "bootstrap.servers": conf["servers"],
         "group_id": conf["group_id"],
     }
-    
+
     if url is None:
         url = conf["skyportal_url"]
-    
+
     if token is None:
         token = conf["skyportal_token"]
-        
+
     if testing is None:
         testing = conf["testing"]
-        
+
     if whitelisted is None:
         whitelisted = conf["whitelisted"]
 
