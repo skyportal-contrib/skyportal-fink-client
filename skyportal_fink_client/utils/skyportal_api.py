@@ -1084,7 +1084,7 @@ def from_fink_to_skyportal(
     whitelisted: bool,
     url: str,
     token: str,
-    log: function,
+    log,
 ):
     """
     Post an alert to skyportal using its API, that means posting
