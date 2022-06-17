@@ -3,9 +3,9 @@ import os
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 from fink_filters.classification import extract_fink_classification_from_pdf
-import utils.skyportal_api as skyportal_api
-import utils.files as files
-from utils.switchers import fid_to_filter_ztf
+from .utils import skyportal_api
+from .utils import files
+from .utils.switchers import fid_to_filter_ztf
 import pandas as pd
 
 # open yaml config file
@@ -142,4 +142,5 @@ def poll_alerts(maxtimeout: int = 5):
         consumer.close()
 
 
-poll_alerts()
+if __name__ == "__main__":
+    poll_alerts()
