@@ -16,12 +16,18 @@ conf = files.yaml_to_dict(
 
 
 def poll_alerts(
-    url=None,
-    token=None,
-    maxtimeout: int = 5,
-    log=None,
+    skyportal_url=None,
+    skyportal_token=None,
+    skyportal_group=None,
+    fink_username=None,
+    fink_password=None,
+    fink_group_id=None,
+    fink_servers=None,
+    fink_topics=None,
     testing=False,
     whitelisted=False,
+    log=None,
+    maxtimeout: int = 5,
 ):
     """
     Connect to and poll alerts from fink servers to post them in skyportal using its API, using a config file containing
@@ -30,9 +36,30 @@ def poll_alerts(
 
     Arguments
     ----------
+        skyportal_url : str
+            The url of skyportal.
+        skyportal_token : str
+            The token of skyportal.
+        skyportal_group : str
+            The group to post alerts to in skyportal.
+        fink_username : str
+            The username of the fink account.
+        fink_password : str
+            The password of the fink account.
+        fink_group_id : str
+            The group id of the fink account.
+        fink_servers : list
+            The list of fink servers to connect to.
+        fink_topics : list
+            The list of topics to subscribe to.
+        testing : bool
+            Whether to run in testing mode (using fake alerts).
+        whitelisted : bool
+            Whether to only post alerts from whitelisted sources.
+        log : logging.Logger
+            The logger to use.
         maxtimeout : int
-            maximum time to wait for a message to be received from a topic
-            (max interval between two polling tries)
+            The maximum number of seconds to wait for a response from a server when no alerts are received.
 
     Returns
     ----------
@@ -42,17 +69,29 @@ def poll_alerts(
     if log is None:
         log = make_log("fink")
 
-    myconfig = {
-        "username": conf["username"],
-        "bootstrap.servers": conf["servers"],
-        "group_id": conf["group_id"],
-    }
-
-    if url is None:
+    if skyportal_url is None:
         url = conf["skyportal_url"]
 
-    if token is None:
+    if skyportal_token is None:
         token = conf["skyportal_token"]
+
+    if skyportal_group is None:
+        skyportal_group = conf["skyportal_group"]
+
+    if fink_username is None:
+        fink_username = conf["fink_username"]
+
+    if fink_password is None:
+        fink_password = conf["fink_password"]
+
+    if fink_group_id is None:
+        fink_group_id = conf["fink_group_id"]
+
+    if fink_servers is None:
+        fink_servers = conf["fink_servers"]
+
+    if fink_topics is None:
+        fink_topics = conf["fink_topics"]
 
     if testing is None:
         testing = conf["testing"]
@@ -60,15 +99,20 @@ def poll_alerts(
     if whitelisted is None:
         whitelisted = conf["whitelisted"]
 
-    if conf["password"] is not None:
-        myconfig["password"] = conf["password"]
+    myconfig = {
+        "username": fink_username,
+        "bootstrap.servers": fink_servers,
+        "group_id": fink_group_id,
+    }
+
+    if fink_password is not None:
+        myconfig["password"] = fink_password
 
     # extract all topics from conf['mytopics'] and create a list of topics names
-    topics = list(conf["mytopics"])
-    log(f"Fink topics you subscribed to: {topics}")
+    log(f"Fink topics you subscribed to: {fink_topics}")
 
     group_id, stream_id, filter_id = skyportal_api.init_skyportal(
-        conf["skyportal_group"], url, token
+        skyportal_group, url, token
     )
 
     # load taxonomy from data/taxonomy.yaml
@@ -77,7 +121,7 @@ def poll_alerts(
     )
 
     status, taxonomy_id, latest = skyportal_api.get_fink_taxonomy_id(
-        taxonomy_dict["version"], url, token
+        taxonomy_dict["version"], url=skyportal_url, token=skyportal_token
     )
     if taxonomy_id is None or not latest:
         # post taxonomy
@@ -86,8 +130,8 @@ def poll_alerts(
             taxonomy_dict["hierarchy"],
             taxonomy_dict["version"],
             [group_id],
-            url,
-            token,
+            url=skyportal_url,
+            token=skyportal_token,
         )
         if status != 200:
             log("Error while posting taxonomy")
@@ -99,10 +143,12 @@ def poll_alerts(
         schema = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "../tests/schemas/schema_test.avsc")
         )
-        consumer = AlertConsumer(topics, myconfig, schema_path=schema)
+        consumer = AlertConsumer(
+            topics=fink_topics, config=myconfig, schema_path=schema
+        )
     else:
         log("Using Fink Broker")
-        consumer = AlertConsumer(topics, myconfig)
+        consumer = AlertConsumer(topics=fink_topics, config=myconfig)
     try:
         while True:
             try:
@@ -149,8 +195,8 @@ def poll_alerts(
                         stream_id,
                         taxonomy_id,
                         whitelisted,
-                        url,
-                        token,
+                        url=skyportal_url,
+                        token=skyportal_token,
                         log=log,
                     )
                     topic = None

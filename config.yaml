@@ -1,9 +1,9 @@
-group_id: test_group
-mytopics:
+fink_topics:
   - test_stream
-username: testuser
-password: null
-servers: localhost:9093
+fink_username: testuser
+fink_password: null
+fink_group_id: test_group
+fink_servers: localhost:9093
 skyportal_token: d47f6fb0-5b11-43fa-a725-7dbec3b8bd6b
 skyportal_url: http://localhost:5000
 skyportal_group: Fink
