@@ -70,7 +70,7 @@ def poll_alerts(
         log = make_log("fink")
 
     if skyportal_url is None:
-        url = conf["skyportal_url"]
+        skyportal_url = conf["skyportal_url"]
 
     if skyportal_token is None:
         token = conf["skyportal_token"]
@@ -112,7 +112,7 @@ def poll_alerts(
     log(f"Fink topics you subscribed to: {fink_topics}")
 
     group_id, stream_id, filter_id = skyportal_api.init_skyportal(
-        skyportal_group, url, token
+        group=skyportal_group, url=skyportal_url, token=skyportal_token
     )
 
     # load taxonomy from data/taxonomy.yaml
