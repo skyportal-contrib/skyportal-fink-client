@@ -73,7 +73,7 @@ def poll_alerts(
         skyportal_url = conf["skyportal_url"]
 
     if skyportal_token is None:
-        token = conf["skyportal_token"]
+        skyportal_token = conf["skyportal_token"]
 
     if skyportal_group is None:
         skyportal_group = conf["skyportal_group"]
