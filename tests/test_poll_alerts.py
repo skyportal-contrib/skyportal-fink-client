@@ -128,8 +128,6 @@ def poll_alerts(
         taxonomy_dict["version"], url=skyportal_url, token=skyportal_token
     )
 
-    assert status == 200
-
     if taxonomy_id is None or not latest:
         # post taxonomy
         status, taxonomy_id = skyportal_api.post_taxonomy(
@@ -149,6 +147,7 @@ def poll_alerts(
             return
         log(f"Fink Taxonomy posted with id {taxonomy_id}")
     # Instantiate a consumer, with a given schema if we are testing with fake alerts
+    assert status == 200
     assert testing == True
     if testing == True:
         log("Using fake alerts for testing")
