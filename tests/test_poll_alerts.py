@@ -152,7 +152,7 @@ def poll_alerts(
     if testing == True:
         log("Using fake alerts for testing")
         schema = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "/schemas/schema_test.avsc")
+            os.path.join(os.path.dirname(__file__), "schemas/schema_test.avsc")
         )
         consumer = AlertConsumer(
             topics=fink_topics, config=myconfig, schema_path=schema
@@ -173,7 +173,7 @@ def poll_alerts(
             except Exception as e:
                 log(f"Error while polling: {e}")
                 continue
-            # Analyse output - we just print some values for example
+
             if topic is not None:
                 if alert is not None:
                     alert_pd = pd.DataFrame([alert])
