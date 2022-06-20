@@ -120,7 +120,8 @@ def poll_alerts(
 
     # load taxonomy from data/taxonomy.yaml
     taxonomy_dict = files.yaml_to_dict(
-        os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/data/taxonomy.yaml"
+        os.path.abspath(os.path.join(os.path.dirname(__file__)))
+        + "/../skyportal_fink_client/data/taxonomy.yaml"
     )
 
     status, taxonomy_id, latest = skyportal_api.get_fink_taxonomy_id(
@@ -152,7 +153,7 @@ def poll_alerts(
     if testing == True:
         log("Using fake alerts for testing")
         schema = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "../tests/schemas/schema_test.avsc")
+            os.path.join(os.path.dirname(__file__), "/schemas/schema_test.avsc")
         )
         consumer = AlertConsumer(
             topics=fink_topics, config=myconfig, schema_path=schema
