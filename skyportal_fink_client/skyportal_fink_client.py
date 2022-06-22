@@ -168,7 +168,7 @@ def poll_alerts(
                     alert_pd["tracklet"] = ""
                     classification = extract_fink_classification_from_pdf(alert_pd)[0]
                     log(
-                        f"\nReceived alert from topic {topic} with classification {classification}"
+                        f"Received alert from topic {topic} with classification {classification}"
                     )
                     object_id = alert["objectId"]
                     mjd = Time(alert["candidate"]["jd"], format="jd").mjd
