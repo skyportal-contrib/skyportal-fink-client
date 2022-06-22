@@ -3,10 +3,12 @@ import os
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 from fink_filters.classification import extract_fink_classification_from_pdf
+
 from .utils import skyportal_api
 from .utils import files
 from .utils.switchers import fid_to_filter_ztf
 from .utils.log import make_log
+
 import pandas as pd
 
 # open yaml config file
@@ -73,7 +75,7 @@ def poll_alerts(
         skyportal_url = conf["skyportal_url"]
 
     if skyportal_token is None:
-        token = conf["skyportal_token"]
+        skyportal_token = conf["skyportal_token"]
 
     if skyportal_group is None:
         skyportal_group = conf["skyportal_group"]
@@ -141,7 +143,9 @@ def poll_alerts(
     if testing == True:
         log("Using fake alerts for testing")
         schema = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "../tests/schemas/schema_test.avsc")
+            os.path.join(
+                os.path.dirname(__file__), "/../tests/schemas/schema_test.avsc"
+            )
         )
         consumer = AlertConsumer(
             topics=fink_topics, config=myconfig, schema_path=schema

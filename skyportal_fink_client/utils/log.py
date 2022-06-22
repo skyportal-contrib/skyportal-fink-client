@@ -1,5 +1,6 @@
 import zlib
 from datetime import datetime
+import os
 
 BOLD = "\033[1m"
 NORMAL = "\033[0;0m"
@@ -16,6 +17,16 @@ COLOR_TABLE = [
     "white",
     "default",
 ]
+
+
+def save_to_file(app, message):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # check if logs directory exists
+    if not os.path.exists("logs"):
+        os.mkdir("logs")
+
+    with open(f"logs/{app}.log", "a") as f:
+        f.write(f"{timestamp} {message}\n")
 
 
 def colorize(s, fg=None, bg=None, bold=False, underline=False, reverse=False):
@@ -74,6 +85,7 @@ def log(app, message):
     timestamp = datetime.now().strftime("%H:%M:%S")
     formatted_message = f"[{timestamp} {app}] {message}"
     print(colorize(formatted_message, fg=color, bold=True))
+    save_to_file(app, message)
 
 
 def make_log(app):
