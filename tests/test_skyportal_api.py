@@ -356,7 +356,6 @@ def test_from_fink_to_skyportal():
     )
     assert status == 200
     result = skyportal_api.from_fink_to_skyportal(
-        "kilonova",
         "ZTFAPITESTFINAL",
         59000.0,
         "ZTF",
@@ -367,6 +366,7 @@ def test_from_fink_to_skyportal():
         "ab",
         5.0,
         5.0,
+        "kilonova",
         group_id,
         filter_id,
         stream_id,
