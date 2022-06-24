@@ -10,7 +10,7 @@ conf = files.yaml_to_dict(
 )
 
 schema = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "/schemas/schema_test.avsc")
+    os.path.join(os.path.dirname(__file__), "schemas/schema_test.avsc")
 )
 
 
