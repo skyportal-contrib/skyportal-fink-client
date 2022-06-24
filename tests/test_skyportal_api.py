@@ -335,7 +335,7 @@ def test_from_fink_to_skyportal():
 
     log = make_log("fink_test")
 
-    group_id, stream_id, filter_id = skyportal_api.init_skyportal(
+    group_id, stream_id, filter_id = skyportal_api.init_skyportal_group(
         "fink", "http://localhost:5000", skyportal_token
     )
     assert group_id is not None
