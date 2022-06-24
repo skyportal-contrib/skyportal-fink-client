@@ -17,7 +17,7 @@ def init_test():
     fink_password = conf["fink_password"]
     fink_group_id = conf["fink_group_id"]
     fink_servers = conf["fink_servers"]
-    fink_topics = ["fink_topic"]
+    fink_topics = ["fink_topics"]
     testing = True
     log = make_log("test_skyportal_fink_client")
     return (
