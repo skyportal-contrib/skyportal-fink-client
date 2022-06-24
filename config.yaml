@@ -4,7 +4,7 @@ fink_username: testuser
 fink_password: null
 fink_group_id: test_group
 fink_servers: localhost:9093
-skyportal_token: d47f6fb0-5b11-43fa-a725-7dbec3b8bd6b
+skyportal_token: 611c1ef7-77d7-467b-bfe8-b2f9730e3914 #this is a dummy token, replace with your own token, either from your profile, or from .tokens.yaml file in skyportal's directory
 skyportal_url: http://localhost:5000
 skyportal_group: Fink
 testing: true
