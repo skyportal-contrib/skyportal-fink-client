@@ -9,6 +9,10 @@ conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
 )
 
+schema = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "/schemas/schema_test.avsc")
+)
+
 
 def init_test():
     skyportal_url = conf["skyportal_url"]
@@ -86,6 +90,7 @@ def test_init_consumer():
         fink_servers,
         fink_topics,
         testing,
+        schema,
         log,
     )
     assert consumer is not None
@@ -110,6 +115,7 @@ def test_poll_alert():
         fink_servers,
         fink_topics,
         testing,
+        schema,
         log,
     )
     retries = 0
@@ -146,6 +152,7 @@ def test_extract_alert_data():
         fink_servers,
         fink_topics,
         testing,
+        schema,
         log,
     )
     retries = 0
@@ -204,6 +211,7 @@ def test_poll_alert_and_post_to_skyportal():
         fink_servers,
         fink_topics,
         testing,
+        schema,
         log,
     )
     assert consumer is not None

@@ -20,6 +20,10 @@ taxonomy_dict = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/data/taxonomy.yaml"
 )
 
+schema = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "/../tests/schemas/schema_test.avsc")
+)
+
 
 def init_skyportal(skyportal_url, skyportal_token, skyportal_group, whitelisted, log):
     if skyportal_url is None:
@@ -69,7 +73,14 @@ def init_skyportal(skyportal_url, skyportal_token, skyportal_group, whitelisted,
 
 
 def init_consumer(
-    fink_username, fink_password, fink_group_id, fink_servers, fink_topics, testing, log
+    fink_username,
+    fink_password,
+    fink_group_id,
+    fink_servers,
+    fink_topics,
+    testing,
+    schema,
+    log,
 ):
     if fink_username is None:
         fink_username = conf["fink_username"]
@@ -100,11 +111,6 @@ def init_consumer(
 
     if testing == True:
         log("Using fake alerts for testing")
-        schema = os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__), "/../tests/schemas/schema_test.avsc"
-            )
-        )
         consumer = AlertConsumer(
             topics=fink_topics, config=fink_config, schema_path=schema
         )
