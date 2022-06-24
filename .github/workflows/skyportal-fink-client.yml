@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_subset: ['Unit Testing of utils functions (with skyportal API)','Test Polling Alerts']
+        test_subset: ['Unit Testing of utils functions (with skyportal API)','Test Polling Alert']
 
     steps:
       - uses: actions/setup-python@v1
@@ -139,19 +139,19 @@ jobs:
           py.test tests/test_skyportal_api.py
 
       - name: Generate Fake Alerts for testing
-        if: ${{ matrix.test_subset == 'Test Polling Alerts' }}
+        if: ${{ matrix.test_subset == 'Test Polling Alert' }}
         run: |
           source env/bin/activate
           python tests/produce_fake.py
 
       - name: Test Poll Alerts using Fink Client and post it to SkyPortal
-        if: ${{ matrix.test_subset == 'Test Polling Alerts' }}
+        if: ${{ matrix.test_subset == 'Test Polling Alert' }}
         run: |
           source env/bin/activate
-          py.test tests/test_poll_alerts.py
+          py.test tests/test_skyportal_fink_client.py
 
       - name: Test if the alerts posted to SkyPortal correspond to the fake alerts generated
-        if: ${{ matrix.test_subset == 'Test Polling Alerts' }}
+        if: ${{ matrix.test_subset == 'Test Polling Alert' }}
         run: |
           source env/bin/activate
           py.test tests/test_confirmation.py

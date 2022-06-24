@@ -6,6 +6,7 @@ from skyportal_fink_client.utils.log import make_log
 conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
 )
+
 skyportal_token = conf["skyportal_token"]
 
 
@@ -320,8 +321,8 @@ def test_get_fink_taxonomy_id():
     assert id is not None
 
 
-def test_init_skyportal():
-    result = skyportal_api.init_skyportal(
+def test_init_skyportal_group():
+    result = skyportal_api.init_skyportal_group(
         "TestInitSkyPortalGroup", "http://localhost:5000", skyportal_token
     )
     assert result is not None

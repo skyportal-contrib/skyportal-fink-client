@@ -31,16 +31,13 @@ def test_verify_pooling():
 
     r = AlertReader(data_path)
     alerts = r.to_list()
-    print(len(alerts))
-    print(alerts[0].keys())
 
     skyportal_candidates = skyportal_api.api(
         "GET",
         f"http://localhost:5000/api/candidates?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["candidates"]
-    print(len(skyportal_candidates) - len(demo_data["candidates"]))
-    assert (len(skyportal_candidates) - len(demo_data["candidates"])) == len(alerts)
+    assert (len(skyportal_candidates) - len(demo_data["candidates"])) + 1 == len(alerts)
 
     alerts_sources = []
     for alert in alerts:
@@ -51,7 +48,9 @@ def test_verify_pooling():
         f"http://localhost:5000/api/sources?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["sources"]
-    assert (len(skyportal_sources) - len(demo_data["sources"])) == len(alerts_sources)
+    assert (len(skyportal_sources) - len(demo_data["sources"])) + 1 == len(
+        alerts_sources
+    )
 
     print(skyportal_sources[0])
 
