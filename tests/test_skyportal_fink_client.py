@@ -119,7 +119,7 @@ def test_poll_alert():
         log,
     )
     retries = 0
-    max_retries = 10
+    max_retries = 30
     topic, alert = None, None
     while retries < max_retries:
         topic, alert = skyportal_fink_client.poll_alert(consumer, 5, log)
@@ -156,7 +156,7 @@ def test_extract_alert_data():
         log,
     )
     retries = 0
-    max_retries = 10
+    max_retries = 30
     topic, alert = None, None
     while retries < max_retries:
         topic, alert = skyportal_fink_client.poll_alert(consumer, 5, log)
@@ -216,7 +216,7 @@ def test_poll_alert_and_post_to_skyportal():
     )
     assert consumer is not None
     retries = 0
-    max_retries = 10
+    max_retries = 30
     topic, alert = None, None
     while retries < max_retries:
         topic, alert = skyportal_fink_client.poll_alert(consumer, 5, log)
