@@ -9,18 +9,42 @@ conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
 )
 
-skyportal_url = conf["skyportal_url"]
-skyportal_token = conf["skyportal_token"]
-fink_username = conf["fink_username"]
-fink_password = conf["fink_password"]
-fink_group_id = conf["fink_group_id"]
-fink_servers = conf["fink_servers"]
-fink_topics = ["fink_topic"]
-testing = True
-log = make_log("test_skyportal_fink_client")
+
+def init_test():
+    skyportal_url = conf["skyportal_url"]
+    skyportal_token = conf["skyportal_token"]
+    fink_username = conf["fink_username"]
+    fink_password = conf["fink_password"]
+    fink_group_id = conf["fink_group_id"]
+    fink_servers = conf["fink_servers"]
+    fink_topics = ["fink_topic"]
+    testing = True
+    log = make_log("test_skyportal_fink_client")
+    return (
+        skyportal_url,
+        skyportal_token,
+        fink_username,
+        fink_password,
+        fink_group_id,
+        fink_servers,
+        fink_topics,
+        testing,
+        log,
+    )
 
 
 def test_init_skyportal():
+    (
+        skyportal_url,
+        skyportal_token,
+        fink_username,
+        fink_password,
+        fink_group_id,
+        fink_servers,
+        fink_topics,
+        testing,
+        log,
+    ) = init_test()
     skyportal_group = uuid.uuid4()
     whitelisted = False
     (
@@ -44,6 +68,17 @@ def test_init_skyportal():
 
 
 def test_init_consumer():
+    (
+        skyportal_url,
+        skyportal_token,
+        fink_username,
+        fink_password,
+        fink_group_id,
+        fink_servers,
+        fink_topics,
+        testing,
+        log,
+    ) = init_test()
     consumer = skyportal_fink_client.init_consumer(
         fink_username,
         fink_password,
@@ -57,6 +92,17 @@ def test_init_consumer():
 
 
 def test_poll_alert():
+    (
+        skyportal_url,
+        skyportal_token,
+        fink_username,
+        fink_password,
+        fink_group_id,
+        fink_servers,
+        fink_topics,
+        testing,
+        log,
+    ) = init_test()
     consumer = skyportal_fink_client.init_consumer(
         fink_username,
         fink_password,
@@ -83,6 +129,17 @@ def test_poll_alert():
 
 
 def test_extract_alert_data():
+    (
+        skyportal_url,
+        skyportal_token,
+        fink_username,
+        fink_password,
+        fink_group_id,
+        fink_servers,
+        fink_topics,
+        testing,
+        log,
+    ) = init_test()
     consumer = skyportal_fink_client.init_consumer(
         fink_username,
         fink_password,
@@ -109,6 +166,17 @@ def test_extract_alert_data():
 
 
 def test_poll_alert_and_post_to_skyportal():
+    (
+        skyportal_url,
+        skyportal_token,
+        fink_username,
+        fink_password,
+        fink_group_id,
+        fink_servers,
+        fink_topics,
+        testing,
+        log,
+    ) = init_test()
     skyportal_group = uuid.uuid4()
     whitelisted = False
     (
