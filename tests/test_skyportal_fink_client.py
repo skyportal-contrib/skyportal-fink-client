@@ -45,7 +45,7 @@ def test_init_skyportal():
         testing,
         log,
     ) = init_test()
-    skyportal_group = uuid.uuid4()
+    skyportal_group = str(uuid.uuid4())
     whitelisted = False
     (
         group_id,
@@ -177,7 +177,7 @@ def test_poll_alert_and_post_to_skyportal():
         testing,
         log,
     ) = init_test()
-    skyportal_group = uuid.uuid4()
+    skyportal_group = str(str(uuid.uuid4()))
     whitelisted = False
     (
         group_id,
