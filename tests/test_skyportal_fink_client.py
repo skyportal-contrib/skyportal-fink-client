@@ -161,7 +161,7 @@ def test_extract_alert_data():
 
     assert alert is not None
     assert retries < max_retries
-    data = skyportal_fink_client.extract_alert_data(alert, testing, log)
+    data = skyportal_fink_client.extract_alert_data(alert)
     assert data is not None
 
 
@@ -219,7 +219,7 @@ def test_poll_alert_and_post_to_skyportal():
 
     assert alert is not None
     assert retries < max_retries
-    data = skyportal_fink_client.extract_alert_data(alert, testing, log)
+    data = skyportal_fink_client.extract_alert_data(alert)
     assert data is not None
     status = skyportal_api.from_fink_to_skyportal(
         *data,
