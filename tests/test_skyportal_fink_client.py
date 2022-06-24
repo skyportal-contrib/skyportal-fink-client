@@ -114,18 +114,17 @@ def test_poll_alert():
     )
     retries = 0
     max_retries = 10
-    alert = None
+    topic, alert = None, None
     while retries < max_retries:
-        alert = skyportal_fink_client.poll_alert(consumer, 5, log)
-        if alert is not None:
+        topic, alert = skyportal_fink_client.poll_alert(consumer, 5, log)
+        if alert is not None and topic is not None:
             break
         else:
             retries += 1
 
+    assert topic is not None
     assert alert is not None
     assert retries < max_retries
-
-    assert alert is not None
 
 
 def test_extract_alert_data():
@@ -151,14 +150,15 @@ def test_extract_alert_data():
     )
     retries = 0
     max_retries = 10
-    alert = None
+    topic, alert = None, None
     while retries < max_retries:
-        alert = skyportal_fink_client.poll_alert(consumer, 5, log)
-        if alert is not None:
+        topic, alert = skyportal_fink_client.poll_alert(consumer, 5, log)
+        if alert is not None and topic is not None:
             break
         else:
             retries += 1
 
+    assert topic is not None
     assert alert is not None
     assert retries < max_retries
     data = skyportal_fink_client.extract_alert_data(alert)
@@ -209,14 +209,15 @@ def test_poll_alert_and_post_to_skyportal():
     assert consumer is not None
     retries = 0
     max_retries = 10
-    alert = None
+    topic, alert = None, None
     while retries < max_retries:
-        alert = skyportal_fink_client.poll_alert(consumer, 5, log)
-        if alert is not None:
+        topic, alert = skyportal_fink_client.poll_alert(consumer, 5, log)
+        if alert is not None and topic is not None:
             break
         else:
             retries += 1
 
+    assert topic is not None
     assert alert is not None
     assert retries < max_retries
     data = skyportal_fink_client.extract_alert_data(alert)
