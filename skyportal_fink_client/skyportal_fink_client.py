@@ -249,9 +249,7 @@ def poll_alerts(
             topic, alert = poll_alert(consumer, maxtimeout, log)
             data = extract_alert_data(alert)
             if data is not None:
-                log(
-                    f"\nReceived alert from topic {topic} with classification {data[-1]}"
-                )
+                log(f"Received alert from topic {topic} with classification {data[-1]}")
                 skyportal_api.from_fink_to_skyportal(
                     *data,
                     group_id=group_id,
