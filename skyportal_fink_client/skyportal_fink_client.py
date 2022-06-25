@@ -25,7 +25,13 @@ schema = os.path.abspath(
 )
 
 
-def init_skyportal(skyportal_url=None, skyportal_token=None, skyportal_group=None, whitelisted=None, log=None):
+def init_skyportal(
+    skyportal_url=None,
+    skyportal_token=None,
+    skyportal_group=None,
+    whitelisted=None,
+    log=None,
+):
     """
     Parameters
     ----------
@@ -201,12 +207,12 @@ def poll_alert(consumer, maxtimeout, log):
 def extract_alert_data(alert):
     """
     Extracts the data from the alert.
-    
+
     Parameters
     ----------
     alert : dict
         Alert from Fink
-        
+
     Returns
     ----------
     data : dict
