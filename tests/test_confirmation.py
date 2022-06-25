@@ -48,9 +48,8 @@ def test_verify_pooling():
         f"http://localhost:5000/api/sources?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["sources"]
-    assert (len(skyportal_sources) - len(demo_data["sources"])) + 1 == len(
-        alerts_sources
-    )
+    # in test_skyportal_fink_client.py, we only posted one alert to skyportal, here we verify that it was posted.
+    assert (len(skyportal_sources) - len(demo_data["sources"])) == 1
 
     print(skyportal_sources[0])
 
