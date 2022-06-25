@@ -37,7 +37,7 @@ def test_verify_pooling():
         f"http://localhost:5000/api/candidates?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["candidates"]
-    assert (len(skyportal_candidates) - len(demo_data["candidates"])) + 1 == len(alerts)
+    assert (len(skyportal_candidates) - len(demo_data["candidates"])) == 1
 
     alerts_sources = []
     for alert in alerts:
