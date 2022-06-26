@@ -51,9 +51,10 @@ def test_verify_pooling():
     # in test_skyportal_fink_client.py, we only posted one alert to skyportal, here we verify that it was posted.
     assert (len(skyportal_sources) - len(demo_data["sources"])) == 1
 
-    print(skyportal_sources[0])
-
-    # create a nest list of alerts by source
+    # create a nest list of alerts by source, this is useful especially if during the tests you added multiple alerts to skyportal.
+    alerts = [
+        alerts[2]
+    ]  # this is the 3rd alert in the sample.avro file. Its the only one we posted to skyportal during the tests, so its the only one to be verified.
     alerts_by_source = {}
     for source in alerts:
         if source["objectId"] in alerts_by_source:
