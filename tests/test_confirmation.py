@@ -54,8 +54,8 @@ def test_verify_pooling():
     # fin the objectID of the alerts we posted to skyportal
     object_ids = []
     for source in skyportal_sources:
-        if source["obj_id"] in alerts_sources:
-            object_ids.append(source["obj_id"])
+        if source["id"] in alerts_sources:
+            object_ids.append(source["id"])
 
     # we posted only one alert so the length of object_ids should be 1
     assert len(object_ids) == 1
