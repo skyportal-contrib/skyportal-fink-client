@@ -33,35 +33,37 @@ def init_skyportal(
     log=None,
 ):
     """
-    Parameters
+    Initializes the group, stream, filter and taxonomy needed to post alerts to Skyportal.
+
+    Arguments
     ----------
-    skyportal_url : str
-        Skyportal url. Can be omitted, then the url is taken from the config file.
-    skyportal_token : str
-        Skyportal token. Can be omitted, then the token is taken from the config file.
-    skyportal_group : str
-        Name of the group in Skyportal. Can be omitted, then the group is taken from the config file.
-    whitelisted : bool
-        If False, we take a 1 second pause between alerts. Can be omitted, then the value is taken from the config file.
-    log : function
-        Log function. Can be omitted if you do not desire to log.
+        skyportal_url : str
+            Skyportal url. Can be omitted, then the url is taken from the config file.
+        skyportal_token : str
+            Skyportal token. Can be omitted, then the token is taken from the config file.
+        skyportal_group : str
+            Name of the group in Skyportal. Can be omitted, then the group is taken from the config file.
+        whitelisted : bool
+            If False, we take a 1 second pause between alerts. Can be omitted, then the value is taken from the config file.
+        log : function
+            Log function. Can be omitted if you do not desire to log.
 
     Returns
     ----------
-    group_id : int
-        ID of the group in Skyportal that we post to
-    stream_id : int
-        ID of the stream in Skyportal that we post to
-    filter_id : int
-        ID of the filter in Skyportal that we post to
-    taxonomy_id : int
-        ID of the fink taxonomy we posted in SkyPortal. This is used to classify the alerts
-    skyportal_url : str
-        Skyportal url
-    skyportal_token : str
-        Skyportal token
-    whitelisted : bool
-        If False, we take a 1 second pause between alerts
+        group_id : int
+            ID of the group in Skyportal that we post to
+        stream_id : int
+            ID of the stream in Skyportal that we post to
+        filter_id : int
+            ID of the filter in Skyportal that we post to
+        taxonomy_id : int
+            ID of the fink taxonomy we posted in SkyPortal. This is used to classify the alerts
+        skyportal_url : str
+            Skyportal url
+        skyportal_token : str
+            Skyportal token
+        whitelisted : bool
+            If False, we take a 1 second pause between alerts
     """
     if skyportal_url is None:
         skyportal_url = conf["skyportal_url"]
@@ -122,7 +124,7 @@ def init_consumer(
     log=None,
 ):
     """
-    Parameters
+    Arguments
     ----------
     fink_username : str
         Fink username. Can be omitted, then the username is taken from the config file.
@@ -189,6 +191,23 @@ def init_consumer(
 
 
 def poll_alert(consumer, maxtimeout, log):
+    """
+    Polls the consumer for an alert.
+
+    Arguments
+    ----------
+        consumer : AlertConsumer
+            AlertConsumer object
+        maxtimeout : int
+            Maximum time to wait for an alert
+        log : function
+            Log function. Can be omitted if you do not desire to log.
+
+    Returns
+    ----------
+        alert : dict
+            Alert object
+    """
     try:
         # Poll the servers
         topic, alert, key = consumer.poll(maxtimeout)
@@ -205,18 +224,19 @@ def poll_alert(consumer, maxtimeout, log):
 
 
 def extract_alert_data(alert):
+
     """
     Extracts the data from the alert.
 
-    Parameters
+    Arguments
     ----------
-    alert : dict
-        Alert from Fink
+        alert : dict
+            Alert from Fink
 
     Returns
     ----------
-    data : dict
-        Data from the alert we need to post to Skyportal
+        data : dict
+            Data from the alert that we need to post it to Skyportal
     """
     if alert is None:
         return None

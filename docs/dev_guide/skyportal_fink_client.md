@@ -1,19 +1,15 @@
-# Main : SkyPortal Fink Client
 
-### poll_alerts()
+# Main : SkyPortal API Helper functions
+::: skyportal_fink_client.skyportal_fink_client
+    handler: python
+    rendering:
+      show_root_heading: false
+      show_source: false
 
-Connect to and poll alerts from fink servers to post them in skyportal using its API, using a config file containing
-the necessary access credentials to both fink and skyportal, as well as a list of topics to subscribe to
-(corresponding to a classification in skyportal).
+# Details:
 
-#### Arguments:
-```
-max_timeout: int
-    maximum time to wait for a message to be received from a topic
-    (max interval between two polling tries)
-```
+You will notice that the poll_alerts() method, and other methods in this file, can take as arguments some of the parameters also defined in the ``config.yaml`` file. Why this redundancy? The reason is the following: If you want to import and call any of these methods in your own code, to run it programmaticaly along with some other bits of code, you can pass specific parameters instead of having to write them to the config.
 
-#### Returns:
-```
-None
-```
+For example, we use this to run skyportal-fink-client as a microservice of SkyPortal (runs at the same time as the app, no need to run it manually in a seperate terminal, and no need to get a skyportal token from your profile or the .tokens.yaml to paste to the `config.yaml`). There, when running skyportal, we can start skyportal-fink-client at the same time automatically. And thanks to these methods being able to either use the config or parameters passed to them, you can share one config file for skyportal and skyportal-fink-client for example, then pass arguments to skyportal-fink-client via skyportal, as well as pass the skyportal token automatically.
+
+If you decide to use pass parameters to these methods rather than use the `config.yaml` file, beware that if you forget any parameters, it will default to the value found in the `config.yaml` file.

@@ -30,7 +30,7 @@ As a user, if you wish to recover said alerts from fink, you can use the [Fink C
 
 First, you need to fill the configuration file `config.yaml` as instructed [here](./user_guide/index.md).
 
-Then, you need to [install the required dependencies](./user_guide/index.md), and you are ready to start polling alerts ! In your terminal, ust navigate to the root directory of `skyportal-fink-client` and run:
+Then, you need to [install the required dependencies](./user_guide/index.md), and you are ready to start polling alerts ! In your terminal, just navigate to the root directory of `skyportal-fink-client` and run:
 
 ```
 source venv/bin/activate

@@ -7,7 +7,7 @@ nav:
   - Developer :
       - Guide : ./dev_guide/index.md
       - Code documentation :
-          - Main - SkyPortal Fink Client : ./dev_guide/skyportal_fink_client.md
+          - SkyPortal Fink Client : ./dev_guide/skyportal_fink_client.md
           - SkyPortal API Helper : ./dev_guide/skyportal_api.md
           - Yaml Files Helper : ./dev_guide/files.md
           - Custom Switchers : ./dev_guide/switchers.md
