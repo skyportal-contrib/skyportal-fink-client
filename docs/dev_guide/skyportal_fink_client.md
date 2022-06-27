@@ -13,3 +13,5 @@ You will notice that the poll_alerts() method, and other methods in this file, c
 For example, we use this to run skyportal-fink-client as a microservice of SkyPortal (runs at the same time as the app, no need to run it manually in a seperate terminal, and no need to get a skyportal token from your profile or the .tokens.yaml to paste to the `config.yaml`). There, when running skyportal, we can start skyportal-fink-client at the same time automatically. And thanks to these methods being able to either use the config or parameters passed to them, you can share one config file for skyportal and skyportal-fink-client for example, then pass arguments to skyportal-fink-client via skyportal, as well as pass the skyportal token automatically.
 
 If you decide to use pass parameters to these methods rather than use the `config.yaml` file, beware that if you forget any parameters, it will default to the value found in the `config.yaml` file.
+
+You'll notice the same for the `log` function that is a parameter of most methods found here. If you want to use a different logger, you can pass it as an argument to the `pool_alerts()` method.
