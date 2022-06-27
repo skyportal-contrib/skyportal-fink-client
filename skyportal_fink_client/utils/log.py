@@ -18,8 +18,25 @@ COLOR_TABLE = [
     "default",
 ]
 
+# Here, to stay consistent with the rest of SkyPortal's & baselayer's code, we use the same methods for logging.
+# The only addition is the save_to_file method.
+
 
 def save_to_file(app, message):
+    """
+    Save the logs to a file.
+
+    Arguments
+    ---------
+        app : str
+            The name of the app.
+        message : str
+            The message to save.
+
+    Returns
+    -------
+        None
+    """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # check if logs directory exists
     if not os.path.exists("logs"):
@@ -30,7 +47,8 @@ def save_to_file(app, message):
 
 
 def colorize(s, fg=None, bg=None, bold=False, underline=False, reverse=False):
-    """Wraps a string with ANSI color escape sequences corresponding to the
+    """
+    Wraps a string with ANSI color escape sequences corresponding to the
     style parameters given.
 
     All of the color and style parameters are optional.
@@ -43,22 +61,22 @@ def colorize(s, fg=None, bg=None, bold=False, underline=False, reverse=False):
 
     Parameters
     ----------
-    s : str
-    fg : str
-        Foreground color of the text.  One of (black, red, green, yellow, blue,
-        magenta, cyan, white, default)
-    bg : str
-        Background color of the text.  Color choices are the same as for fg.
-    bold : bool
-        Whether or not to display the text in bold.
-    underline : bool
-        Whether or not to underline the text.
-    reverse : bool
-        Whether or not to show the text in reverse video.
+        s : str
+        fg : str
+            Foreground color of the text.  One of (black, red, green, yellow, blue,
+            magenta, cyan, white, default)
+        bg : str
+            Background color of the text.  Color choices are the same as for fg.
+        bold : bool
+            Whether or not to display the text in bold.
+        underline : bool
+            Whether or not to underline the text.
+        reverse : bool
+            Whether or not to show the text in reverse video.
 
     Returns
     -------
-    A string with embedded color escape sequences.
+        A string with embedded color escape sequences.
     """
 
     style_fragments = []
@@ -80,6 +98,23 @@ def colorize(s, fg=None, bg=None, bold=False, underline=False, reverse=False):
 
 
 def log(app, message):
+    """
+    Logs a message the console and saves it to a file.
+
+    Arguments
+    ---------
+        app : str
+            The name of the app.
+        message : str
+            The message to log.
+
+    Returns
+    -------
+        None
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{timestamp} {app}: {message}")
+    save_to_file(app, message)
     color_table = ["red", "green", "yellow", "blue", "magenta", "cyan", "white"]
     color = color_table[zlib.crc32(app.encode("ascii")) % len(color_table)]
     timestamp = datetime.now().strftime("%H:%M:%S")
@@ -89,6 +124,19 @@ def log(app, message):
 
 
 def make_log(app):
+    """
+    Creates a log function for the given app.
+
+    Arguments
+    ---------
+        app : str
+            The name of the app.
+
+    Returns
+    -------
+        A function that logs a message.
+    """
+
     def app_log(*args, **kwargs):
         log(app, *args, **kwargs)
 

@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+from subprocess import call
 from fink_client.consumer import AlertConsumer
 from astropy.time import Time
 from fink_filters.classification import extract_fink_classification_from_pdf
@@ -26,11 +27,11 @@ schema = os.path.abspath(
 
 
 def init_skyportal(
-    skyportal_url=None,
-    skyportal_token=None,
-    skyportal_group=None,
-    whitelisted=None,
-    log=None,
+    skyportal_url: str = None,
+    skyportal_token: str = None,
+    skyportal_group: str = None,
+    whitelisted: bool = None,
+    log: callable = None,
 ):
     """
     Initializes the group, stream, filter and taxonomy needed to post alerts to Skyportal.
@@ -114,14 +115,14 @@ def init_skyportal(
 
 
 def init_consumer(
-    fink_username=None,
-    fink_password=None,
-    fink_group_id=None,
-    fink_servers=None,
-    fink_topics=None,
-    testing=None,
-    schema=None,
-    log=None,
+    fink_username: str = None,
+    fink_password: str = None,
+    fink_group_id: str = None,
+    fink_servers: str = None,
+    fink_topics: list = None,
+    testing: bool = None,
+    schema: str = None,
+    log: callable = None,
 ):
     """
     Arguments
@@ -190,7 +191,7 @@ def init_consumer(
     return consumer
 
 
-def poll_alert(consumer, maxtimeout, log):
+def poll_alert(consumer: callable, maxtimeout: int, log: callable = None):
     """
     Polls the consumer for an alert.
 
@@ -223,7 +224,7 @@ def poll_alert(consumer, maxtimeout, log):
         return None, None
 
 
-def extract_alert_data(alert):
+def extract_alert_data(alert: dict = None):
 
     """
     Extracts the data from the alert.
@@ -278,17 +279,17 @@ def extract_alert_data(alert):
 
 
 def poll_alerts(
-    skyportal_url=None,
-    skyportal_token=None,
-    skyportal_group=None,
-    fink_username=None,
-    fink_password=None,
-    fink_group_id=None,
-    fink_servers=None,
-    fink_topics=None,
-    testing=False,
-    whitelisted=False,
-    log=None,
+    skyportal_url: str = None,
+    skyportal_token: str = None,
+    skyportal_group: str = None,
+    fink_username: str = None,
+    fink_password: str = None,
+    fink_group_id: str = None,
+    fink_servers: str = None,
+    fink_topics: list = None,
+    testing: bool = None,
+    whitelisted: bool = None,
+    log: callable = None,
     maxtimeout: int = 5,
 ):
     """
