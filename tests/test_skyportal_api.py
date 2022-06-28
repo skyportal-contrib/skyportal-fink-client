@@ -1,10 +1,12 @@
 import os
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
+from skyportal_fink_client.utils.log import make_log
 
 conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
 )
+
 skyportal_token = conf["skyportal_token"]
 
 
@@ -319,8 +321,8 @@ def test_get_fink_taxonomy_id():
     assert id is not None
 
 
-def test_init_skyportal():
-    result = skyportal_api.init_skyportal(
+def test_init_skyportal_group():
+    result = skyportal_api.init_skyportal_group(
         "TestInitSkyPortalGroup", "http://localhost:5000", skyportal_token
     )
     assert result is not None
@@ -331,7 +333,9 @@ def test_init_skyportal():
 
 def test_from_fink_to_skyportal():
 
-    group_id, stream_id, filter_id = skyportal_api.init_skyportal(
+    log = make_log("fink_test")
+
+    group_id, stream_id, filter_id = skyportal_api.init_skyportal_group(
         "fink", "http://localhost:5000", skyportal_token
     )
     assert group_id is not None
@@ -352,7 +356,6 @@ def test_from_fink_to_skyportal():
     )
     assert status == 200
     result = skyportal_api.from_fink_to_skyportal(
-        "kilonova",
         "ZTFAPITESTFINAL",
         59000.0,
         "ZTF",
@@ -363,6 +366,7 @@ def test_from_fink_to_skyportal():
         "ab",
         5.0,
         5.0,
+        "kilonova",
         group_id,
         filter_id,
         stream_id,
@@ -370,6 +374,7 @@ def test_from_fink_to_skyportal():
         False,
         "http://localhost:5000",
         skyportal_token,
+        log,
     )
 
     assert result is not None

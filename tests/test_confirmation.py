@@ -31,16 +31,13 @@ def test_verify_pooling():
 
     r = AlertReader(data_path)
     alerts = r.to_list()
-    print(len(alerts))
-    print(alerts[0].keys())
 
     skyportal_candidates = skyportal_api.api(
         "GET",
         f"http://localhost:5000/api/candidates?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["candidates"]
-    print(len(skyportal_candidates) - len(demo_data["candidates"]))
-    assert (len(skyportal_candidates) - len(demo_data["candidates"])) == len(alerts)
+    assert (len(skyportal_candidates) - len(demo_data["candidates"])) == 1
 
     alerts_sources = []
     for alert in alerts:
@@ -51,11 +48,21 @@ def test_verify_pooling():
         f"http://localhost:5000/api/sources?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["sources"]
-    assert (len(skyportal_sources) - len(demo_data["sources"])) == len(alerts_sources)
+    # in test_skyportal_fink_client.py, we only posted one alert to skyportal, here we verify that it was posted.
+    assert (len(skyportal_sources) - len(demo_data["sources"])) == 1
 
-    print(skyportal_sources[0])
+    # fin the objectID of the alerts we posted to skyportal
+    object_ids = []
+    for source in skyportal_sources:
+        if source["id"] in alerts_sources:
+            object_ids.append(source["id"])
 
-    # create a nest list of alerts by source
+    # we posted only one alert so the length of object_ids should be 1
+    assert len(object_ids) == 1
+
+    # create a nested list of alerts by source, this is useful especially if during the tests you added multiple alerts to skyportal.
+    # in the alerts list, keep only the alert with its obj_id in the object_ids list.
+    alerts = [alert for alert in alerts if alert["objectId"] in object_ids]
     alerts_by_source = {}
     for source in alerts:
         if source["objectId"] in alerts_by_source:

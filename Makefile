@@ -13,4 +13,4 @@ skyportal/Makefile:
 	git submodule update --init
 
 make poll_alerts:
-	@PYTHONPATH=. python skyportal_fink_client/skyportal_fink_client.py
+	@PYTHONPATH=. python __main__.py
