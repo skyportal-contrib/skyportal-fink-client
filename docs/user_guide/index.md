@@ -73,9 +73,9 @@ This simple argument is a boolean that indicates whether you want to run the cli
 
 #### SkyPortal Credentials
 
-The `skyportal_url` and `skyportal_token` fields are used to connect to the SkyPortal instance. The url is simply the address of the SkyPortal instance, and the token is an api token that you can create and/or find in your SkyPortal's user profile.
+The `skyportal_url` and `skyportal_token` fields are used to connect to the SkyPortal instance. The url is simply the address of the SkyPortal instance, and the token is an api token that you can create and/or find in your SkyPortal user profile.
 The `skyportal_group` field is the group that you want the alerts to belong to. On SkyPortal, if a user wants to see the data you poll from Fink, he should be in this group.
-The `whitelisted` field indicates if your IP address is whitelisted in SkyPortal. Indeed, SkyPortal's limits how many API calls can be in "queue" at once. If you are not whitelisted and make too many API calls at once, they will be skipped. Therefore, we added a delay of 1 second between alerts. But if you are whitelisted, you can set this to `true` to skip that delay.
+The `whitelisted` field indicates if your IP address is whitelisted in SkyPortal. Indeed, SkyPortal limits how many API calls can be in "queue" at once. If you are not whitelisted and make too many API calls at once, they will be skipped. Therefore, we added a delay of 1 second between alerts. But if you are whitelisted, you can set this to `true` to skip that delay.
 
 ## Running the client
 
@@ -93,6 +93,6 @@ Then, run:
 make poll
 ```
 
-Now, when need alerts come in, they will be processed and pushed to SkyPortal. You'll see new candidate and sources appear in SkyPortal.
+Now, when new alerts come in, they will be processed and pushed to SkyPortal. You'll see new candidate and sources appear in SkyPortal.
 
 To stop polling, hit `ctrl+c` on your keyboard.
