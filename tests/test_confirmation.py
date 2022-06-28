@@ -60,7 +60,7 @@ def test_verify_pooling():
     # we posted only one alert so the length of object_ids should be 1
     assert len(object_ids) == 1
 
-    # create a nest list of alerts by source, this is useful especially if during the tests you added multiple alerts to skyportal.
+    # create a nested list of alerts by source, this is useful especially if during the tests you added multiple alerts to skyportal.
     # in the alerts list, keep only the alert with its obj_id in the object_ids list.
     alerts = [alert for alert in alerts if alert["objectId"] in object_ids]
     alerts_by_source = {}
