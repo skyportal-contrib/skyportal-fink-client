@@ -224,7 +224,7 @@ def poll_alert(consumer: callable, maxtimeout: int, log: callable = None):
         return None, None
 
 
-def extract_alert_data(alert: dict = None):
+def extract_alert_data(topic: str = None, alert: dict = None):
 
     """
     Extracts the data from the alert.
@@ -252,7 +252,11 @@ def extract_alert_data(alert: dict = None):
         return None
     alert_pd = pd.DataFrame([alert])
     alert_pd["tracklet"] = ""
-    classification = extract_fink_classification_from_pdf(alert_pd)[0]
+    if topic in ["fink_kn_candidates_ztf", "fink_early_kn_candidates_ztf", "fink_rate_based_kn_candidates_ztf"]:
+        # we force the classification to a kilonova
+        classification = "Kilonova candidate"
+    else:                
+        classification = extract_fink_classification_from_pdf(alert_pd)[0]
     instruments = ["CFH12k", "ZTF"]
     magsys = "ab"
     object_id = alert["objectId"]
@@ -355,7 +359,7 @@ def poll_alerts(
     try:
         while True:
             topic, alert = poll_alert(consumer, maxtimeout, log)
-            data = extract_alert_data(alert)
+            data = extract_alert_data(topic, alert)
             if data is not None:
                 log(f"Received alert from topic {topic} with classification {data[-1]}")
                 skyportal_api.from_fink_to_skyportal(
