@@ -252,11 +252,18 @@ def extract_alert_data(topic: str = None, alert: dict = None):
         return None
     alert_pd = pd.DataFrame([alert])
     alert_pd["tracklet"] = ""
-    if topic in ["fink_kn_candidates_ztf", "fink_early_kn_candidates_ztf", "fink_rate_based_kn_candidates_ztf"]:
-        # we force the classification to a kilonova
+    classification = extract_fink_classification_from_pdf(alert_pd)[0]
+    # we force the classification to a kilonova for those topics
+    if (
+        topic
+        in [
+            "fink_kn_candidates_ztf",
+            "fink_early_kn_candidates_ztf",
+            "fink_rate_based_kn_candidates_ztf",
+        ]
+        and "kilonova" not in classification.lower()
+    ):
         classification = "Kilonova candidate"
-    else:                
-        classification = extract_fink_classification_from_pdf(alert_pd)[0]
     instruments = ["CFH12k", "ZTF"]
     magsys = "ab"
     object_id = alert["objectId"]
