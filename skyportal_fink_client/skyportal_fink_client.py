@@ -264,6 +264,7 @@ def extract_alert_data(topic: str = None, alert: dict = None):
         and "kilonova" not in classification.lower()
     ):
         classification = "Kilonova candidate"
+
     instruments = ["CFH12k", "ZTF"]
     magsys = "ab"
     object_id = alert["objectId"]
@@ -274,6 +275,12 @@ def extract_alert_data(topic: str = None, alert: dict = None):
     limiting_mag = alert["candidate"]["diffmaglim"]
     ra = alert["candidate"]["ra"]
     dec = alert["candidate"]["dec"]
+
+    # if the classification is "Kilonova Candidate", we set the probability to the the "rf_kn_vs_nonkn" alert data
+    if classification == "Kilonova candidate":
+        probability = alert["candidate"]["rf_kn_vs_nonkn"]
+    else:
+        probability = None
     return [
         object_id,
         mjd,
@@ -286,6 +293,7 @@ def extract_alert_data(topic: str = None, alert: dict = None):
         ra,
         dec,
         classification,
+        probability,
     ]
 
 
