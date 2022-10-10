@@ -134,6 +134,7 @@ def test_post_classification():
     status, data = skyportal_api.post_classification(
         "ZTF21aaqjmps",
         "kilonova",
+        0.5,
         1,
         [1],
         "http://localhost:5000",
@@ -243,6 +244,7 @@ def test_update_classification():
     status = skyportal_api.update_classification(
         "ZTF18aabcvnq",
         "kilonova",
+        0.5,
         1,
         [1],
         "http://localhost:5000",
@@ -367,6 +369,7 @@ def test_from_fink_to_skyportal():
         5.0,
         5.0,
         "kilonova",
+        0.5,
         group_id,
         filter_id,
         stream_id,

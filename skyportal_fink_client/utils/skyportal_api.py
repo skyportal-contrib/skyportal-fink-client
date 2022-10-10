@@ -498,6 +498,7 @@ def post_photometry(
 def post_classification(
     object_id: str,
     classification: str,
+    probability: float,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -534,6 +535,9 @@ def post_classification(
         "obj_id": object_id,
         "group_ids": group_ids,
     }
+
+    if probability is not None:
+        data["probability"] = probability
 
     response = api(
         "POST",
@@ -785,6 +789,7 @@ def post_taxonomy(
 def update_classification(
     object_id: str,
     classification: str,
+    probability: float,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -828,6 +833,9 @@ def update_classification(
         "author_id": author_id,
         "author_name": "fink_client",
     }
+
+    if probability is not None:
+        data["probability"] = probability
 
     response = api(
         "PUT",
@@ -1077,6 +1085,7 @@ def from_fink_to_skyportal(
     ra: float,
     dec: float,
     classification: str,
+    probability: float,
     group_id: int,
     filter_id: int,
     stream_id: int,
@@ -1185,6 +1194,7 @@ def from_fink_to_skyportal(
                 status = update_classification(
                     object_id,
                     classification,
+                    probability,
                     taxonomy_id,
                     [group_id],
                     url=url,
@@ -1196,6 +1206,7 @@ def from_fink_to_skyportal(
                 status = post_classification(
                     object_id,
                     classification,
+                    probability,
                     taxonomy_id,
                     [group_id],
                     url=url,
