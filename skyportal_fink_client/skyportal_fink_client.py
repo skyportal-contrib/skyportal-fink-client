@@ -278,7 +278,7 @@ def extract_alert_data(topic: str = None, alert: dict = None):
 
     # if the classification is "Kilonova Candidate", we set the probability to the the "rf_kn_vs_nonkn" alert data
     if classification == "Kilonova candidate":
-        probability = alert["candidate"]["rf_kn_vs_nonkn"]
+        probability = alert["rf_kn_vs_nonkn"]
     else:
         probability = None
     return [
