@@ -369,6 +369,7 @@ def test_from_fink_to_skyportal():
         5.0,
         5.0,
         "kilonova",
+        0.5,
         group_id,
         filter_id,
         stream_id,
