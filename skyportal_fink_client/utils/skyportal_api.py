@@ -219,7 +219,6 @@ def get_all_stream_ids(url: str, token: str):
         data = [stream["id"] for stream in streams.json()["data"]]
     return streams.status_code, data
 
-
 def classification_exists_for_objs(object_id: str, url: str, token: str):
     """
     Check if a classification exists for a given object
@@ -235,15 +234,33 @@ def classification_exists_for_objs(object_id: str, url: str, token: str):
 
     Returns
     ----------
-        exists : bool
-            True if classification exists, False otherwise
+        classification_id : int
+            Classification id if it exists, None otherwise
+        author_id : int
+            Author id if it exists, None otherwise
     """
     classifications = api(
         "GET",
         f"{url}/api/sources/{object_id}/classifications",
         token=token,
     )
-    return classifications.json()["data"] != []
+
+    data = []
+    if classifications.status_code == 200:
+        data = classifications.json()["data"]
+    
+    # find a classification with author_name = "fink_client"
+    classification_id = None
+    author_id = None
+    for classification in data:
+        if classification["author_name"] == "fink_client":
+            classification_id = classification["id"]
+            author_id = classification["author_id"]
+            break
+
+    return classification_id, author_id
+
+
 
 
 def classification_id_for_objs(object_id: str, url: str, token: str):
@@ -787,6 +804,8 @@ def post_taxonomy(
 
 
 def update_classification(
+    classification_id: int,
+    author_id: int,
     object_id: str,
     classification: str,
     probability: float,
@@ -800,6 +819,10 @@ def update_classification(
 
     Arguments
     ----------
+        classification_id: int
+            Id of the classification to update
+        author_id: int
+            Id of the author of the classification
         object_id : str
             Id of the object for which we update the classification
         classification : str
@@ -818,12 +841,6 @@ def update_classification(
         status_code : int
             HTTP status code
     """
-
-    data_classification = classification_id_for_objs(object_id, url, token)[1]
-    classification_id, author_id = (
-        data_classification["id"],
-        data_classification["author_id"],
-    )
 
     data = {
         "obj_id": object_id,
@@ -1190,8 +1207,11 @@ def from_fink_to_skyportal(
                 "Classification not found in any skyportal taxonomy, added to SkyPortal without classification"
             )
         else:
-            if classification_exists_for_objs(object_id, url=url, token=token):
+            classification_id, author_id = classification_exists_for_objs(object_id, url=url, token=token)
+            if classification_id is not None:
                 status = update_classification(
+                    classification_id,
+                    author_id,
                     object_id,
                     classification,
                     probability,
