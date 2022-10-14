@@ -69,7 +69,7 @@ def test_get_all_stream_ids():
 
 def test_classification_exists_for_objs():
     classification_id, author_id = skyportal_api.classification_exists_for_objs(
-        "ZTF18aabcvnq", skyportal_name, "http://localhost:5000", skyportal_token
+        "ZTF18aabcvnq", skyportal_name, 1, "http://localhost:5000", skyportal_token
     )
     assert classification_id is not None
     assert author_id is not None

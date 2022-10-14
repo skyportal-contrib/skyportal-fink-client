@@ -221,7 +221,7 @@ def get_all_stream_ids(url: str, token: str):
 
 
 def classification_exists_for_objs(
-    object_id: str, skyportal_name: str, url: str, token: str
+    object_id: str, skyportal_name: str, taxonomy_id: int, url: str, token: str
 ):
     """
     Check if a classification exists for a given object
@@ -230,6 +230,10 @@ def classification_exists_for_objs(
     ----------
         object_id : str
             Object id to check if classification exists for
+        skyportal_name : str
+            Skyportal name
+        taxonomy_id : int
+            Taxonomy id
         url : str
             Skyportal url
         token : str
@@ -256,46 +260,15 @@ def classification_exists_for_objs(
     classification_id = None
     author_id = None
     for classification in data:
-        if classification["author_name"] == skyportal_name:
+        if (
+            classification["author_name"] == skyportal_name
+            and classification["taxonomy_id"] == taxonomy_id
+        ):
             classification_id = classification["id"]
             author_id = classification["author_id"]
             break
 
     return classification_id, author_id
-
-
-def classification_id_for_objs(object_id: str, url: str, token: str):
-    """
-    Get classification id for a given object
-
-    Arguments
-    ----------
-        object_id : str
-            Object id to get classification id for
-        url : str
-            Skyportal url
-        token : str
-            Skyportal token
-
-    Returns
-    ----------
-        status_code : int
-            HTTP status code
-        data : list
-            List of classification ids and their author ids
-    """
-    classifications = api(
-        "GET",
-        f"{url}/api/sources/{object_id}/classifications",
-        token=token,
-    )
-    data = {}
-    if classifications.status_code == 200:
-        data = {
-            "id": classifications.json()["data"][0]["id"],
-            "author_id": classifications.json()["data"][0]["author_id"],
-        }
-    return classifications.status_code, data
 
 
 def post_source(
@@ -1212,7 +1185,7 @@ def from_fink_to_skyportal(
             )
         else:
             classification_id, author_id = classification_exists_for_objs(
-                object_id, skyportal_name, url=url, token=token
+                object_id, skyportal_name, taxonomy_id, url=url, token=token
             )
             log(f"Classification id: {classification_id}, author id: {author_id}")
             if classification_id is not None:
