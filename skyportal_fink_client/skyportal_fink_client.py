@@ -116,8 +116,8 @@ def init_skyportal(
         taxonomy_id,
         skyportal_url,
         skyportal_token,
-        whitelisted,
         skyportal_name,
+        whitelisted,
     )
 
 
@@ -369,8 +369,8 @@ def poll_alerts(
         taxonomy_id,
         skyportal_url,
         skyportal_token,
-        whitelisted,
         skyportal_name,
+        whitelisted,
     ) = init_skyportal(
         skyportal_url,
         skyportal_token,

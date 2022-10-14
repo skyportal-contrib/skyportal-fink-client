@@ -61,7 +61,6 @@ def test_init_skyportal():
         taxonomy_id,
         skyportal_url,
         skyportal_token,
-        skyportal_group,
         skyportal_name,
         whitelisted,
     ) = skyportal_fink_client.init_skyportal(
@@ -78,6 +77,7 @@ def test_init_skyportal():
     assert taxonomy_id is not None
     assert skyportal_url is not None
     assert skyportal_token is not None
+    assert skyportal_name is not None
     assert whitelisted is not None
 
 
