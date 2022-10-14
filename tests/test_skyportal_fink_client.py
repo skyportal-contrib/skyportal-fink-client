@@ -85,6 +85,7 @@ def test_init_consumer():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
@@ -110,6 +111,7 @@ def test_poll_alert():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
