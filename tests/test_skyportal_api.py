@@ -235,9 +235,12 @@ def test_post_taxonomy():
 
 def test_update_classification():
     status = skyportal_api.update_classification(
+        1,
+        1,
         "ZTF18aabcvnq",
         "kilonova",
         0.5,
+        "provisioned-admin",
         1,
         [1],
         "http://localhost:5000",
