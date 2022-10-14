@@ -30,6 +30,7 @@ def init_skyportal(
     skyportal_url: str = None,
     skyportal_token: str = None,
     skyportal_group: str = None,
+    skyportal_name: str = None,
     whitelisted: bool = None,
     log: callable = None,
 ):
@@ -65,6 +66,8 @@ def init_skyportal(
             Skyportal token
         whitelisted : bool
             If False, we take a 1 second pause between alerts
+        skyportal_name : str
+            Name of the user associated with the token in Skyportal
     """
     if skyportal_url is None:
         skyportal_url = conf["skyportal_url"]
@@ -77,6 +80,9 @@ def init_skyportal(
 
     if whitelisted is None:
         whitelisted = conf["whitelisted"]
+
+    if skyportal_name is None:
+        skyportal_name = conf["skyportal_name"]
 
     group_id, stream_id, filter_id = skyportal_api.init_skyportal_group(
         group=skyportal_group, url=skyportal_url, token=skyportal_token
@@ -110,6 +116,7 @@ def init_skyportal(
         taxonomy_id,
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         whitelisted,
     )
 
@@ -304,6 +311,7 @@ def poll_alerts(
     skyportal_url: str = None,
     skyportal_token: str = None,
     skyportal_group: str = None,
+    skyportal_name: str = None,
     fink_username: str = None,
     fink_password: str = None,
     fink_group_id: str = None,
@@ -361,9 +369,15 @@ def poll_alerts(
         taxonomy_id,
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         whitelisted,
     ) = init_skyportal(
-        skyportal_url, skyportal_token, skyportal_group, whitelisted, log
+        skyportal_url,
+        skyportal_token,
+        skyportal_group,
+        skyportal_name,
+        whitelisted,
+        log,
     )
     consumer = init_consumer(
         fink_username,
@@ -389,6 +403,7 @@ def poll_alerts(
                     whitelisted=whitelisted,
                     url=skyportal_url,
                     token=skyportal_token,
+                    skyportal_name=skyportal_name,
                     log=log,
                 )
 
