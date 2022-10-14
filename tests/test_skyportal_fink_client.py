@@ -147,6 +147,7 @@ def test_extract_alert_data():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
