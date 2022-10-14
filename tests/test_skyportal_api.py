@@ -8,6 +8,7 @@ conf = files.yaml_to_dict(
 )
 
 skyportal_token = conf["skyportal_token"]
+skyportal_name = conf["skyportal_name"]
 
 
 def test_get_all_groups_id():
@@ -68,18 +69,10 @@ def test_get_all_stream_ids():
 
 def test_classification_exists_for_objs():
     classification_id, author_id = skyportal_api.classification_exists_for_objs(
-        "ZTF18aabcvnq", "http://localhost:5000", skyportal_token
+        "ZTF18aabcvnq", skyportal_name, "http://localhost:5000", skyportal_token
     )
     assert classification_id is not None
     assert author_id is not None
-
-
-def test_classification_id_for_objs():
-    status, data = skyportal_api.classification_id_for_objs(
-        "ZTF18aabcvnq", "http://localhost:5000", skyportal_token
-    )
-    assert status == 200
-    assert data is not None
 
 
 def test_post_source():
@@ -377,6 +370,7 @@ def test_from_fink_to_skyportal():
         False,
         "http://localhost:5000",
         skyportal_token,
+        skyportal_name,
         log,
     )
 
