@@ -219,7 +219,10 @@ def get_all_stream_ids(url: str, token: str):
         data = [stream["id"] for stream in streams.json()["data"]]
     return streams.status_code, data
 
-def classification_exists_for_objs(object_id: str, url: str, token: str):
+
+def classification_exists_for_objs(
+    object_id: str, skyportal_name: str, url: str, token: str
+):
     """
     Check if a classification exists for a given object
 
@@ -248,19 +251,17 @@ def classification_exists_for_objs(object_id: str, url: str, token: str):
     data = []
     if classifications.status_code == 200:
         data = classifications.json()["data"]
-    
-    # find a classification with author_name = "fink_client"
+
+    # find a classification with author_name = skyportal_name
     classification_id = None
     author_id = None
     for classification in data:
-        if classification["author_name"] == "fink_client":
+        if classification["author_name"] == skyportal_name:
             classification_id = classification["id"]
             author_id = classification["author_id"]
             break
 
     return classification_id, author_id
-
-
 
 
 def classification_id_for_objs(object_id: str, url: str, token: str):
@@ -548,6 +549,7 @@ def post_classification(
     """
     data = {
         "classification": classification,
+        "author_name": "fink_client",
         "taxonomy_id": taxonomy_id,
         "obj_id": object_id,
         "group_ids": group_ids,
@@ -809,6 +811,7 @@ def update_classification(
     object_id: str,
     classification: str,
     probability: float,
+    skyportal_name: str,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -848,7 +851,7 @@ def update_classification(
         "taxonomy_id": taxonomy_id,
         "group_ids": group_ids,
         "author_id": author_id,
-        "author_name": "fink_client",
+        "author_name": skyportal_name,
     }
 
     if probability is not None:
@@ -1110,6 +1113,7 @@ def from_fink_to_skyportal(
     whitelisted: bool,
     url: str,
     token: str,
+    skyportal_name: str,
     log: callable,
 ):
     """
@@ -1207,7 +1211,10 @@ def from_fink_to_skyportal(
                 "Classification not found in any skyportal taxonomy, added to SkyPortal without classification"
             )
         else:
-            classification_id, author_id = classification_exists_for_objs(object_id, url=url, token=token)
+            classification_id, author_id = classification_exists_for_objs(
+                object_id, skyportal_name, url=url, token=token
+            )
+            log(f"Classification id: {classification_id}, author id: {author_id}")
             if classification_id is not None:
                 status = update_classification(
                     classification_id,
@@ -1215,6 +1222,7 @@ def from_fink_to_skyportal(
                     object_id,
                     classification,
                     probability,
+                    skyportal_name,
                     taxonomy_id,
                     [group_id],
                     url=url,
