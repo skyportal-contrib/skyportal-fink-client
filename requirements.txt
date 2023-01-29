@@ -15,9 +15,10 @@ distlib==0.3.4
 docopt==0.6.2
 fastavro==1.4.10
 filelock==3.6.0
-fink-filters==2.2
+fink-client==4.1
+fink-filters==3.7
+fink-science==3.13.3
 fink-utils==0.4.0
-fink-client==2.11
 fonttools==4.31.2
 identify==2.4.12
 idna==3.3
