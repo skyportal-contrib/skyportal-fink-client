@@ -124,9 +124,10 @@ jobs:
           export NPM_CONFIG_LEGACY_PEER_DEPS="true"
           make dependencies
 
-      - name: Install dependencies for skyportal-fink-client in a virtualenv
+      - name: Install dependencies for skyportal-fink-client
         run: |
-          pip install virtualenv; virtualenv env; source env/bin/activate; pip install -r requirements.txt; deactivate
+          pip install -r requirements.txt
+          cat requirements.txt
 
       - name: Run SkyPortal
         run: |
@@ -134,32 +135,27 @@ jobs:
 
       - name: Get admin token from SkyPortal
         run: |
-          source env/bin/activate
-          py.test tests/test_skyportal_token.py
+          PYTHONPATH=. py.test tests/test_skyportal_token.py
 
       - name: Unit testing of utils function with SkyPortal API
         if: ${{ matrix.test_subset == 'Unit Testing of utils functions (with skyportal API)' }}
         run: |
-          source env/bin/activate
-          py.test tests/test_skyportal_api.py
+          PYTHONPATH=. py.test tests/test_skyportal_api.py
 
       - name: Generate Fake Alerts for testing
         if: ${{ matrix.test_subset == 'Test Polling Alert' }}
         run: |
-          source env/bin/activate
-          python tests/produce_fake.py
+          PYTHONPATH=. python tests/produce_fake.py
 
       - name: Test Poll Alerts using Fink Client and post it to SkyPortal
         if: ${{ matrix.test_subset == 'Test Polling Alert' }}
         run: |
-          source env/bin/activate
-          py.test tests/test_skyportal_fink_client.py
+          PYTHONPATH=. py.test tests/test_skyportal_fink_client.py
 
       - name: Test if the alerts posted to SkyPortal correspond to the fake alerts generated
         if: ${{ matrix.test_subset == 'Test Polling Alert' }}
         run: |
-          source env/bin/activate
-          py.test tests/test_confirmation.py
+          PYTHONPATH=. py.test tests/test_confirmation.py
 
       - name: Stop SkyPortal
         working-directory: ./skyportal
