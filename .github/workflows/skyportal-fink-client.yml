@@ -129,6 +129,14 @@ jobs:
           pip install -r requirements.txt
           cat requirements.txt
 
+      - name: Temporary - Fix SkyPortal dependencies
+        # TODO: the requirements.txt file fo SKyPortal specifies fastavro==1.7.0, but we want 1.6.0
+        #       This is a temporary fix to make the tests pass
+        working-directory: ./skyportal
+        run: |
+          sed -i 's/fastavro==1.7.0/fastavro==1.6.0/g' requirements.txt
+          cat requirements.txt
+
       - name: Run SkyPortal
         run: |
           PYTHONPATH=. python tests/run_skyportal.py
