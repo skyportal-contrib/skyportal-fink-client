@@ -177,7 +177,7 @@ def init_consumer(
     fink_config = {
         "username": fink_username,
         "bootstrap.servers": fink_servers,
-        "group_id": fink_group_id,
+        "group.id": fink_group_id,
     }
 
     if fink_password is not None:
