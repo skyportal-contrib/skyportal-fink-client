@@ -1,16 +1,15 @@
 # coding: utf-8
 import os
-from subprocess import call
-from fink_client.consumer import AlertConsumer
-from astropy.time import Time
-from fink_filters.classification import extract_fink_classification_from_pdf
-
-from .utils import skyportal_api
-from .utils import files
-from .utils.switchers import fid_to_filter_ztf
-from .utils.log import make_log
+import traceback
 
 import pandas as pd
+from astropy.time import Time
+from fink_client.consumer import AlertConsumer
+from fink_filters.ztf.classification import extract_fink_classification_from_pdf
+
+from .utils import files, skyportal_api
+from .utils.log import make_log
+from .utils.switchers import fid_to_filter_ztf
 
 # open yaml config file
 conf = files.yaml_to_dict(
@@ -22,7 +21,7 @@ taxonomy_dict = files.yaml_to_dict(
 )
 
 schema = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "/../tests/schemas/schema_test.avsc")
+    os.path.join(os.path.dirname(__file__), "../tests/schemas/schema_test.avsc")
 )
 
 
@@ -167,25 +166,34 @@ def init_consumer(
     if testing is None:
         testing = conf["testing"]
 
+    if testing:
+        fink_servers = "localhost:9093"
+
     fink_config = {
-        "username": fink_username,
         "bootstrap.servers": fink_servers,
-        "group_id": fink_group_id,
+        "group.id": fink_group_id,
     }
+
+    if fink_username is not None:
+        fink_config["username"] = fink_username
 
     if fink_password is not None:
         fink_config["password"] = fink_password
 
-    if testing == True:
+    if log is not None:
+        auth_mode = "SASL" if fink_password is not None else "unauthenticated"
+        log(f"Connecting to Fink broker at {fink_servers} ({auth_mode})")
+
+    if testing:
         if log is not None:
-            log("Using fake alerts for testing")
+            log("Using fake alerts for testing (local Kafka at localhost:9093)")
         consumer = AlertConsumer(
-            topics=fink_topics, config=fink_config, schema_path=schema
+            topics=fink_topics, config=fink_config, survey="ztf", schema_path=schema
         )
     else:
         if log is not None:
-            log("Using Fink Broker")
-        consumer = AlertConsumer(topics=fink_topics, config=fink_config)
+            log("Using live Fink Broker")
+        consumer = AlertConsumer(topics=fink_topics, config=fink_config, survey="ztf")
     if log is not None:
         log(f"Fink topics you subscribed to: {fink_topics}")
     return consumer
@@ -212,20 +220,28 @@ def poll_alert(consumer: callable, maxtimeout: int, log: callable = None):
     try:
         # Poll the servers
         topic, alert, key = consumer.poll(maxtimeout)
-        if topic is None or alert is None:
+        if topic is None:
             if log is not None:
-                log("No alerts received in the last {} seconds".format(maxtimeout))
+                log(f"No alerts received in the last {maxtimeout} seconds (timeout)")
             return None, None
-        else:
-            return topic, alert
+        if alert is None:
+            if log is not None:
+                log(
+                    f"Received message on topic {topic} (key={key!r}) but alert could not be decoded"
+                )
+            return None, None
+        if log is not None:
+            log(f"Decoded alert from topic={topic} key={key!r}")
+        return topic, alert
     except Exception as e:
         if log is not None:
-            log(f"Error while polling: {e}")
+            log(
+                f"Exception during poll: {type(e).__name__}: {e}\n{traceback.format_exc()}"
+            )
         return None, None
 
 
 def extract_alert_data(topic: str = None, alert: dict = None):
-
     """
     Extracts the data from the alert.
 
@@ -243,7 +259,7 @@ def extract_alert_data(topic: str = None, alert: dict = None):
         return None
     if "objectId" not in alert.keys():
         return
-    if not "candidate" in alert.keys():
+    if "candidate" not in alert.keys():
         return None
     if any(
         key not in alert["candidate"].keys()
@@ -361,6 +377,7 @@ def poll_alerts(
         fink_servers,
         fink_topics,
         testing,
+        schema,
         log,
     )
     try:
