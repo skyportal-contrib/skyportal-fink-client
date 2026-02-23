@@ -1,0 +1,29 @@
+[Unit]
+Description=SkyPortal Fink Client (ZTF)
+Documentation=https://github.com/skyportal-contrib/skyportal-fink-client
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=root
+Group=root
+# --- Adjust these lines to match your installation ---
+WorkingDirectory=/opt/skyportal-fink-client
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/skyportal-fink-client/venv/bin/python __main__.py --config /opt/skyportal-fink-client/config_ztf.yaml
+# ------------------------------------------------------
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=skyportal-fink-client-ztf
+
+[Install]
+WantedBy=multi-user.target

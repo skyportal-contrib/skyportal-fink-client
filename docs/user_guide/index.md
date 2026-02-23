@@ -6,93 +6,189 @@
 
 SkyPortal Fink Client requires the following software to be installed on your system:
 
-- Python 3.8 or later
+- Python 3.10 or later
+- `fink-client` >= 10.0
 
 #### Source download
 
-Clone the skyportal-fink-client repository and start a new virtual environment:
+Clone the skyportal-fink-client repository:
 
-```
+```bash
 git clone https://github.com/skyportal-contrib/skyportal-fink-client.git
 ```
 
-(You can also use `conda` or `pipenv` to create your environment.)
-
 #### Python environment and dependencies
 
-Lets install the dependencies required in a python virtual environment:
+Create a virtual environment and install dependencies:
 
-```
+```bash
 cd skyportal-fink-client
-virtualenv env
-source env/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
 
 ## Configuration
 
-Now that the dependencies are installed, the last step before using the client is to configure it. In order to do this, we'll guide you on what to edit in the `config.yaml` configuration file.
+All configuration are in `config.yaml`. Here is a full reference:
 
-#### Overview
+```yaml
+# Survey to subscribe to: "ztf" or "lsst"
+survey: lsst
 
-Here's a quick overview of the configuration file:
-
-```
+# Fink broker
 fink_topics:
-  - test_stream
-fink_username: 'your_fink_user_name'
-fink_password: 'your_fink_user_password'
-fink_group_id: 'your_fink_group'
-fink_servers: localhost:9093
-skyportal_token: 611c1ef7-77d7-467b-bfe8-b2f9730e3914
+  - fink_extragalactic_new_candidate_lsst  # LSST example
+  # - fink_sn_candidates_ztf               # ZTF example
+fink_username: your_fink_username
+fink_password: null          # leave null if your account has no password
+fink_group_id: my_unique_group_id
+fink_servers: fink_url
+
+# SkyPortal instance
 skyportal_url: http://localhost:5000
+skyportal_token: your_skyportal_api_token
 skyportal_group: Fink
-testing: true
-whitelisted: false
+
+# Options
+testing: false     # set to true to use a local Kafka instance with fake alerts
+whitelisted: false # set to true to skip the 1-second inter-alert delay
 ```
+
+#### Survey
+
+Set `survey` to `ztf` or `lsst`. This controls how alerts are decoded and which broker server to use.
 
 #### Fink credentials
 
-Let's start by looking at the `fink_username` and `fink_password` fields. These are the credentials used to authenticate with Fink broker. If you don't have those credentials, you can apply [HERE](https://forms.gle/2td4jysT4e9pkf889) to get them.
+`fink_username` and `fink_password` are your Fink broker credentials. Apply for access [here](https://forms.gle/2td4jysT4e9pkf889).
 
-Simply replace `your_fink_user_name` and `your_fink_user_password` with your credentials.
+`fink_group_id` is a Kafka consumer group identifier. Choose a unique stable name per deployment (e.g. `skyportal-prod-lsst-v1`). Kafka uses this to track your position in the stream — restarting with the same group ID resumes from where you left off without reprocessing alerts.
 
-Same procedure as above for the `fink_servers` and `fink_group_id` field. These are the address of the Fink broker's server and port you want to connect to, and the fink broker group that your user is in. You received those along with your credentials.
+#### Fink topics
 
-#### Fink Topics
+`fink_topics` is a list of topics to subscribe to. Each topic corresponds to a Fink filter (one filter = one topic). Available topics are listed in the [Fink broker documentation](https://fink-broker.readthedocs.io/en/latest/topics/).
 
-The `fink_topics` field is a list of topics that you want to subscribe to. The topics are fink topics, to learn more about it, click [HERE](https://fink-broker.readthedocs.io/en/latest/topics/).
+The classification assigned to each alert in SkyPortal is derived from the topic name (e.g. `fink_extragalactic_new_candidate_lsst` → `Extragalactic New Candidate`). For ZTF, the classification is also re-computed locally using the Fink ML classifiers embedded in each alert.
 
-Each topic contains objects that have been classified, and then passed through specific filters that correspond to the topic (one fink filter = one topic of alerts).
-By the way, after polling the alert, we will recreate the classification using [Fink Filters](https://github.com/astrolabsoftware/fink-filters), which will be used to classify the alert in SkyPortal.
+#### SkyPortal credentials
 
-#### Testing
+`skyportal_url` is the address of your SkyPortal instance.
 
-This simple argument is a boolean that indicates whether you want to run the client in testing mode. This is meant for development purposes, and should be set to `false` in production (when a normal user uses it with a real instance of SkyPortal).
+`skyportal_token` is an API token from your SkyPortal user profile.
 
-#### SkyPortal Credentials
+`skyportal_group` is the group that will own the ingested alerts. Users who want to see the data must be members of this group.
 
-The `skyportal_url` and `skyportal_token` fields are used to connect to the SkyPortal instance. The url is simply the address of the SkyPortal instance, and the token is an api token that you can create and/or find in your SkyPortal user profile.
-The `skyportal_group` field is the group that you want the alerts to belong to. On SkyPortal, if a user wants to see the data you poll from Fink, he should be in this group.
-The `whitelisted` field indicates if your IP address is whitelisted in SkyPortal. Indeed, SkyPortal limits how many API calls can be in "queue" at once. If you are not whitelisted and make too many API calls at once, they will be skipped. Therefore, we added a delay of 1 second between alerts. But if you are whitelisted, you can set this to `true` to skip that delay.
+`whitelisted`: SkyPortal rate-limits API calls. If your IP is whitelisted in SkyPortal, set this to `true` to skip the 1-second inter-alert delay.
+
 
 ## Running the client
 
-In your terminal, just navigate to the root directory of `skyportal-fink-client` and run:
+Activate the virtual environment and run:
 
-```
+```bash
 source venv/bin/activate
+make poll_alerts
 ```
 
-to activate the virtual environment.
+To use a specific config file:
 
-Then, run:
-
-```
-make poll
+```bash
+python __main__.py --config /path/to/config_lsst.yaml
 ```
 
-Now, when new alerts come in, they will be processed and pushed to SkyPortal. You'll see new candidate and sources appear in SkyPortal.
+Alerts are processed and pushed to SkyPortal as they arrive. Stop with `Ctrl+C`.
 
-To stop polling, hit `ctrl+c` on your keyboard.
+
+## Running in production (systemd)
+
+Two service files are provided to run ZTF and LSST streams independently:
+
+- `skyportal-fink-client-ztf.service`
+- `skyportal-fink-client-lsst.service`
+
+Each service points to its own config file via `--config`.
+
+1. Copy and edit the service files:
+
+```bash
+sudo cp skyportal-fink-client-ztf.service /etc/systemd/system/
+sudo cp skyportal-fink-client-lsst.service /etc/systemd/system/
+```
+
+Adjust `WorkingDirectory` and `ExecStart` paths in each file to match your installation.
+
+2. Enable and start:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now skyportal-fink-client-ztf
+sudo systemctl enable --now skyportal-fink-client-lsst
+```
+
+3. Check status and logs independently:
+
+```bash
+sudo systemctl status skyportal-fink-client-ztf
+sudo journalctl -u skyportal-fink-client-ztf -f
+
+sudo systemctl status skyportal-fink-client-lsst
+sudo journalctl -u skyportal-fink-client-lsst -f
+```
+
+Because Kafka tracks offsets per `fink_group_id`, each service resumes from where it left off after a restart — no alerts are duplicated or missed (within the broker's 7-day retention window).
+
+
+## Running the tests
+
+### Additional dependencies
+
+The test suite uses a local Kafka instance via Docker. Install Docker Engine (which includes Docker Compose v2):
+
+```bash
+sudo apt-get install docker.io
+# Add yourself to the docker group (requires logout/login to take effect)
+sudo usermod -aG docker $USER
+```
+
+### Running fake alerts
+
+Set `testing: true` in `config.yaml`, then produce fake alerts:
+
+```bash
+python tests/produce_fake.py
+```
+
+This starts a local Kafka container on `localhost:9093` and publishes sample ZTF alerts to the configured topics.
+
+### Running the client in test mode
+
+```bash
+make poll_alerts
+```
+
+### Running the test suite
+
+```bash
+pytest --disable-warnings tests/
+```
+
+
+## Code Documentation
+
+### Main: skyportal_fink_client
+
+See [Main - SkyPortal Fink Client](skyportal_fink_client.md)
+
+### Utils: skyportal_api
+
+See [Utils - SkyPortal API Helper](skyportal_api.md)
+
+### Utils: files
+
+See [Utils - Files Helper](files.md)
+
+### Utils: switchers
+
+See [Utils - Switchers](switchers.md)
