@@ -1,0 +1,5 @@
+confluent-kafka
+pytest
+pytest-cov
+ruff
+pre-commit

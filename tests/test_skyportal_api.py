@@ -1,6 +1,7 @@
 import os
-import skyportal_fink_client.utils.skyportal_api as skyportal_api
+
 import skyportal_fink_client.utils.files as files
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 from skyportal_fink_client.utils.log import make_log
 
 conf = files.yaml_to_dict(
@@ -71,7 +72,6 @@ def test_classification_exists_for_objs():
         "ZTF18aabcvnq", "http://localhost:5000", skyportal_token
     )
     assert result is not None
-    assert result == True
 
 
 def test_classification_id_for_objs():
@@ -273,7 +273,7 @@ def test_class_exists_in_fink_taxonomy_hierarchy():
         [{"class": "Fink Tax Test", "subclasses": [{"class": "(SIMBAD) Test"}]}],
     )
     assert classification_name is not None
-    assert exists == True
+    assert exists
 
 
 def test_get_classification_in_fink_taxonomy():
@@ -310,14 +310,14 @@ def test_get_fink_taxonomy_id():
         "1.0", "http://localhost:5000", skyportal_token
     )
     assert status == 200
-    assert latest == True
+    assert latest
     assert id is not None
 
     status, id, latest = skyportal_api.get_fink_taxonomy_id(
         "2.0", "http://localhost:5000", skyportal_token
     )
     assert status == 200
-    assert latest == False
+    assert not latest
     assert id is not None
 
 

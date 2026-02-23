@@ -1,13 +1,12 @@
 # coding: utf-8
+import datetime
 import os
 import subprocess
-import datetime
 import time
+
 import confluent_kafka
 import yaml
-
-from fink_client.avro_utils import AlertReader
-from fink_client.avro_utils import encode_into_avro
+from fink_client.avro_utils import AlertReader, encode_into_avro
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 data_path = basedir + "/sample.avro"

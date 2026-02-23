@@ -1,9 +1,7 @@
 astropy
-confluent-kafka
 fink-client >= 10.0
 fink-filters >= 7.22
 numpy
 pandas
-pytest
 PyYAML
 requests

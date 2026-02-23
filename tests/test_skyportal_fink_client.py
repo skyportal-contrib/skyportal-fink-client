@@ -1,8 +1,9 @@
 import os
 import uuid
+
 import skyportal_fink_client.skyportal_fink_client as skyportal_fink_client
-import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 from skyportal_fink_client.utils.log import make_log
 
 conf = files.yaml_to_dict(
@@ -239,7 +240,7 @@ def test_poll_alert_and_post_to_skyportal():
         whitelisted=whitelisted,
         url=skyportal_url,
         token=skyportal_token,
-        log=log
+        log=log,
     )
 
     assert status is not None

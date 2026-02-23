@@ -1,6 +1,7 @@
+import time
+
 import requests
 from astropy.time import Time
-import time
 
 
 def api(

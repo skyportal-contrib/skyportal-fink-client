@@ -144,7 +144,13 @@ Because Kafka tracks offsets per `fink_group_id`, each service resumes from wher
 
 ### Additional dependencies
 
-The test suite uses a local Kafka instance via Docker. Install Docker Engine (which includes Docker Compose v2):
+Install the development dependencies (includes `pytest`, `pytest-cov`, `confluent-kafka`, `ruff`, and `pre-commit`):
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+The test suite also uses a local Kafka instance via Docker. Install Docker Engine (which includes Docker Compose v2):
 
 ```bash
 sudo apt-get install docker.io

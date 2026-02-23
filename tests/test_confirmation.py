@@ -1,8 +1,9 @@
 import os
-import yaml
+
 from fink_client.avroUtils import AlertReader
-import skyportal_fink_client.utils.skyportal_api as skyportal_api
+
 import skyportal_fink_client.utils.files as files
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 data_path = basedir + "/sample.avro"
@@ -34,7 +35,7 @@ def test_verify_pooling():
 
     skyportal_candidates = skyportal_api.api(
         "GET",
-        f"http://localhost:5000/api/candidates?numPerPage=100",
+        "http://localhost:5000/api/candidates?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["candidates"]
     assert (len(skyportal_candidates) - len(demo_data["candidates"])) == 1
@@ -45,7 +46,7 @@ def test_verify_pooling():
             alerts_sources.append(alert["objectId"])
     skyportal_sources = skyportal_api.api(
         "GET",
-        f"http://localhost:5000/api/sources?numPerPage=100",
+        "http://localhost:5000/api/sources?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["sources"]
     # in test_skyportal_fink_client.py, we only posted one alert to skyportal, here we verify that it was posted.

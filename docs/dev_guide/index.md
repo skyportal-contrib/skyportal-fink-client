@@ -91,6 +91,12 @@ Classifications are derived from topic names via `_topic_to_classification()`. T
 
 ## Testing
 
+Install the development dependencies first:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
 Set `testing: true` in `config.yaml`. This overrides the broker address to `localhost:9093`.
 
 Produce fake ZTF alerts:
