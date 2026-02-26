@@ -7,3 +7,6 @@ ignore = ["E501"]  # line length handled by ruff-format (doesn't wrap docstrings
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: marks tests that require external services (SkyPortal, Kafka)",
+]

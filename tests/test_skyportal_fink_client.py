@@ -1,10 +1,14 @@
 import os
 import uuid
 
+import pytest
+
 import skyportal_fink_client.skyportal_fink_client as skyportal_fink_client
 import skyportal_fink_client.utils.files as files
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
 from skyportal_fink_client.utils.log import make_log
+
+pytestmark = pytest.mark.integration
 
 conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"

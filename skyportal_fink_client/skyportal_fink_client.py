@@ -2,6 +2,7 @@
 import os
 import traceback
 
+import numpy as np
 import pandas as pd
 from astropy.time import Time
 from fink_client.consumer import AlertConsumer
@@ -12,8 +13,6 @@ from .utils.log import make_log
 from .utils.switchers import (
     band_to_filter_lsst,
     fid_to_filter_ztf,
-    flux_err_to_mag_err,
-    flux_to_mag,
 )
 
 conf = files.yaml_to_dict(
@@ -27,6 +26,53 @@ taxonomy_dict = files.yaml_to_dict(
 schema = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../tests/schemas/schema_test.avsc")
 )
+
+_VALID_SURVEYS = {"ztf", "lsst"}
+
+_REQUIRED_CONFIG_FIELDS = [
+    "fink_topics",
+    "fink_username",
+    "fink_group_id",
+    "fink_servers",
+    "skyportal_url",
+    "skyportal_token",
+    "skyportal_group",
+    "testing",
+    "whitelisted",
+]
+
+
+def validate_config(conf: dict):
+    """Validate a config dict and raise ValueError with a descriptive message on failure.
+
+    Arguments
+    ----------
+    conf : dict
+        Config dict, typically loaded from config.yaml.
+
+    Raises
+    ----------
+    ValueError
+        If the config is missing required fields or contains invalid values.
+    """
+    missing = [f for f in _REQUIRED_CONFIG_FIELDS if f not in conf]
+    if missing:
+        raise ValueError(f"Missing required field(s) in config: {missing}")
+
+    survey = conf.get("survey", "ztf")
+    if survey not in _VALID_SURVEYS:
+        raise ValueError(
+            f"Invalid survey {survey!r} in config. Must be one of {_VALID_SURVEYS}."
+        )
+
+    topics = conf["fink_topics"]
+    if not isinstance(topics, list) or len(topics) == 0:
+        raise ValueError("fink_topics must be a non-empty list.")
+
+    for field in ("skyportal_url", "skyportal_token", "fink_group_id", "fink_servers"):
+        if not conf[field]:
+            raise ValueError(f"{field!r} must not be empty.")
+
 
 _KN_TOPICS_ZTF = {
     "fink_kn_candidates_ztf",
@@ -283,6 +329,7 @@ def _extract_ztf_data(topic: str, alert: dict):
         cand["ra"],
         cand["dec"],
         classification,
+        False,  # is_flux: ZTF uses mag space
     ]
 
 
@@ -303,7 +350,7 @@ def _extract_lsst_data(topic: str, alert: dict):
 
     diaobj = alert.get("diaObject")
     if diaobj is not None:
-        object_id = str(diaobj["diaObjectId"])
+        object_id = str(np.int64(diaobj["diaObjectId"]))
         ra = diaobj.get("ra") or dia.get("ra")
         dec = diaobj.get("dec") or dia.get("dec")
     elif alert.get("mpc_orbits") is not None:
@@ -320,25 +367,20 @@ def _extract_lsst_data(topic: str, alert: dict):
     if filter_ is None:
         return None
 
-    mag = flux_to_mag(dia["psfFlux"])
-    magerr = flux_err_to_mag_err(dia["psfFlux"], dia["psfFluxErr"])
-    # Hypothesis : Estimate 5-sigma limiting magnitude from flux error
-    limiting_mag = (
-        flux_to_mag(5.0 * dia["psfFluxErr"]) if dia["psfFluxErr"] > 0 else None
-    )
-
+    # flux/fluxerr are in nJy; zp=31.4 gives AB mags (m = -2.5*log10(flux) + 31.4).
     return [
         object_id,
         dia["midpointMjdTai"],
         ["LSSTCam", "LSST"],
         filter_,
-        mag,
-        magerr,
-        limiting_mag,
+        dia["psfFlux"],  # flux in nJy
+        dia["psfFluxErr"],  # fluxerr in nJy
+        31.4,  # zp for nJy → AB mag
         "ab",
         ra,
         dec,
         _topic_to_classification(topic),
+        True,  # is_flux: LSST uses flux space (no limiting mag available)
     ]
 
 
@@ -418,6 +460,7 @@ def poll_alerts(
         log = make_log("fink")
 
     _conf = files.yaml_to_dict(config_path) if config_path else conf
+    validate_config(_conf)
 
     if survey is None:
         survey = _conf.get("survey", "ztf")
@@ -471,9 +514,9 @@ def poll_alerts(
             topic, alert = poll_alert(consumer, maxtimeout, log)
             data = extract_alert_data(survey, topic, alert)
             if data is not None:
-                log(f"Received alert from topic {topic} with classification {data[-1]}")
+                log(f"Received alert from topic {topic} with classification {data[10]}")
                 skyportal_api.from_fink_to_skyportal(
-                    *data,
+                    *data[:11],
                     group_id=group_id,
                     filter_id=filter_id,
                     stream_id=stream_id,
@@ -482,6 +525,7 @@ def poll_alerts(
                     url=skyportal_url,
                     token=skyportal_token,
                     log=log,
+                    is_flux=data[11],
                 )
     except KeyboardInterrupt:
         log("interrupted!")

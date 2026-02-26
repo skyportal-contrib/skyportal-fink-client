@@ -1,9 +1,12 @@
 import os
 
-from fink_client.avroUtils import AlertReader
+import pytest
+from fink_client.avro_utils import AlertReader
 
 import skyportal_fink_client.utils.files as files
 import skyportal_fink_client.utils.skyportal_api as skyportal_api
+
+pytestmark = pytest.mark.integration
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 data_path = basedir + "/sample.avro"
@@ -14,8 +17,7 @@ conf = files.yaml_to_dict(
 skyportal_token = conf["skyportal_token"]
 
 demo_data = files.yaml_to_dict(
-    os.path.abspath(os.path.join(os.path.dirname(__file__)))
-    + "/../skyportal/data/db_demo.yaml"
+    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/db_demo.yaml"
 )
 
 
