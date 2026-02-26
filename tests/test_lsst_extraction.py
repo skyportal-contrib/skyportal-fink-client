@@ -65,7 +65,7 @@ def test_is_flux_flag_is_true():
 
 def test_classification_from_topic():
     result = _extract_lsst_data(TOPIC, _alert())
-    assert result[-1] == "Extragalactic New Candidate"
+    assert result[10] == "Extragalactic New Candidate"
 
 
 def test_coordinates_from_dia_object():
