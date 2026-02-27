@@ -460,30 +460,31 @@ def poll_alerts(
         log = make_log("fink")
 
     _conf = files.yaml_to_dict(config_path) if config_path else conf
-    validate_config(_conf)
 
-    if survey is None:
-        survey = _conf.get("survey", "ztf")
-    if skyportal_url is None:
-        skyportal_url = _conf["skyportal_url"]
-    if skyportal_token is None:
-        skyportal_token = _conf["skyportal_token"]
-    if skyportal_group is None:
-        skyportal_group = _conf["skyportal_group"]
-    if whitelisted is None:
-        whitelisted = _conf["whitelisted"]
-    if fink_username is None:
-        fink_username = _conf["fink_username"]
-    if fink_password is None:
-        fink_password = _conf["fink_password"]
-    if fink_group_id is None:
-        fink_group_id = _conf["fink_group_id"]
-    if fink_servers is None:
-        fink_servers = _conf["fink_servers"]
-    if fink_topics is None:
-        fink_topics = _conf["fink_topics"]
-    if testing is None:
-        testing = _conf["testing"]
+    # Resolve all values: kwargs take precedence over the config file.
+    survey = survey if survey is not None else _conf.get("survey", "ztf")
+    skyportal_url = (
+        skyportal_url if skyportal_url is not None else _conf["skyportal_url"]
+    )
+    skyportal_token = (
+        skyportal_token if skyportal_token is not None else _conf["skyportal_token"]
+    )
+    skyportal_group = (
+        skyportal_group if skyportal_group is not None else _conf["skyportal_group"]
+    )
+    whitelisted = whitelisted if whitelisted is not None else _conf["whitelisted"]
+    fink_username = (
+        fink_username if fink_username is not None else _conf["fink_username"]
+    )
+    fink_password = (
+        fink_password if fink_password is not None else _conf.get("fink_password")
+    )
+    fink_group_id = (
+        fink_group_id if fink_group_id is not None else _conf["fink_group_id"]
+    )
+    fink_servers = fink_servers if fink_servers is not None else _conf["fink_servers"]
+    fink_topics = fink_topics if fink_topics is not None else _conf["fink_topics"]
+    testing = testing if testing is not None else _conf["testing"]
 
     (
         group_id,
