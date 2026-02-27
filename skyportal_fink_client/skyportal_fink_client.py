@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 from astropy.time import Time
 from fink_client.consumer import AlertConsumer
-from fink_filters.ztf.classification import extract_fink_classification_from_pdf
 
 from .utils import files, skyportal_api
 from .utils.log import make_log
@@ -314,6 +313,8 @@ def _extract_ztf_data(topic: str, alert: dict):
     if any(cand.get(k) is None for k in required):
         return None
 
+    from fink_filters.ztf.classification import extract_fink_classification_from_pdf
+
     alert_pd = pd.DataFrame([alert])
     alert_pd["tracklet"] = ""
     classification = extract_fink_classification_from_pdf(alert_pd)[0]
@@ -421,6 +422,7 @@ def poll_alerts(
     skyportal_url: str = None,
     skyportal_token: str = None,
     skyportal_group: str = None,
+    skyportal_name: str = None,
     survey: str = None,
     fink_username: str = None,
     fink_password: str = None,
@@ -476,6 +478,9 @@ def poll_alerts(
     )
     skyportal_group = (
         skyportal_group if skyportal_group is not None else _conf["skyportal_group"]
+    )
+    skyportal_name = (
+        skyportal_name if skyportal_name is not None else _conf.get("skyportal_name")
     )
     whitelisted = whitelisted if whitelisted is not None else _conf["whitelisted"]
     fink_username = (
