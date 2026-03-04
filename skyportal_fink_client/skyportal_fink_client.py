@@ -534,6 +534,7 @@ def poll_alerts(
                 log(f"Received alert from topic {topic} with classification {data[10]}")
                 skyportal_api.from_fink_to_skyportal(
                     *data[:11],
+                    probability=None,
                     group_id=group_id,
                     filter_id=filter_id,
                     stream_id=stream_id,
