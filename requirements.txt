@@ -1,6 +1,7 @@
 astropy
 fink-client >= 10.0
 fink-filters >= 7.22
+fink_utils
 numpy
 pandas
 pyspark
