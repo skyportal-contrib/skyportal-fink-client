@@ -6,9 +6,31 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: pytest -m "not integration" -v
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres
@@ -17,154 +39,111 @@ jobs:
           POSTGRES_PASSWORD: anything
         ports:
           - 5432:5432
-        # needed because the postgres container does not provide a
-        # healthcheck
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
-    strategy:
-      fail-fast: false
-      matrix:
-        test_subset: ['Unit Testing of utils functions (with skyportal API)','Test Polling Alert']
-
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: "3.10"
 
-      - name: Checkout repository and submodules
-        uses: actions/checkout@v2
+      - uses: actions/cache@v4
         with:
-          submodules: recursive
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
 
-      - uses: actions/cache@v2
+      - name: Checkout SkyPortal
+        uses: actions/checkout@v4
         with:
-          path: |
-            ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
+          repository: skyportal/skyportal
+          path: skyportal
 
-      - uses: actions/cache@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build SkyPortal Docker images
+        run: |
+          cd skyportal
+          make docker-local
+
+      - name: Start SkyPortal services
+        run: |
+          cd skyportal
+          # Map SkyPortal's Docker port 9000 to localhost:5000 used by tests
+          SKYPORTAL_PORT=5000 docker compose up -d
+
+      - name: Wait for SkyPortal to be ready
+        run: |
+          echo "Waiting for SkyPortal to become available..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:5000/api/sysinfo | grep -q "version"; then
+              echo "SkyPortal is ready"
+              break
+            fi
+            echo "Attempt $i/30..."
+            sleep 10
+          done
+
+      - name: Initialize SkyPortal database
+        run: |
+          cd skyportal
+          docker exec skyportal-web bash -c \
+            'source /skyportal_env/bin/activate && FLAGS="--config=config.yaml" make db_create_tables'
+          docker exec skyportal-web bash -c \
+            'source /skyportal_env/bin/activate && FLAGS="--create_tables --config=config.yaml" make load_demo_data'
+
+      - name: Extract SkyPortal token and write config
+        run: |
+          SKYPORTAL_TOKEN=$(docker exec skyportal-web cat .tokens.yaml \
+            | grep "INITIAL_ADMIN:" | cut -d':' -f2 | tr -d ' ')
+
+          if [ -z "$SKYPORTAL_TOKEN" ]; then
+            echo "Failed to extract SkyPortal token"
+            exit 1
+          fi
+
+          echo "Token extracted successfully"
+          # Write token into config.yaml used by integration tests
+          sed -i "s/skyportal_token:.*/skyportal_token: $SKYPORTAL_TOKEN/" config.yaml
+
+      - name: Start Kafka services
+        run: |
+          cd tests
+          docker compose up -d
+          echo "Waiting for Kafka to be ready..."
+          sleep 15
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate fake alerts
+        run: PYTHONPATH=. python tests/produce_fake.py
+
+      - name: Run integration tests
+        run: PYTHONPATH=. pytest -m integration -v
+
+      - name: Collect container logs
+        if: always()
+        run: |
+          mkdir -p debug_logs
+          docker logs skyportal-web > debug_logs/skyportal.log 2>&1 || true
+          docker ps -a > debug_logs/containers_status.txt 2>&1 || true
+
+      - name: Save debug artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: |
-            ~/.cache/pip
-          key: ${{ runner.os }}-${{ hashFiles('**/requirements*.txt') }}
+          name: debug-logs
+          path: debug_logs/
+          retention-days: 7
 
-      - name: Write SkyPortal configs
-        working-directory: ./skyportal
+      - name: Cleanup
+        if: always()
         run: |
-          cat << EOF > config.yaml
-            database:
-              database: skyportal
-              host: localhost
-              port: 5432
-              user: skyportal
-              password: anything
-          EOF
-          cat << EOF > test_config.yaml
-            database:
-              database: skyportal_test
-              user: skyportal
-              host: localhost
-              port: 5432
-              password: anything
-            server:
-              auth:
-                debug_login: True
-          EOF
-      - name: Install system dependencies
-        working-directory: ./skyportal
-        run: |
-          curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-
-          sudo apt install -y wget nodejs unzip firefox nginx libcurl4-gnutls-dev libgnutls28-dev
-
-          pip install pip==22.2.2
-          pip install wheel numpy
-
-          export NPM_PACKAGES="${HOME}/.npm-packages"
-          export PATH=${NPM_PACKAGES}/bin:$PATH
-          export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
-
-          sudo npm -g install npm@latest
-
-          which python; python --version
-          echo npm $(npm --version)
-          echo node $(node --version)
-          nginx -v
-          firefox --version
-
-      - name: Initialize SkyPortal
-        working-directory: ./skyportal
-        run: |
-          # Usually, we create databases on the local machine, so
-          # `createdb` just works out of the box.  However, when doing
-          # this on a server, as in our case, we need to specify extra
-          # options.
-          #
-          # db_init should not complain if the databases exist already
-          #
-          echo "localhost:5432:*:skyportal:anything" > ~/.pgpass
-          chmod 600 ~/.pgpass
-          createdb -h localhost -U skyportal skyportal_test
-          psql -U skyportal -h localhost -c "GRANT ALL PRIVILEGES ON DATABASE skyportal_test TO skyportal;" skyportal_test
-          export NPM_CONFIG_LEGACY_PEER_DEPS="true"
-          make db_init
-          pip list --format=columns
-          npm ls --depth 0 || true
-          # Stamp Alembic HEAD
-          PYTHONPATH=. alembic -x config=config.yaml stamp head
-
-      - name: Refresh SkyPortal dependencies for tested version
-        working-directory: ./skyportal
-        run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          export NPM_CONFIG_LEGACY_PEER_DEPS="true"
-          make dependencies
-
-      - name: Install dependencies for skyportal-fink-client
-        run: |
-          pip install -r requirements.txt
-          cat requirements.txt
-
-      - name: Temporary - Fix SkyPortal dependencies
-        # TODO: the requirements.txt file fo SKyPortal specifies fastavro==1.7.0, but we want 1.6.0
-        #       This is a temporary fix to make the tests pass
-        working-directory: ./skyportal
-        run: |
-          sed -i 's/fastavro==1.7.0/fastavro==1.6.0/g' requirements.txt
-          cat requirements.txt
-
-      - name: Run SkyPortal
-        run: |
-          PYTHONPATH=. python tests/run_skyportal.py
-
-      - name: Get admin token from SkyPortal
-        run: |
-          PYTHONPATH=. py.test tests/test_skyportal_token.py
-
-      - name: Unit testing of utils function with SkyPortal API
-        if: ${{ matrix.test_subset == 'Unit Testing of utils functions (with skyportal API)' }}
-        run: |
-          PYTHONPATH=. py.test tests/test_skyportal_api.py
-
-      - name: Generate Fake Alerts for testing
-        if: ${{ matrix.test_subset == 'Test Polling Alert' }}
-        run: |
-          PYTHONPATH=. python tests/produce_fake.py
-
-      - name: Test Poll Alerts using Fink Client and post it to SkyPortal
-        if: ${{ matrix.test_subset == 'Test Polling Alert' }}
-        run: |
-          PYTHONPATH=. py.test tests/test_skyportal_fink_client.py
-
-      - name: Test if the alerts posted to SkyPortal correspond to the fake alerts generated
-        if: ${{ matrix.test_subset == 'Test Polling Alert' }}
-        run: |
-          PYTHONPATH=. py.test tests/test_confirmation.py
-
-      - name: Stop SkyPortal
-        working-directory: ./skyportal
-        run: make stop
+          cd skyportal && docker compose down -v || true
+          cd tests && docker compose down -v || true
