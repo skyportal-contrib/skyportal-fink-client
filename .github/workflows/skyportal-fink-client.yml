@@ -71,14 +71,22 @@ jobs:
       - name: Wait for SkyPortal to be ready
         run: |
           echo "Waiting for SkyPortal to become available..."
-          for i in $(seq 1 30); do
+          for i in $(seq 1 5); do
             if curl -sf http://localhost:9000/api/sysinfo | grep -q "version"; then
               echo "SkyPortal is ready"
               break
             fi
-            echo "Attempt $i/30..."
+            echo "Attempt $i/5..."
             sleep 10
           done
+
+      - name: Patch SkyPortal to skip dustmaps download
+        run: |
+          docker exec skyportal-web bash -c "
+            sed -i 's/dustmaps\.sfd\.fetch()/pass  # CI: skip dustmaps download/' \
+              /skyportal/skyportal/models/obj.py
+            find /skyportal/skyportal/models/__pycache__ -name 'obj*.pyc' -delete 2>/dev/null || true
+          "
 
       - name: Initialize SkyPortal database
         run: |
