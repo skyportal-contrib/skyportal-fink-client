@@ -1,8 +1,6 @@
 # coding: utf-8
 import datetime
 import os
-import subprocess
-import time
 
 import confluent_kafka
 import yaml
@@ -42,21 +40,6 @@ def produce_fake_alerts():
     with open(config_path) as f:
         conf = yaml.safe_load(f)
     topics = conf.get("fink_topics", ["test_stream"])
-
-    print("Stopping previous kafka and zookeeper instances:")
-    cmd = subprocess.Popen(
-        ["docker", "compose", "down"], cwd=basedir, preexec_fn=os.setsid
-    )
-    cmd.communicate()[0]
-
-    print("Starting kafka and zookeeper instances:")
-    cmd = subprocess.Popen(
-        ["docker", "compose", "up", "-d"], cwd=basedir, preexec_fn=os.setsid
-    )
-    cmd.communicate()[0]
-
-    print("Waiting for Kafka to be ready...")
-    time.sleep(15)
 
     print("Generating fake alerts:")
     r = AlertReader(data_path)

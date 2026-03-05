@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import time
 import traceback
 
 import numpy as np
@@ -231,10 +232,12 @@ def init_consumer(
 
     if testing:
         fink_servers = "localhost:9093"
+        fink_group_id = f"{fink_group_id}-{time.time_ns()}"
 
     fink_config = {
         "bootstrap.servers": fink_servers,
         "group.id": fink_group_id,
+        "auto.offset.reset": "earliest",
     }
     if fink_username is not None:
         fink_config["username"] = fink_username

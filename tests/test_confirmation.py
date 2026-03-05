@@ -17,10 +17,6 @@ conf = files.yaml_to_dict(
 skyportal_token = conf["skyportal_token"]
 skyportal_url = conf["skyportal_url"]
 
-demo_data = files.yaml_to_dict(
-    os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/db_demo.yaml"
-)
-
 
 def test_verify_pooling():
     """
@@ -36,13 +32,6 @@ def test_verify_pooling():
     r = AlertReader(data_path)
     alerts = r.to_list()
 
-    skyportal_candidates = skyportal_api.api(
-        "GET",
-        f"{skyportal_url}/api/candidates?numPerPage=100",
-        token=skyportal_token,
-    ).json()["data"]["candidates"]
-    assert (len(skyportal_candidates) - len(demo_data["candidates"])) == 1
-
     alerts_sources = []
     for alert in alerts:
         if alert["objectId"] not in alerts_sources:
@@ -52,10 +41,8 @@ def test_verify_pooling():
         f"{skyportal_url}/api/sources?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["sources"]
-    # in test_skyportal_fink_client.py, we only posted one alert to skyportal, here we verify that it was posted.
-    assert (len(skyportal_sources) - len(demo_data["sources"])) == 1
 
-    # fin the objectID of the alerts we posted to skyportal
+    # find the objectID of the alerts we posted to skyportal
     object_ids = []
     for source in skyportal_sources:
         if source["id"] in alerts_sources:

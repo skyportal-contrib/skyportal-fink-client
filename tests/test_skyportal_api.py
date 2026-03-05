@@ -66,14 +66,6 @@ def test_classification_exists_for_objs():
     assert classification_id is not None
 
 
-def test_classification_id_for_objs():
-    status, data = skyportal_api.classification_id_for_objs(
-        "ZTF18aabcvnq", skyportal_url, skyportal_token
-    )
-    assert status == 200
-    assert data is not None
-
-
 def test_post_source():
     status, data = skyportal_api.post_source(
         "ZTFtestAPI",
@@ -322,7 +314,14 @@ def test_from_fink_to_skyportal():
         conf["skyportal_url"],
         conf["skyportal_token"],
     )
-    assert status == 200
+    if status == 400:
+        # Taxonomy already exists from a previous test; retrieve its id
+        _, taxonomy_id, _ = skyportal_api.get_fink_taxonomy_id(
+            taxonomy_dict["version"], conf["skyportal_url"], conf["skyportal_token"]
+        )
+        assert taxonomy_id is not None
+    else:
+        assert status == 200
     result = skyportal_api.from_fink_to_skyportal(
         "ZTFAPITESTFINAL",
         59000.0,

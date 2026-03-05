@@ -31,7 +31,12 @@ def api(
 
     """
     headers = {"Authorization": f"token {token}"}
-    response = requests.request(method, endpoint, json=data, headers=headers)
+    for attempt in range(5):
+        response = requests.request(method, endpoint, json=data, headers=headers)
+        if response.status_code != 429:
+            return response
+        wait = 2**attempt
+        time.sleep(wait)
     return response
 
 

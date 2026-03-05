@@ -23,6 +23,7 @@ def init_test():
     skyportal_url = conf["skyportal_url"]
     skyportal_token = conf["skyportal_token"]
     skyportal_name = conf["skyportal_name"]
+    survey = conf["survey"]
     fink_username = conf["fink_username"]
     fink_password = conf["fink_password"]
     fink_group_id = conf["fink_group_id"]
@@ -34,6 +35,7 @@ def init_test():
         skyportal_url,
         skyportal_token,
         skyportal_name,
+        survey,
         fink_username,
         fink_password,
         fink_group_id,
@@ -49,12 +51,13 @@ def test_init_skyportal():
         skyportal_url,
         skyportal_token,
         skyportal_name,
-        fink_username,
-        fink_password,
-        fink_group_id,
-        fink_servers,
-        fink_topics,
-        testing,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
         log,
     ) = init_test()
     skyportal_group = str(uuid.uuid4())
@@ -88,9 +91,10 @@ def test_init_skyportal():
 
 def test_init_consumer():
     (
-        skyportal_url,
-        skyportal_token,
-        skyportal_name,
+        _,
+        _,
+        _,
+        survey,
         fink_username,
         fink_password,
         fink_group_id,
@@ -100,23 +104,25 @@ def test_init_consumer():
         log,
     ) = init_test()
     consumer = skyportal_fink_client.init_consumer(
-        fink_username,
-        fink_password,
-        fink_group_id,
-        fink_servers,
-        fink_topics,
-        testing,
-        schema,
-        log,
+        survey=survey,
+        fink_username=fink_username,
+        fink_password=fink_password,
+        fink_group_id=fink_group_id,
+        fink_servers=fink_servers,
+        fink_topics=fink_topics,
+        testing=testing,
+        schema_path=schema,
+        log=log,
     )
     assert consumer is not None
 
 
 def test_poll_alert():
     (
-        skyportal_url,
-        skyportal_token,
-        skyportal_name,
+        _,
+        _,
+        _,
+        survey,
         fink_username,
         fink_password,
         fink_group_id,
@@ -126,14 +132,15 @@ def test_poll_alert():
         log,
     ) = init_test()
     consumer = skyportal_fink_client.init_consumer(
-        fink_username,
-        fink_password,
-        fink_group_id,
-        fink_servers,
-        fink_topics,
-        testing,
-        schema,
-        log,
+        survey=survey,
+        fink_username=fink_username,
+        fink_password=fink_password,
+        fink_group_id=fink_group_id,
+        fink_servers=fink_servers,
+        fink_topics=fink_topics,
+        testing=testing,
+        schema_path=schema,
+        log=log,
     )
     retries = 0
     max_retries = 30
@@ -152,9 +159,10 @@ def test_poll_alert():
 
 def test_extract_alert_data():
     (
-        skyportal_url,
-        skyportal_token,
-        skyportal_name,
+        _,
+        _,
+        _,
+        survey,
         fink_username,
         fink_password,
         fink_group_id,
@@ -164,14 +172,15 @@ def test_extract_alert_data():
         log,
     ) = init_test()
     consumer = skyportal_fink_client.init_consumer(
-        fink_username,
-        fink_password,
-        fink_group_id,
-        fink_servers,
-        fink_topics,
-        testing,
-        schema,
-        log,
+        survey=survey,
+        fink_username=fink_username,
+        fink_password=fink_password,
+        fink_group_id=fink_group_id,
+        fink_servers=fink_servers,
+        fink_topics=fink_topics,
+        testing=testing,
+        schema_path=schema,
+        log=log,
     )
     retries = 0
     max_retries = 30
@@ -186,7 +195,7 @@ def test_extract_alert_data():
     assert topic is not None
     assert alert is not None
     assert retries < max_retries
-    data = skyportal_fink_client.extract_alert_data(topic, alert)
+    data = skyportal_fink_client.extract_alert_data(survey, topic, alert)
     assert data is not None
 
 
@@ -195,6 +204,7 @@ def test_poll_alert_and_post_to_skyportal():
         skyportal_url,
         skyportal_token,
         skyportal_name,
+        survey,
         fink_username,
         fink_password,
         fink_group_id,
@@ -231,14 +241,15 @@ def test_poll_alert_and_post_to_skyportal():
     assert skyportal_name is not None
     assert whitelisted is not None
     consumer = skyportal_fink_client.init_consumer(
-        fink_username,
-        fink_password,
-        fink_group_id,
-        fink_servers,
-        fink_topics,
-        testing,
-        schema,
-        log,
+        survey=survey,
+        fink_username=fink_username,
+        fink_password=fink_password,
+        fink_group_id=fink_group_id,
+        fink_servers=fink_servers,
+        fink_topics=fink_topics,
+        testing=testing,
+        schema_path=schema,
+        log=log,
     )
     assert consumer is not None
     retries = 0
@@ -254,10 +265,11 @@ def test_poll_alert_and_post_to_skyportal():
     assert topic is not None
     assert alert is not None
     assert retries < max_retries
-    data = skyportal_fink_client.extract_alert_data(topic, alert)
+    data = skyportal_fink_client.extract_alert_data(survey, topic, alert)
     assert data is not None
     status = skyportal_api.from_fink_to_skyportal(
-        *data,
+        *data[:11],
+        probability=None,
         group_id=group_id,
         filter_id=filter_id,
         stream_id=stream_id,
@@ -265,7 +277,9 @@ def test_poll_alert_and_post_to_skyportal():
         whitelisted=whitelisted,
         url=skyportal_url,
         token=skyportal_token,
+        skyportal_name=skyportal_name,
         log=log,
+        is_flux=data[11],
     )
 
     assert status is not None

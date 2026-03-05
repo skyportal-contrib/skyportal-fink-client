@@ -260,7 +260,8 @@
     {"name": "anomaly_score_emille_30days", "type": ["double", "null"]},
     {
       "name": "lc_features_g",
-      "type": {
+      "default": null,
+      "type": ["null", {
         "type": "record",
         "name": "topLevelRecord.lc_features_g",
         "fields": [
@@ -291,11 +292,12 @@
           {"name": "skew", "type": ["double", "null"]},
           {"name": "stetson_K", "type": ["double", "null"]}
         ]
-      }
+      }]
     },
     {
       "name": "lc_features_r",
-      "type": {
+      "default": null,
+      "type": ["null", {
         "type": "record",
         "name": "topLevelRecord.lc_features_r",
         "fields": [
@@ -326,7 +328,7 @@
           {"name": "skew", "type": ["double", "null"]},
           {"name": "stetson_K", "type": ["double", "null"]}
         ]
-      }
+      }]
     },
     {"name": "jd_first_real_det", "type": ["double", "null"]},
     {"name": "jdstarthist_dt", "type": ["double", "null"]},
