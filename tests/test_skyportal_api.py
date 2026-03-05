@@ -76,7 +76,7 @@ def test_classification_exists_for_objs():
     classification_id, author_id = skyportal_api.classification_exists_for_objs(
         "ZTF18aabcvnq", skyportal_name, 1, "http://localhost:5000", skyportal_token
     )
-    assert result is not None
+    assert classification_id is not None
 
 
 def test_classification_id_for_objs():
