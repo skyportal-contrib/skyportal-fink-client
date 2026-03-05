@@ -1,6 +1,7 @@
+import time
+
 import requests
 from astropy.time import Time
-import time
 
 
 def api(
@@ -30,7 +31,12 @@ def api(
 
     """
     headers = {"Authorization": f"token {token}"}
-    response = requests.request(method, endpoint, json=data, headers=headers)
+    for attempt in range(5):
+        response = requests.request(method, endpoint, json=data, headers=headers)
+        if response.status_code != 429:
+            return response
+        wait = 2**attempt
+        time.sleep(wait)
     return response
 
 
@@ -417,6 +423,7 @@ def post_photometry(
     stream_ids: list,
     url: str,
     token: str,
+    is_flux: bool = False,
 ):
     """
     Post a photometry to skyportal using its API
@@ -460,29 +467,30 @@ def post_photometry(
     """
     data = {
         "ra": ra,
-        # "ra_unc": 0,
-        "magerr": magerr,
         "magsys": magsys,
         "group_ids": group_ids,
-        # "altdata": None,
-        "mag": mag,
         "mjd": mjd,
-        # "origin": None,
         "filter": filter,
-        "limiting_mag": limiting_mag,
-        # "limiting_mag_nsigma": 0,
-        # "dec_unc": 0,
-        # "assignment_id": None,
         "stream_ids": stream_ids,
         "dec": dec,
         "instrument_id": instrument_id,
         "obj_id": object_id,
     }
+    if is_flux:
+        data["flux"] = mag
+        data["fluxerr"] = magerr
+        data["zp"] = limiting_mag
+    else:
+        data["mag"] = mag
+        data["magerr"] = magerr
+        if limiting_mag is not None:
+            data["limiting_mag"] = limiting_mag
 
-    response = api("POST", f"{url}/api/photometry", data, token=token)
+    response = api("PUT", f"{url}/api/photometry", data, token=token)
     return (
         response.status_code,
         response.json()["data"]["ids"] if response.json()["data"] != {} else {},
+        response.text,
     )
 
 
@@ -1088,6 +1096,7 @@ def from_fink_to_skyportal(
     token: str,
     skyportal_name: str,
     log: callable,
+    is_flux: bool = False,
 ):
     """
     Post an alert to skyportal using its API, that means posting
@@ -1140,6 +1149,10 @@ def from_fink_to_skyportal(
     """
     if not whitelisted:
         time.sleep(1)
+    # Convert numpy scalars (e.g. np.int64) to native Python types for JSON serialisation.
+    # Strings (e.g. MPC designation) are left unchanged.
+    if hasattr(object_id, "item"):
+        object_id = object_id.item()
     overall_status = 200
     overall_status, skyportal_instruments = get_all_instruments(url=url, token=token)
     instrument_id = None
@@ -1152,13 +1165,20 @@ def from_fink_to_skyportal(
         status = post_source(object_id, ra, dec, [group_id], url=url, token=token)[0]
         if status != 200:
             overall_status = status
+            if log is not None:
+                log(f"Warning: post_source returned {status} for {object_id}")
+        else:
+            if log is not None:
+                log(f"Source {object_id} saved to group {group_id}")
         passed_at = Time(mjd, format="mjd").isot
         status = post_candidate(
             object_id, ra, dec, [filter_id], passed_at, url=url, token=token
         )[0]
         if status != 200:
             overall_status = status
-        status = post_photometry(
+            if log is not None:
+                log(f"Warning: post_candidate returned {status} for {object_id}")
+        phot_status, _, phot_body = post_photometry(
             object_id,
             mjd,
             instrument_id,
@@ -1173,7 +1193,14 @@ def from_fink_to_skyportal(
             [stream_id],
             url=url,
             token=token,
-        )[0]
+            is_flux=is_flux,
+        )
+        if phot_status != 200:
+            overall_status = phot_status
+            if log is not None:
+                log(
+                    f"Warning: post_photometry returned {phot_status} for {object_id}: {phot_body}"
+                )
         if taxonomy_id is not None:
             classification = get_classification_in_fink_taxonomy(
                 classification, taxonomy_id, url, token

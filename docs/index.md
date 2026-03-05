@@ -41,10 +41,10 @@ to activate the virtual environment.
 Then, run:
 
 ```
-make poll
+make poll_alerts
 ```
 
-Now, when need alerts come in, they will be processed and pushed to SkyPortal. You'll see new candidate and sources appear in SkyPortal.
+Now, when new alerts come in, they will be processed and pushed to SkyPortal. You'll see new candidates and sources appear in SkyPortal.
 
 To stop polling, hit `ctrl+c` on your keyboard.
 

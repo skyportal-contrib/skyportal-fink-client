@@ -1,6 +1,6 @@
+import os
 import zlib
 from datetime import datetime
-import os
 
 BOLD = "\033[1m"
 NORMAL = "\033[0;0m"
