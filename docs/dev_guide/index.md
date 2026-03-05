@@ -1,162 +1,116 @@
-# User Guide
+# Developer Guide
 
-## Setup
+## Architecture
 
-#### System Dependencies
-
-SkyPortal Fink Client requires the following software to be installed on your system:
-
-- Python 3.8 or later
-
-#### Source download
-
-Clone the skyportal-fink-client repository and start a new virtual environment:
+The client is structured around three stages:
 
 ```
-git clone https://github.com/skyportal-contrib/skyportal-fink-client.git
+Fink Kafka broker
+       │
+       ▼
+  init_consumer()       ← creates an AlertConsumer (fink-client ≥ 10.0)
+       │
+       ▼
+  poll_alert()          ← polls one message, returns (topic, alert)
+       │
+       ▼
+  extract_alert_data()  ← dispatches to survey-specific extractor
+  ├── _extract_ztf_data()
+  └── _extract_lsst_data()
+       │
+       ▼
+  skyportal_api.from_fink_to_skyportal()
+       │
+       ▼
+  SkyPortal instance
 ```
 
-(You can also use `conda` or `pipenv` to create your environment.)
+The entry point is `poll_alerts()` in `skyportal_fink_client/skyportal_fink_client.py`, which ties everything together in a loop. It accepts an optional `config_path` argument to load a specific config file, enabling multiple instances to run simultaneously with different configs (e.g. one for ZTF, one for LSST).
 
-#### Python environment and dependencies
+## Module overview
 
-Lets install the dependencies required in a python virtual environment:
+### `skyportal_fink_client`
 
-```
-cd skyportal-fink-client
-virtualenv env
-source env/bin/activate
-pip install -r requirements.txt
-```
+The main module. Key functions:
 
+| Function | Role |
+|---|---|
+| `poll_alerts()` | Main loop. Reads config (via optional `config_path`), initialises SkyPortal and the consumer, then polls forever. |
+| `init_skyportal()` | Creates the group/stream/filter in SkyPortal and uploads the Fink taxonomy. |
+| `init_consumer()` | Builds and returns a fink-client `AlertConsumer`. |
+| `poll_alert()` | Polls one alert from Kafka. Returns `(topic, alert)` or `(None, None)` on timeout/error. |
+| `extract_alert_data()` | Dispatches to `_extract_ztf_data` or `_extract_lsst_data` based on `survey`. |
+| `_extract_ztf_data()` | Parses a ZTF alert dict into a flat list of standardised fields. Uses `fink-filters` ML classifier. |
+| `_extract_lsst_data()` | Parses an LSST/Rubin alert dict into the same format. |
+| `_topic_to_classification()` | Converts a Kafka topic name to a human-readable classification string. |
 
-## Configuration
+### `utils/skyportal_api`
 
-Now that the dependencies are installed, the last step before using the client is to configure it. In order to do this, we'll guide you on what to edit in the `config.yaml` configuration file.
+Handles all HTTP calls to SkyPortal (create candidate, add photometry, post taxonomy, etc.).
 
-#### Overview
+See [Utils - SkyPortal API Helper](skyportal_api.md).
 
-Here's a quick overview of the configuration file:
+### `utils/switchers`
 
-```
-fink_topics:
-  - test_stream
-fink_username: 'your_fink_user_name'
-fink_password: 'your_fink_user_password'
-fink_group_id: 'your_fink_group'
-fink_servers: localhost:9093
-skyportal_token: 611c1ef7-77d7-467b-bfe8-b2f9730e3914
-skyportal_url: http://localhost:5000
-skyportal_group: Fink
-testing: true
-whitelisted: false
-```
+Pure conversion functions with no side effects:
 
-#### Fink credentials
+| Function | Role |
+|---|---|
+| `fid_to_filter_ztf(fid)` | ZTF filter id (1/2/3) → filter name (`ztfg`/`ztfr`/`ztfi`) |
+| `band_to_filter_lsst(band)` | LSST band letter → SkyPortal filter name (`lsstu` … `lssty`) |
+| `flux_to_mag(flux_nJy)` | Flux in nJy → AB magnitude |
+| `flux_err_to_mag_err(flux, flux_err)` | Flux + flux error → magnitude error |
 
-Let's start by looking at the `fink_username` and `fink_password` fields. These are the credentials used to authenticate with Fink broker. If you don't have those credentials, you can apply [HERE](https://forms.gle/2td4jysT4e9pkf889) to get them.
+See [Utils - Switchers](switchers.md).
 
-Simply replace `your_fink_user_name` and `your_fink_user_password` with your credentials.
+### `utils/files`
 
-Same procedure as above for the `fink_servers` and `fink_group_id` field. These are the address of the Fink broker's server and port you want to connect to, and the fink broker group that your user is in. You received those along with your credentials.
+Helpers for reading YAML files and resolving paths. See [Utils - Files Helper](files.md).
 
-#### Fink Topics and classification
+## Adding a new survey
 
-The `fink_topics` field is a list of topics that you want to subscribe to. The topics are fink topics, to learn more about it, click [HERE](https://fink-broker.readthedocs.io/en/latest/topics/).
+1. Add a new `_extract_<survey>_data(topic, alert)` function in `skyportal_fink_client.py` that returns:
+   ```python
+   [object_id, mjd, instruments, filter_, mag, magerr, limiting_mag, magsys, ra, dec, classification]
+   ```
+2. Add the survey branch in `extract_alert_data()`.
+3. Add any needed filter-name converters in `utils/switchers.py`.
+4. Add the corresponding classifications to `skyportal_fink_client/data/taxonomy.yaml` and bump the version.
+5. Update `_topic_to_classification()` if the topic suffix convention differs.
 
-Each topic contains objects that have been classified, and then passed through specific filters that correspond to the topic (one fink filter = one topic of alerts).
-By the way, after polling the alert, we will recreate the classification using [Fink Filters](https://github.com/astrolabsoftware/fink-filters), which will be used to classify the alert in SkyPortal.
+## Adding new LSST classifications
 
-#### Testing
+Classifications are derived from topic names via `_topic_to_classification()`. To support a new topic:
 
-This simple argument is a boolean that indicates whether you want to run the client in testing mode. This is meant for development purposes, and should be set to `false` in production (when a normal user uses it with a real instance of SkyPortal).
+1. Check what the function produces for that topic:
+   ```python
+   _topic_to_classification("fink_my_new_topic_lsst")  # → "My New Topic"
+   ```
+2. Add the matching class to `skyportal_fink_client/data/taxonomy.yaml` under `Fink LSST classifiers`.
+3. Bump the taxonomy `version` field — SkyPortal will re-upload it automatically on next start.
 
-Here, if you are running the client in testing mode, you can set the `testing` field to `true`.
+## Testing
 
-#### SkyPortal Credentials
+Install the development dependencies first:
 
-The `skyportal_url` and `skyportal_token` fields are used to connect to the SkyPortal instance. The url is simply the address of the SkyPortal instance, and the token is an api token that you can create and/or find in your SkyPortal's user profile.
-The `skyportal_group` field is the group that you want the alerts to belong to. On SkyPortal, if a user wants to see the data you poll from Fink, he should be in this group.
-The `whitelisted` field indicates if your IP address is whitelisted in SkyPortal. Indeed, SkyPortal limits how many API calls can be in "queue" at once. If you are not whitelisted and make too many API calls at once, they will be skipped. Therefore, we added a delay of 1 second between alerts. But if you are whitelisted, you can set this to `true` to skip that delay.
-
-## Running the client
-
-In your terminal, just navigate to the root directory of `skyportal-fink-client` and run:
-
-```
-source venv/bin/activate
-```
-
-to activate the virtual environment.
-
-Then, run:
-
-```
-make poll
+```bash
+pip install -r requirements-dev.txt
 ```
 
-Now, when new alerts come in, they will be processed and pushed to SkyPortal. You'll see new candidates and sources appearing in SkyPortal.
+Set `testing: true` in `config.yaml`. This overrides the broker address to `localhost:9093`.
 
-To stop polling, hit `ctrl+c` on your keyboard.
-
-
-## Running the Tests
-
-### Additional dependencies
-
-To run the test suite, we'll need to emulate fink broker alerts stream. In order to do that, we'll use docker-compose and docker to run a local Kafka server.
-To install it on your system, you'll need to run:
-
-```
-sudo apt-get install docker.io docker-compose
-```
-
-After which you'll need to add yourself to the docker group so you don't need to run `sudo` during the test suite (it is an important step, it won't work otherwise).
-
-```
-sudo groupadd docker
-sudo usermod -aG docker $USER
-```
-
-*To complete the installation, you need to either log out and log in, or reboot your machine.*
-
-Now, you are ready to activate the virtualenvironment in your terminal:
-
-```
-source env/bin/activate
-```
-Before running the tests, you need to put the `skyportal_url` and `skyportal_token` in the config.yaml as instructed above. For testing, we do not advise to use a running instance of SkyPortal that is in production, but rather to run it locally on your machine. We ship skyportal as a submodule in the repository, so you can install it and run it from there.
-If you proceed as such, you can run a test that will copy the skyportal token to the config automatically.
-
-```
-py.test --disable-warnings tests/test_skyportal_token.py
-```
-
-Then, we need to produce the fake alerts we mentioned earlier. To do that, run:
-```
+Produce fake ZTF alerts:
+```bash
 python tests/produce_fake.py
 ```
 
-And to run the tests, just run:
-
+This starts a Docker Compose Kafka stack and publishes sample alerts to the topics listed in `config.yaml`. Requires Docker Engine with the Compose v2 plugin:
+```bash
+sudo apt-get install docker.io
+sudo usermod -aG docker $USER  # then log out/in
 ```
-py.test --disable-warnings tests/<the_name_of_the_python_file_with_the_test.py>
+
+Run the client against the fake stream:
+```bash
+make poll_alerts
 ```
-
-## Code Documentation
-
-### Main : skyportal_fink_client
-
-You can find documentation about the `skyportal_fink_client` module on the [Main - SkyPortal Fink Client](skyportal_fink_client.md)
-
-### Utils : skyportal_api
-
-You can find documentation about the `skyportal_api` module on the [Utils - SkyPortal API Helper](skyportal_api.md)
-
-### Utils : files
-
-You can find documentation about the `files` module on the [Utils - Files Helper](files.md)
-
-### Utils : switchers
-
-You can find documentation about the `switchers` module on the [Utils - Switchers](switchers.md)

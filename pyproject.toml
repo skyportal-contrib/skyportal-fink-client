@@ -1,0 +1,12 @@
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]  # pycodestyle errors, pyflakes, warnings, isort
+ignore = ["E501"]  # line length handled by ruff-format (doesn't wrap docstrings/comments)
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests that require external services (SkyPortal, Kafka)",
+]

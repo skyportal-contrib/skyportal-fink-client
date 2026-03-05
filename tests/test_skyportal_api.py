@@ -1,13 +1,19 @@
 import os
-import skyportal_fink_client.utils.skyportal_api as skyportal_api
+
+import pytest
+
 import skyportal_fink_client.utils.files as files
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 from skyportal_fink_client.utils.log import make_log
+
+pytestmark = pytest.mark.integration
 
 conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
 )
 
 skyportal_token = conf["skyportal_token"]
+skyportal_name = conf["skyportal_name"]
 
 
 def test_get_all_groups_id():
@@ -67,11 +73,10 @@ def test_get_all_stream_ids():
 
 
 def test_classification_exists_for_objs():
-    result = skyportal_api.classification_exists_for_objs(
-        "ZTF18aabcvnq", "http://localhost:5000", skyportal_token
+    classification_id, author_id = skyportal_api.classification_exists_for_objs(
+        "ZTF18aabcvnq", skyportal_name, 1, "http://localhost:5000", skyportal_token
     )
     assert result is not None
-    assert result == True
 
 
 def test_classification_id_for_objs():
@@ -110,7 +115,7 @@ def test_post_candidate():
 
 
 def test_post_photometry():
-    status, data = skyportal_api.post_photometry(
+    status, data, _ = skyportal_api.post_photometry(
         "ZTF21aaqjmps",
         59580.0,
         1,
@@ -134,6 +139,7 @@ def test_post_classification():
     status, data = skyportal_api.post_classification(
         "ZTF21aaqjmps",
         "kilonova",
+        0.5,
         1,
         [1],
         "http://localhost:5000",
@@ -151,31 +157,6 @@ def test_post_streams():
     )
     assert status == 200
     assert data is not None
-
-
-# def test_post_stream_access_to_group():
-#     # post a group
-#     status, group_id = skyportal_api.post_groups(
-#         "StreamAccessTestGroup",
-#         "http://localhost:5000",
-#         skyportal_token,
-#     )
-#     assert status == 200
-#     assert group_id is not None
-#     status, stream_id = skyportal_api.post_streams(
-#         "StreamTestAccessedByGroup",
-#         "http://localhost:5000",
-#         skyportal_token,
-#     )
-#     assert status == 200
-#     assert stream_id is not None
-#     status = skyportal_api.post_stream_access_to_group(
-#         stream_id,
-#         group_id,
-#         "http://localhost:5000",
-#         skyportal_token,
-#     )
-#     assert status == 200
 
 
 def test_post_filters():
@@ -241,8 +222,12 @@ def test_post_taxonomy():
 
 def test_update_classification():
     status = skyportal_api.update_classification(
+        1,
+        1,
         "ZTF18aabcvnq",
         "kilonova",
+        0.5,
+        "provisioned-admin",
         1,
         [1],
         "http://localhost:5000",
@@ -273,7 +258,7 @@ def test_class_exists_in_fink_taxonomy_hierarchy():
         [{"class": "Fink Tax Test", "subclasses": [{"class": "(SIMBAD) Test"}]}],
     )
     assert classification_name is not None
-    assert exists == True
+    assert exists
 
 
 def test_get_classification_in_fink_taxonomy():
@@ -310,14 +295,14 @@ def test_get_fink_taxonomy_id():
         "1.0", "http://localhost:5000", skyportal_token
     )
     assert status == 200
-    assert latest == True
+    assert latest
     assert id is not None
 
     status, id, latest = skyportal_api.get_fink_taxonomy_id(
         "2.0", "http://localhost:5000", skyportal_token
     )
     assert status == 200
-    assert latest == False
+    assert not latest
     assert id is not None
 
 
@@ -367,6 +352,7 @@ def test_from_fink_to_skyportal():
         5.0,
         5.0,
         "kilonova",
+        0.5,
         group_id,
         filter_id,
         stream_id,
@@ -374,6 +360,7 @@ def test_from_fink_to_skyportal():
         False,
         "http://localhost:5000",
         skyportal_token,
+        skyportal_name,
         log,
     )
 

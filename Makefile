@@ -12,5 +12,5 @@ $(info $())
 skyportal/Makefile:
 	git submodule update --init
 
-make poll_alerts:
-	@PYTHONPATH=. python __main__.py
+poll_alerts:
+	@PYTHONPATH=. python3 __main__.py $(if $(config),--config $(config),)

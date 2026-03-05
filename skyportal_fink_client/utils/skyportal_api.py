@@ -1,6 +1,7 @@
+import time
+
 import requests
 from astropy.time import Time
-import time
 
 
 def api(
@@ -220,7 +221,9 @@ def get_all_stream_ids(url: str, token: str):
     return streams.status_code, data
 
 
-def classification_exists_for_objs(object_id: str, url: str, token: str):
+def classification_exists_for_objs(
+    object_id: str, skyportal_name: str, taxonomy_id: int, url: str, token: str
+):
     """
     Check if a classification exists for a given object
 
@@ -228,6 +231,10 @@ def classification_exists_for_objs(object_id: str, url: str, token: str):
     ----------
         object_id : str
             Object id to check if classification exists for
+        skyportal_name : str
+            Skyportal name
+        taxonomy_id : int
+            Taxonomy id
         url : str
             Skyportal url
         token : str
@@ -235,49 +242,34 @@ def classification_exists_for_objs(object_id: str, url: str, token: str):
 
     Returns
     ----------
-        exists : bool
-            True if classification exists, False otherwise
+        classification_id : int
+            Classification id if it exists, None otherwise
+        author_id : int
+            Author id if it exists, None otherwise
     """
     classifications = api(
         "GET",
         f"{url}/api/sources/{object_id}/classifications",
         token=token,
     )
-    return classifications.json()["data"] != []
 
-
-def classification_id_for_objs(object_id: str, url: str, token: str):
-    """
-    Get classification id for a given object
-
-    Arguments
-    ----------
-        object_id : str
-            Object id to get classification id for
-        url : str
-            Skyportal url
-        token : str
-            Skyportal token
-
-    Returns
-    ----------
-        status_code : int
-            HTTP status code
-        data : list
-            List of classification ids and their author ids
-    """
-    classifications = api(
-        "GET",
-        f"{url}/api/sources/{object_id}/classifications",
-        token=token,
-    )
-    data = {}
+    data = []
     if classifications.status_code == 200:
-        data = {
-            "id": classifications.json()["data"][0]["id"],
-            "author_id": classifications.json()["data"][0]["author_id"],
-        }
-    return classifications.status_code, data
+        data = classifications.json()["data"]
+
+    # find a classification with author_name = skyportal_name
+    classification_id = None
+    author_id = None
+    for classification in data:
+        if (
+            classification["author_name"] == skyportal_name
+            and classification["taxonomy_id"] == taxonomy_id
+        ):
+            classification_id = classification["id"]
+            author_id = classification["author_id"]
+            break
+
+    return classification_id, author_id
 
 
 def post_source(
@@ -426,6 +418,7 @@ def post_photometry(
     stream_ids: list,
     url: str,
     token: str,
+    is_flux: bool = False,
 ):
     """
     Post a photometry to skyportal using its API
@@ -469,35 +462,37 @@ def post_photometry(
     """
     data = {
         "ra": ra,
-        # "ra_unc": 0,
-        "magerr": magerr,
         "magsys": magsys,
         "group_ids": group_ids,
-        # "altdata": None,
-        "mag": mag,
         "mjd": mjd,
-        # "origin": None,
         "filter": filter,
-        "limiting_mag": limiting_mag,
-        # "limiting_mag_nsigma": 0,
-        # "dec_unc": 0,
-        # "assignment_id": None,
         "stream_ids": stream_ids,
         "dec": dec,
         "instrument_id": instrument_id,
         "obj_id": object_id,
     }
+    if is_flux:
+        data["flux"] = mag
+        data["fluxerr"] = magerr
+        data["zp"] = limiting_mag
+    else:
+        data["mag"] = mag
+        data["magerr"] = magerr
+        if limiting_mag is not None:
+            data["limiting_mag"] = limiting_mag
 
-    response = api("POST", f"{url}/api/photometry", data, token=token)
+    response = api("PUT", f"{url}/api/photometry", data, token=token)
     return (
         response.status_code,
         response.json()["data"]["ids"] if response.json()["data"] != {} else {},
+        response.text,
     )
 
 
 def post_classification(
     object_id: str,
     classification: str,
+    probability: float,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -530,10 +525,14 @@ def post_classification(
     """
     data = {
         "classification": classification,
+        "author_name": "fink_client",
         "taxonomy_id": taxonomy_id,
         "obj_id": object_id,
         "group_ids": group_ids,
     }
+
+    if probability is not None:
+        data["probability"] = probability
 
     response = api(
         "POST",
@@ -783,8 +782,12 @@ def post_taxonomy(
 
 
 def update_classification(
+    classification_id: int,
+    author_id: int,
     object_id: str,
     classification: str,
+    probability: float,
+    skyportal_name: str,
     taxonomy_id: int,
     group_ids: list,
     url: str,
@@ -795,6 +798,10 @@ def update_classification(
 
     Arguments
     ----------
+        classification_id: int
+            Id of the classification to update
+        author_id: int
+            Id of the author of the classification
         object_id : str
             Id of the object for which we update the classification
         classification : str
@@ -814,20 +821,17 @@ def update_classification(
             HTTP status code
     """
 
-    data_classification = classification_id_for_objs(object_id, url, token)[1]
-    classification_id, author_id = (
-        data_classification["id"],
-        data_classification["author_id"],
-    )
-
     data = {
         "obj_id": object_id,
         "classification": classification,
         "taxonomy_id": taxonomy_id,
         "group_ids": group_ids,
         "author_id": author_id,
-        "author_name": "fink_client",
+        "author_name": skyportal_name,
     }
+
+    if probability is not None:
+        data["probability"] = probability
 
     response = api(
         "PUT",
@@ -1077,6 +1081,7 @@ def from_fink_to_skyportal(
     ra: float,
     dec: float,
     classification: str,
+    probability: float,
     group_id: int,
     filter_id: int,
     stream_id: int,
@@ -1084,7 +1089,9 @@ def from_fink_to_skyportal(
     whitelisted: bool,
     url: str,
     token: str,
+    skyportal_name: str,
     log: callable,
+    is_flux: bool = False,
 ):
     """
     Post an alert to skyportal using its API, that means posting
@@ -1137,6 +1144,10 @@ def from_fink_to_skyportal(
     """
     if not whitelisted:
         time.sleep(1)
+    # Convert numpy scalars (e.g. np.int64) to native Python types for JSON serialisation.
+    # Strings (e.g. MPC designation) are left unchanged.
+    if hasattr(object_id, "item"):
+        object_id = object_id.item()
     overall_status = 200
     overall_status, skyportal_instruments = get_all_instruments(url=url, token=token)
     instrument_id = None
@@ -1149,13 +1160,20 @@ def from_fink_to_skyportal(
         status = post_source(object_id, ra, dec, [group_id], url=url, token=token)[0]
         if status != 200:
             overall_status = status
+            if log is not None:
+                log(f"Warning: post_source returned {status} for {object_id}")
+        else:
+            if log is not None:
+                log(f"Source {object_id} saved to group {group_id}")
         passed_at = Time(mjd, format="mjd").isot
         status = post_candidate(
             object_id, ra, dec, [filter_id], passed_at, url=url, token=token
         )[0]
         if status != 200:
             overall_status = status
-        status = post_photometry(
+            if log is not None:
+                log(f"Warning: post_candidate returned {status} for {object_id}")
+        phot_status, _, phot_body = post_photometry(
             object_id,
             mjd,
             instrument_id,
@@ -1170,7 +1188,14 @@ def from_fink_to_skyportal(
             [stream_id],
             url=url,
             token=token,
-        )[0]
+            is_flux=is_flux,
+        )
+        if phot_status != 200:
+            overall_status = phot_status
+            if log is not None:
+                log(
+                    f"Warning: post_photometry returned {phot_status} for {object_id}: {phot_body}"
+                )
         if taxonomy_id is not None:
             classification = get_classification_in_fink_taxonomy(
                 classification, taxonomy_id, url, token
@@ -1181,10 +1206,18 @@ def from_fink_to_skyportal(
                 "Classification not found in any skyportal taxonomy, added to SkyPortal without classification"
             )
         else:
-            if classification_exists_for_objs(object_id, url=url, token=token):
+            classification_id, author_id = classification_exists_for_objs(
+                object_id, skyportal_name, taxonomy_id, url=url, token=token
+            )
+            log(f"Classification id: {classification_id}, author id: {author_id}")
+            if classification_id is not None:
                 status = update_classification(
+                    classification_id,
+                    author_id,
                     object_id,
                     classification,
+                    probability,
+                    skyportal_name,
                     taxonomy_id,
                     [group_id],
                     url=url,
@@ -1196,6 +1229,7 @@ def from_fink_to_skyportal(
                 status = post_classification(
                     object_id,
                     classification,
+                    probability,
                     taxonomy_id,
                     [group_id],
                     url=url,

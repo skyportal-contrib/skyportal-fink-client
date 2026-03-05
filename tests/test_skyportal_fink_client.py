@@ -1,9 +1,14 @@
 import os
 import uuid
+
+import pytest
+
 import skyportal_fink_client.skyportal_fink_client as skyportal_fink_client
-import skyportal_fink_client.utils.skyportal_api as skyportal_api
 import skyportal_fink_client.utils.files as files
+import skyportal_fink_client.utils.skyportal_api as skyportal_api
 from skyportal_fink_client.utils.log import make_log
+
+pytestmark = pytest.mark.integration
 
 conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
@@ -17,6 +22,7 @@ schema = os.path.abspath(
 def init_test():
     skyportal_url = conf["skyportal_url"]
     skyportal_token = conf["skyportal_token"]
+    skyportal_name = conf["skyportal_name"]
     fink_username = conf["fink_username"]
     fink_password = conf["fink_password"]
     fink_group_id = conf["fink_group_id"]
@@ -27,6 +33,7 @@ def init_test():
     return (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
@@ -41,6 +48,7 @@ def test_init_skyportal():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
@@ -58,9 +66,15 @@ def test_init_skyportal():
         taxonomy_id,
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         whitelisted,
     ) = skyportal_fink_client.init_skyportal(
-        skyportal_url, skyportal_token, skyportal_group, whitelisted, log
+        skyportal_url,
+        skyportal_token,
+        skyportal_group,
+        skyportal_name,
+        whitelisted,
+        log,
     )
     assert group_id is not None
     assert stream_id is not None
@@ -68,6 +82,7 @@ def test_init_skyportal():
     assert taxonomy_id is not None
     assert skyportal_url is not None
     assert skyportal_token is not None
+    assert skyportal_name is not None
     assert whitelisted is not None
 
 
@@ -75,6 +90,7 @@ def test_init_consumer():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
@@ -100,6 +116,7 @@ def test_poll_alert():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
@@ -137,6 +154,7 @@ def test_extract_alert_data():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
@@ -176,6 +194,7 @@ def test_poll_alert_and_post_to_skyportal():
     (
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         fink_username,
         fink_password,
         fink_group_id,
@@ -193,9 +212,15 @@ def test_poll_alert_and_post_to_skyportal():
         taxonomy_id,
         skyportal_url,
         skyportal_token,
+        skyportal_name,
         whitelisted,
     ) = skyportal_fink_client.init_skyportal(
-        skyportal_url, skyportal_token, skyportal_group, whitelisted, log
+        skyportal_url,
+        skyportal_token,
+        skyportal_group,
+        skyportal_name,
+        whitelisted,
+        log,
     )
     assert group_id is not None
     assert stream_id is not None
@@ -203,6 +228,7 @@ def test_poll_alert_and_post_to_skyportal():
     assert taxonomy_id is not None
     assert skyportal_url is not None
     assert skyportal_token is not None
+    assert skyportal_name is not None
     assert whitelisted is not None
     consumer = skyportal_fink_client.init_consumer(
         fink_username,
@@ -239,7 +265,7 @@ def test_poll_alert_and_post_to_skyportal():
         whitelisted=whitelisted,
         url=skyportal_url,
         token=skyportal_token,
-        log=log
+        log=log,
     )
 
     assert status is not None

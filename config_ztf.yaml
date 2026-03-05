@@ -1,0 +1,14 @@
+fink_topics:
+  - fink_kn_candidates_ztf
+  - fink_early_kn_candidates_ztf
+  - fink_rate_based_kn_candidates_ztf
+fink_username: testuser
+fink_password: null
+fink_group_id: group_id
+survey: ztf # ztf or lsst
+fink_servers: fink-broker-url
+skyportal_token: token-to-replace
+skyportal_url: http://localhost:5000
+skyportal_group: Fink
+testing: false
+whitelisted: false
