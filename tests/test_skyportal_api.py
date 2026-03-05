@@ -13,75 +13,62 @@ conf = files.yaml_to_dict(
 )
 
 skyportal_token = conf["skyportal_token"]
+skyportal_url = conf["skyportal_url"]
 skyportal_name = conf["skyportal_name"]
 
 
 def test_get_all_groups_id():
-    status, data = skyportal_api.get_all_group_ids(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_group_ids(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_get_group_ids_and_name():
-    status, data = skyportal_api.get_group_ids_and_name(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_group_ids_and_name(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_get_all_instruments():
-    status, data = skyportal_api.get_all_instruments(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_instruments(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_get_all_source_ids():
-    status, data = skyportal_api.get_all_source_ids(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_source_ids(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_get_all_candidate_ids():
-    status, data = skyportal_api.get_all_candidate_ids(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_candidate_ids(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_get_all_streams():
-    status, data = skyportal_api.get_all_streams(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_streams(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_get_all_stream_ids():
-    status, data = skyportal_api.get_all_stream_ids(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_stream_ids(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_classification_exists_for_objs():
     classification_id, author_id = skyportal_api.classification_exists_for_objs(
-        "ZTF18aabcvnq", skyportal_name, 1, "http://localhost:5000", skyportal_token
+        "ZTF18aabcvnq", skyportal_name, 1, skyportal_url, skyportal_token
     )
     assert classification_id is not None
 
 
 def test_classification_id_for_objs():
     status, data = skyportal_api.classification_id_for_objs(
-        "ZTF18aabcvnq", "http://localhost:5000", skyportal_token
+        "ZTF18aabcvnq", skyportal_url, skyportal_token
     )
     assert status == 200
     assert data is not None
@@ -93,7 +80,7 @@ def test_post_source():
         5,
         5,
         [1],
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -107,7 +94,7 @@ def test_post_candidate():
         5,
         [1],
         "2022-04-11 06:27:01.728",
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -128,7 +115,7 @@ def test_post_photometry():
         5,
         [1],
         [1],
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -142,7 +129,7 @@ def test_post_classification():
         0.5,
         1,
         [1],
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -152,7 +139,7 @@ def test_post_classification():
 def test_post_streams():
     status, data = skyportal_api.post_streams(
         "StreamTestAPI",
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -164,7 +151,7 @@ def test_post_filters():
         "FilterTestAPI",
         1,
         1,
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -176,7 +163,7 @@ def test_post_telescopes():
         "TelescopeTestAPI",
         "TTAPI",
         20.0,
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -189,7 +176,7 @@ def test_post_instruments():
         "imager",
         1,
         ["ztfr", "ztfg", "ztfi"],
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -199,7 +186,7 @@ def test_post_instruments():
 def test_post_groups():
     status, data = skyportal_api.post_groups(
         "GroupTestAPI",
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -213,7 +200,7 @@ def test_post_taxonomy():
         hierarchy,
         "1",
         None,
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
@@ -230,24 +217,20 @@ def test_update_classification():
         "provisioned-admin",
         1,
         [1],
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
 
 
 def test_get_all_filters():
-    status, data = skyportal_api.get_all_filters(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_filters(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
 
 def test_get_all_taxonomies():
-    status, data = skyportal_api.get_all_taxonomies(
-        "http://localhost:5000", skyportal_token
-    )
+    status, data = skyportal_api.get_all_taxonomies(skyportal_url, skyportal_token)
     assert status == 200
     assert data is not None
 
@@ -268,14 +251,14 @@ def test_get_classification_in_fink_taxonomy():
         hierarchy,
         "1",
         None,
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )
     assert status == 200
     assert taxonomy_id is not None
 
     classification = skyportal_api.get_classification_in_fink_taxonomy(
-        "Test", taxonomy_id, "http://localhost:5000", skyportal_token
+        "Test", taxonomy_id, skyportal_url, skyportal_token
     )
     assert classification is not None
 
@@ -287,19 +270,19 @@ def test_get_fink_taxonomy_id():
         hierarchy,
         "1.0",
         None,
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
     )[0]
     assert status == 200
     status, id, latest = skyportal_api.get_fink_taxonomy_id(
-        "1.0", "http://localhost:5000", skyportal_token
+        "1.0", skyportal_url, skyportal_token
     )
     assert status == 200
     assert latest
     assert id is not None
 
     status, id, latest = skyportal_api.get_fink_taxonomy_id(
-        "2.0", "http://localhost:5000", skyportal_token
+        "2.0", skyportal_url, skyportal_token
     )
     assert status == 200
     assert not latest
@@ -308,7 +291,7 @@ def test_get_fink_taxonomy_id():
 
 def test_init_skyportal_group():
     result = skyportal_api.init_skyportal_group(
-        "TestInitSkyPortalGroup", "http://localhost:5000", skyportal_token
+        "TestInitSkyPortalGroup", skyportal_url, skyportal_token
     )
     assert result is not None
     assert result[0] is not None
@@ -321,7 +304,7 @@ def test_from_fink_to_skyportal():
     log = make_log("fink_test")
 
     group_id, stream_id, filter_id = skyportal_api.init_skyportal_group(
-        "fink", "http://localhost:5000", skyportal_token
+        "fink", skyportal_url, skyportal_token
     )
     assert group_id is not None
     assert stream_id is not None
@@ -358,7 +341,7 @@ def test_from_fink_to_skyportal():
         stream_id,
         taxonomy_id,
         False,
-        "http://localhost:5000",
+        skyportal_url,
         skyportal_token,
         skyportal_name,
         log,

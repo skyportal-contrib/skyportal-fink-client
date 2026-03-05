@@ -15,6 +15,7 @@ conf = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/../config.yaml"
 )
 skyportal_token = conf["skyportal_token"]
+skyportal_url = conf["skyportal_url"]
 
 demo_data = files.yaml_to_dict(
     os.path.abspath(os.path.join(os.path.dirname(__file__))) + "/db_demo.yaml"
@@ -37,7 +38,7 @@ def test_verify_pooling():
 
     skyportal_candidates = skyportal_api.api(
         "GET",
-        "http://localhost:5000/api/candidates?numPerPage=100",
+        f"{skyportal_url}/api/candidates?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["candidates"]
     assert (len(skyportal_candidates) - len(demo_data["candidates"])) == 1
@@ -48,7 +49,7 @@ def test_verify_pooling():
             alerts_sources.append(alert["objectId"])
     skyportal_sources = skyportal_api.api(
         "GET",
-        "http://localhost:5000/api/sources?numPerPage=100",
+        f"{skyportal_url}/api/sources?numPerPage=100",
         token=skyportal_token,
     ).json()["data"]["sources"]
     # in test_skyportal_fink_client.py, we only posted one alert to skyportal, here we verify that it was posted.
@@ -76,7 +77,7 @@ def test_verify_pooling():
     for source in alerts_by_source:
         skyportal_photometries = skyportal_api.api(
             "GET",
-            f"http://localhost:5000/api/sources/{source}/photometry?numPerPage=100",
+            f"{skyportal_url}/api/sources/{source}/photometry?numPerPage=100",
             token=skyportal_token,
         ).json()["data"]
         for photometry in alerts_by_source[source]:

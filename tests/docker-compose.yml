@@ -1,4 +1,10 @@
-version: '2'
+version: '3'
+
+volumes:
+  thumbnails:
+  persistentdata:
+  dbdata:
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -19,3 +25,27 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  db:
+    image: postgres:16
+    container_name: postgres16
+    environment:
+      POSTGRES_USER: skyportal
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: skyportal
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - dbdata:/var/lib/postgresql/data:z
+    restart: on-failure:3
+
+  web:
+    image: skyportal/web
+    container_name: skyportal-web
+    ports:
+      - "9000:5000"
+      - "9001:5001"
+    depends_on:
+      - db
+    volumes:
+      - thumbnails:/skyportal/static/thumbnails:z
+      - persistentdata:/skyportal/persistentdata:z
