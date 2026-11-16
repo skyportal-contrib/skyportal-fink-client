@@ -4,13 +4,13 @@ SkyPortal Fink Client is a tool to feed [SkyPortal](https://skyportal.io/)'s dat
 It works in 2 distinct steps:
 
 - Polling: Polling the latest alerts from Fink using [Fink Client](https://github.com/astrolabsoftware/fink-client)
-- Pushing: Pushing the alerts to [SkyPortal](https://skyportal.io/)'s database using [SkyPortal's API](https://skyportal.io/docs/api/alerts/).
+- Pushing: Pushing the alerts to [SkyPortal](https://skyportal.io/)'s database using [SkyPortal's API](https://docs.skyportal.io/api.html).
 
 It is meant to run continuously in the background, and it is primary goal is to recover alerts in real time.
 
 ## What is SkyPortal?
 
-![SkyPortal](https://skyportal.io/docs/_images/skyportal_responsive.png)
+![SkyPortal](https://docs.skyportal.io/_images/skyportal_responsive.png)
 
 SkyPortal is a fully open-source portal to manage and collaborate on time-domain sources and events. On the backend, it has been designed to ingest and store millions of events per night from disparate discovery streams. Here, you guessed it, that stream is [Fink](https://fink-broker.org/).
 
